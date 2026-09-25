@@ -218,7 +218,7 @@ def verify_vault(dest):
     errors = []
     required_dirs = ("bin", "context", "sources", "evidence", "evidence/objects",
                      "inbox", "projects", "memory", "feedback", "review")
-    required_files = (".gitignore", "AGENTS.md", "FIRST_TASKS.md", "SESSION_LOG.md", "bin/bodhi.py",
+    required_files = (".gitignore", "AGENTS.md", "BODHI_TIPS.md", "FIRST_TASKS.md", "READING_SHELF.md", "SESSION_LOG.md", "bin/bodhi.py",
                       "context/player_one.json", "sources/README.md", "evidence/README.md",
                       "evidence/captures.jsonl", "inbox/README.md", "projects/README.md",
                       "memory/README.md", "feedback/LOG.md", "review/QUEUE.md",

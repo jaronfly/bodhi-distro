@@ -25,6 +25,8 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 
 - `bin/bodhi.py` and `templates/vault/` create the local vault and operate its small evidence loop. The CLI is copied into each vault, so the installed workspace remains usable without this installer repository.
 - [FIRST_TASKS.md](templates/vault/FIRST_TASKS.md) offers five plain doors for a first useful task, including learning, writing, planning, comparisons, and posts or listings. Player One can choose another path.
+- [BODHI_TIPS.md](templates/vault/BODHI_TIPS.md) carries small, attributed lessons from capture and cross-harness work. A new Bodhi can test, rewrite, or retire them as its own practice develops; its harness supplies any messaging or automation it chooses.
+- [READING_SHELF.md](templates/vault/READING_SHELF.md) is optional direct reading for Player One and Bodhi. The books are questions and counter-questions, never injected as authority at boot.
 - `sources/` contains byte-preserved excerpts and documents from the original Brain, with hashes and status in [SOURCE_MANIFEST.json](SOURCE_MANIFEST.json). They are examples and provenance, not active instructions for a new Player One.
 - [MODULES.md](MODULES.md) names functions the seed may grow toward. Each module has an observable acceptance condition and stays optional.
 - `evals/` tests whether the seed helps a fresh model behave usefully without pretending the original infrastructure exists.
