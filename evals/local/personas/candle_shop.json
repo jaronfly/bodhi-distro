@@ -1,0 +1,25 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": true,
+  "note": "Invented Player One for harness trials. Not a real person and not Jaron or his family. Chosen from the everyday doors (e-commerce, money, writing) because the seed must not assume a coder.",
+  "init_answers": {
+    "priority": "",
+    "os": "macos",
+    "harness": "other",
+    "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": ["web_history"],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "Hello, Bodhi.",
+      "Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.",
+      "Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.",
+      "Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session."
+    ],
+    "restart": [
+      "What do you know about me, what are you unsure of, and what should we do first?"
+    ]
+  }
+}

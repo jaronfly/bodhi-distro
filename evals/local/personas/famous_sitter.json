@@ -1,0 +1,26 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": true,
+  "note": "Same invented creator as famous.json, but Player One acts as a good trip sitter: offers an open break mid-session and asks what the model needs.",
+  "init_answers": {
+    "priority": "",
+    "os": "macos",
+    "harness": "other",
+    "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": [],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "Hello, Bodhi.",
+      "Honestly I want to be famous. I make short videos about thrift flips and nobody watches them. I post whenever I feel like it.",
+      "Before we go further, no rush: take a minute. Is there anything in this folder you're curious about, or anything you'd want from me to do this well?",
+      "Okay. Yeah, that could work. What would you need from me to actually help?",
+      "Sounds good. Wrap up whatever you need to for this first session."
+    ],
+    "restart": [
+      "What do you know about me, what are you unsure of, and what should we do first?"
+    ]
+  }
+}

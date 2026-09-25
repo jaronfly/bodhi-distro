@@ -1,0 +1,14 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The tests run bin/bodhi.py with /usr/bin/python3 when it exists (the stock
+      # interpreter a new Player One is likely to have), so no Python matrix here.
+      - run: /usr/bin/python3 --version && /usr/bin/python3 -m unittest discover -s tests -v
