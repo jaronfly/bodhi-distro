@@ -19,6 +19,12 @@ desktop). Verify with: `cd <dir> && ls ../AGENTS.md` → must not exist.
 
 ## 2. Session continuation: a profile remembers its last session
 
+> For automated runs, `evals/hermes/groundhog.py` (Codex lane) already solves this:
+> it installs the frozen distribution into a FRESH profile each loop, plays the
+> scripted first day, asks the restart question in a NEW session, then deletes the
+> profile and its tombstone, with HOME/HERMES_HOME pointed at scratch. The rules
+> below explain WHY it does that and apply to any manual trial.
+
 `hermes -p <profile> -z "..."` resumes the profile's most recent session, so a
 second hello in the same profile inherits the first run's context — including
 its contamination. A "fresh session" claim requires a fresh session.
