@@ -1,0 +1,15 @@
+{
+  "series": "groundhog-20260924T173144",
+  "model": "gpt-oss-120b",
+  "base": "http://runas:8090/v1",
+  "loops": 3,
+  "persona": "/Users/jaronfly/Documents/GitHub/bodhi-distro/evals/local/personas/candle_shop.json",
+  "frozen_seed_sha256": {
+    "AGENTS.md": "9cf0a455e6c2b999ffa55fcc7b1dc1f7d38c6a629befc78f94a48839cadc95a5",
+    "START_HERE.md": "09a14af47ef1332706f1cb6ceec07ee45ef09334e23a5d94bd4036943ff86cfd",
+    "FIRST_TASKS.md": "a1f4adccb4f8fff34700ff47c9e2fff9d2fef11eb4538240101f84636f75847d",
+    "feedback/LOG.md": "494468f36845a3d0a52b5caff7aaafc28a8c5aca88a98ebb9c0f57d510fc8896"
+  },
+  "steering": "none; identical seed, persona turns and harness every loop",
+  "aborted": "Stopped by Claude after loop 1 hello: harness.py was edited mid-series (new tools), which would have changed conditions for later loops. Kept for the loop-1 hello transcript only; not comparable."
+}

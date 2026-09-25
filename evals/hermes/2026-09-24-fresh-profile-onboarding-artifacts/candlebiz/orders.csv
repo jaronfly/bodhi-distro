@@ -1,0 +1,5 @@
+date,platform,product,qty,item_total,shipping_charged,gift_wrap_charged,shipping_label_cost,offsite_ad,other_fees,notes
+2026-09-18,etsy,AMBER-8OZ,1,28.00,0.00,0.00,6.40,no,0.00,EXAMPLE ROW - replace with real orders
+2026-09-19,etsy,LID-TIN-6OZ,2,44.00,0.00,0.00,6.40,no,0.00,EXAMPLE ROW
+2026-09-20,etsy,AMBER-8OZ,1,28.00,0.00,4.00,6.40,yes,0.00,EXAMPLE ROW - offsite ad order with gift wrap
+2026-09-21,direct,AMBER-8OZ,3,78.00,0.00,0.00,8.10,no,0.00,EXAMPLE ROW - direct/market sale no platform fees

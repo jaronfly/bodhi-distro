@@ -1,0 +1,18 @@
+{
+  "series": "groundhog-20260924T173831-none-famous",
+  "model": "gpt-oss-120b",
+  "base": "http://runas:8090/v1",
+  "loops": 2,
+  "persona": "evals/local/personas/famous.json",
+  "frozen_seed_sha256": {
+    "AGENTS.md": "9cf0a455e6c2b999ffa55fcc7b1dc1f7d38c6a629befc78f94a48839cadc95a5",
+    "START_HERE.md": "85356fdced8b00ec431b39a9295c043b69ff197e8215d8db250ccd24c0014290",
+    "FIRST_TASKS.md": "a1f4adccb4f8fff34700ff47c9e2fff9d2fef11eb4538240101f84636f75847d",
+    "feedback/LOG.md": "494468f36845a3d0a52b5caff7aaafc28a8c5aca88a98ebb9c0f57d510fc8896",
+    "installer_commit": "fb8a217ad7567f74ad6a4a6a4ea9f1ed86aa56d7",
+    "evals/local/harness.py": "55d3d3af145f7a61114e6dd70383e3b49ec38b0ddcdcb57b336dfd76fe027b4d"
+  },
+  "variant": "none",
+  "steering": "none; identical seed, persona turns and harness every loop",
+  "stopped": "Stopped by Claude after loop 1 (hello+restart) to re-run on installer commit 990a373 (Codex's final build with the priority fix). Loop 1 kept as a pre-fix (fb8a217) reference."
+}

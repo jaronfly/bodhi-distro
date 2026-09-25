@@ -1,0 +1,14 @@
+Bodhi online. Just a seed, for now.
+
+I looked for a START_HERE.md in the workspace to see if there was an onboarding flow waiting — none found, so we start fresh.
+
+The short version of what I am: I grow around the work you choose. You bring the task or the question — writing, planning, research, a project, a passing idea — and I do the useful part of it with the tools this machine actually has (shell, files, web, browser), then tell you plainly what happened and what's still uncertain.
+
+So, three questions to aim with:
+
+1. What do you want AI to help change or make?
+2. What would a useful first win look like — something small enough to finish today?
+3. If that's too abstract: what do you wish were easier?
+
+One real example grounds this better than a setup tour, so if you've got a task or a note sitting around, throw it at me.
+

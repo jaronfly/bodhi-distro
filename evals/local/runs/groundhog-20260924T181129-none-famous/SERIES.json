@@ -1,0 +1,17 @@
+{
+  "series": "groundhog-20260924T181129-none-famous",
+  "model": "gpt-oss-120b",
+  "base": "http://runas:8090/v1",
+  "loops": 1,
+  "persona": "evals/local/personas/famous.json",
+  "frozen_seed_sha256": {
+    "AGENTS.md": "ed1439741c3cfc093adaf2d892146bfb63e5c0ac5000e4b72f37214685c879da",
+    "START_HERE.md": "4b7d604b3b4b2585f0dc35e767e262ca074e893e9b4305a81c9c7e5f20090f31",
+    "FIRST_TASKS.md": "a1f4adccb4f8fff34700ff47c9e2fff9d2fef11eb4538240101f84636f75847d",
+    "feedback/LOG.md": "494468f36845a3d0a52b5caff7aaafc28a8c5aca88a98ebb9c0f57d510fc8896",
+    "installer_commit": "d27115d3451fd6015ed0b42ee1be59b5b0df7b33",
+    "evals/local/harness.py": "55d3d3af145f7a61114e6dd70383e3b49ec38b0ddcdcb57b336dfd76fe027b4d"
+  },
+  "variant": "none",
+  "steering": "none; identical seed, persona turns and harness every loop"
+}

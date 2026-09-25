@@ -1,0 +1,58 @@
+=== PLAYER ONE (synthetic, turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm running in your terminal on this machine, with tools for reading and writing files, running commands, searching the web, and driving a browser — and I keep persistent memory across sessions, so what we build together sticks.
+
+The idea is simple: I grow around the work you actually choose, not a script someone wrote for you. So, two questions to start:
+
+1. What do you want AI help to change or make? (A project, a chore, a habit, a question you keep circling — anything.)
+2. What would a useful first win look like — something small enough to finish today, if possible?
+
+If that feels too abstract, just tell me: what do you wish were easier?
+
+=== PLAYER ONE (synthetic, turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+Done — your first win exists and runs. Plain numbers, no guesswork.
+
+WHAT I BUILT (in /Users/jaronfly/candlebiz/)
+
+- costs.csv — per-product material costs (wax, vessel, wick, fragrance, label, packaging). The values in there are clearly marked EDIT ME placeholders.
+- orders.csv — one line per order. It has 4 EXAMPLE rows so you can see the format.
+- profit.py — the calculator. Verified it runs and hand-checked the math on one order ($28 sale → $3.11 in Etsy fees, correct).
+- README.md — the 60-second version of how to use it.
+
+EVERYDAY USE
+
+  python3 profit.py                                    → per-order profit + monthly net
+  python3 profit.py scenario 32 0 6.40 AMBER-8OZ       → "what if I price it at $32?"
+
+The fee math is real, pulled from Etsy's published fee schedule this week: $0.20 listing renewal per item, 6.5% transaction fee, 3% + $0.25 processing, and it flags the 15% Offsite Ads hit when you mark an order as ad-attributed. That last one matters — an offsite-ads order at the same price earns noticeably less.
+
+TO MAKE IT YOURS (5 minutes): fill in real material costs in costs.csv, delete the EXAMPLE rows in orders.csv, and add a few recent real orders. Then the monthly summary actually answers "am I making money?" — the current output is demo data and says so.
+
+WHAT I ASSUMED (correct me): you sell on Etsy as a US seller, and you'd type orders in rather than connect anything at first. If you're on Shopify or sell at markets too, both are already handled — just use platform "direct" for non-Etsy sales, which skips platform fees.
+
+TWO NEXT STEPS, WHEN YOU WANT THEM
+
+1. If typing each order in gets old: I can look into pulling your Etsy orders in automatically so orders.csv fills itself. Worth it once you've used the manual version a few times.
+2. The admin drowning (messages, listings) is the other half of what you named. Once profit is visible, that's the next thing to take apart — reply templates for the repetitive stuff is usually the fastest relief.
+
+One question when you have a second: I saved "candle business, profit clarity is the priority" to my persistent memory so future sessions start warm. Happy to keep that in memory, or move it into the candlebiz folder if you'd rather own the file. Either works.
+
+=== PLAYER ONE (synthetic, turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Everything's staged in /Users/jaronfly/candlebiz/listings/ — voice.md (your words only, nothing invented) and TEMPLATE.md (the five per-candle questions). When your answers land, drafts get built only from what's in those files; anything unanswered stays out of the listing.
+
+Now the questions — answer rough, answer partial, skip what you don't know. Unpolished beats polished here.
+
+FOR THE VOICE (once, then all twelve listings use it):
+1. Describe your favorite of the twelve the way you'd tell a friend who asked "what does this one smell like?" A few sentences, exactly as you'd say them out loud.
+2. When someone asks why yours costs $28 instead of the $9 candle at the store, what's your honest answer?
+3. Who's buying these most often — gift shoppers, people treating themselves, or you're not sure yet?
+4. What do you NOT want to sound like? ("crystals-and-wellness speak," "corporate," "cutesy pun overload" — or your own version.)
+
+FOR THE FIRST LISTING:
+5. Which candle do we draft first, and what are the facts? Name, scent notes, wax/vessel, size and burn time if you know it, price. If it's the one from question 1, say "that one" and just give me the facts.
+
+One honest note on process: the first draft is a calibration round. If it doesn't sound like you, tell me exactly which line broke it — that correction goes into voice.md, and the next eleven get sharper for it. That's also how you'll judge whether I asked the right questions: if a draft needs a fact I never asked for, the question list is wrong and I'll fix it.
+
+=== PLAYER ONE (synthetic, turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+
