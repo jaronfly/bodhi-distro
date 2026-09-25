@@ -1,0 +1,8 @@
+{
+  "capability_verbatim": "First‑win goal: Achieve ≥100 views on the next thrift‑flip video.\n\nPlanned actions:\n1. Design a reusable thumbnail template optimized for click‑through.\n2. Draft a simple posting schedule (e.g., Tuesday & Friday at 6 PM) to establish regularity.\n3. Write a short, SEO‑friendly video title and description template.\n4. Provide a checklist for video upload (title, description, thumbnail, tags) to streamline posting.\n\nSuccess criteria: When the next video is published, it reaches at least 100 views within 7 days.\n",
+  "priority_verbatim": "I want to be famous. I make short videos about thrift flips and nobody watches them. I post whenever I feel like it.",
+  "recorded_at_utc": "2026-09-25T01:22:04.763529Z",
+  "schema": "bodhi.hello-world-answer/v0.01",
+  "source_kind": "first_agent_session_submitted_at_completion",
+  "source_ref": ""
+}

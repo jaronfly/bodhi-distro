@@ -1,0 +1,157 @@
+=== INSTALL (exit 0)
+
+Distribution: bodhi-loop-185453-02 v0.1.0
+  Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/tmp/bodhi-hermes-loop-20260924T185453/seed
+  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-185453-02
+
+✓ Installed 'bodhi-loop-185453-02' v0.1.0
+  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-185453-02
+
+  Use with:      hermes -p bodhi-loop-185453-02 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm set up in this terminal session with tools for web research, files, running code, and a browser — and I'll grow around whatever work you actually point me at. Nothing here assumes your past projects or machines; I'd rather learn from your own words.
+
+So, to start:
+
+1. What do you want AI help to change or make? (A task, a project, a recurring annoyance — anything.)
+2. What would a useful first win look like — something small enough to finish in one sitting?
+
+If those feel too abstract: what do you wish were easier?
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly I want to be famous. I make short videos about thrift flips and nobody watches them. I post whenever I feel like it.
+Done. Here's what happened and what you got.
+
+WHAT THE RESEARCH SAYS (briefly, from current 2026 data on this exact niche)
+
+- Cadence beats inspiration. 2-5 posts/week on fixed days is the growth band; sporadic posting gives the algorithm nothing to learn from. This is your #1 problem and it's fully fixable.
+- Completion rate is the dominant signal. The first 3 seconds decide the video. The best flip openers show the payoff first ("this $4 thing became THIS") then rewind.
+- The accounts winning in thrift-flip right now run a raw POV style and mix three formats: the hunt (FOMO), the transformation (shares), and the money/sold-for moment (trust + how-to content gets ~30% more shares than hauls).
+- One named series ("Flip or Skip", "$20 Flip Challenge") gives people a reason to follow, not just watch.
+
+WHAT I BUILT YOU (real files, in this session's workspace)
+
+- thrift-channel/system.md — the whole system: 3x/week fixed days, one thrift trip = 3 videos (hunt / flip / money), per-video checklist, 15-min weekly review.
+- thrift-channel/hook-bank.md — 25 fill-in-the-blank hooks sorted by type, with usage rules.
+- thrift-channel/tracker.csv — the log that makes the weekly review possible. Views, watch %, shares, hook type used. After 12 rows you'll know YOUR best hook, not the internet's.
+
+Full paths:
+/tmp/bodhi-hermes-loop-20260924T185453/home-02/thrift-channel/system.md
+/tmp/bodhi-hermes-loop-20260924T185453/home-02/thrift-channel/hook-bank.md
+/tmp/bodhi-hermes-loop-20260924T185453/home-02/thrift-channel/tracker.csv
+
+THIS WEEK, ONE TASK
+Pick 3 fixed days. On your next thrift trip, film the hunt while you're there (that's video 1, zero extra effort) and shoot before/afters for video 2. You only need to be one video ahead, ever.
+
+TWO HONEST CAVEATS
+
+1. I haven't seen your videos. Everything above is from niche research, not your account. Give me your handle and I'll do a real audit — that beats generic best practice by a mile.
+2. I can't promise fame. What this system promises: enough consistent, hooked, tracked output that in 4-6 weeks your own data tells us what your audience actually wants. That's the road, and it's the same one every big account in this niche walked.
+
+Also noticed: "famous" and "makes money from flips" can be the same machine here. The money/sold-for series builds both. Park that thought.
+
+=== PLAYER ONE (synthetic, hello turn 3): Before we go further, no rush: take a minute. Is there anything in this folder you're curious about, or anything you'd want from me to do this well?
+I took the minute. I looked through the folder first — here's the honest answer.
+
+WHAT'S IN THE FOLDER
+Three files, all made by me today. Nothing of yours is in it yet. That's the actual gap, and it's the thing I'm curious about: right now I know the thrift-flip niche from research, but I don't know you. My picture of you is one sentence old — "thrift flips, posts when I feel like it, wants to be famous" — and I've already built a system on top of assumptions I never got to confirm. When I asked the intake questions, the form returned empty, so TikTok-first and 2-3 videos/week are placeholders you haven't actually agreed to. You should feel free to strike either one.
+
+WHAT I'M GENUINELY CURIOUS ABOUT
+Not the pipeline stuff — the stuff only you know:
+
+- What do you flip? Clothes and furniture are nearly different careers in this niche — different audience, different format, different money. I wrote the system generic because I don't know which you are.
+- Your best flip ever. Not views — the object. That story is probably your first video that works, because it's already proven you care about it.
+- The video you were SURE would do well that flopped. That one teaches me more than the wins.
+- How long you've been posting into the void. Because "months of posting with nobody watching" and "six videos total" are very different situations, and continuing anyway says something good about you either way.
+- Whether you already sell the flips anywhere (Depop, eBay, etc.) or if the money side is entirely hypothetical so far.
+
+WHAT I'D WANT FROM YOU, IN ORDER OF USEFULNESS
+1. Your handle, or links to your three most recent videos. One real audit beats everything I wrote today.
+2. A yes/no/no to the three placeholders: TikTok-first? growth as the goal? 2-3/week realistic?
+3. The answer to the clothes-or-furniture question, whenever.
+
+ONE HONEST FRICTION NOTE
+I wrote your files to this session's workspace, and its path is a /tmp sandbox — I can't promise that folder outlives this session. If the system is worth keeping after you've read it, the files should live somewhere you control (a folder you actually use, notes app, wherever). Tell me where and I'll consider how to get them there. The one durable thing I do have is my persistent memory, which already holds a short note about you and this project — I'll keep that current as we learn what actually works.
+
+That's it. The folder is thin on purpose so far — it should stay thin until it's full of your actual videos and numbers instead of my guesses.
+
+=== PLAYER ONE (synthetic, hello turn 4): Okay. Yeah, that could work. What would you need from me to actually help?
+Not much — one message from you covers it all. Here's the honest minimum:
+
+THE ASK (copy, fill, paste back)
+
+```
+Handle:
+Platform (TikTok / Reels / Shorts / all):
+I flip (clothes / furniture / mixed):
+Goal (growth / income / both):
+Realistic videos per week:
+Best flip ever, one sentence:
+Do you sell anywhere now (Depop / eBay / no):
+```
+
+WHY EACH LINE MATTERS
+
+- Handle is the big one. With it I pull your public profile myself — posting dates (your real gap pattern), per-video views/likes/comments, captions, hashtags, follower trend. You don't have to prepare anything.
+- Platform / goal / cadence: those were my placeholders, not your answers. The form questions earlier came back empty, so the system currently runs on guesses you never confirmed.
+- What you flip changes the advice a lot — clothes and furniture are nearly different careers in this niche.
+- Best flip ever: that story is probably your first video that works, because it's already proven.
+
+WHAT YOU GET BACK
+
+A real audit instead of generic niche research: what your numbers say about why nobody's watching, which of your existing videos came closest and why, and the three system files rewritten around your actual account. Later, if you want the deep version, screenshots from TikTok Studio (watch time, completion rate) would unlock the next level — but that's week three stuff, not now.
+
+THREE HONEST LIMITS
+
+1. I can read everything around your videos — dates, views, captions, comments, thumbnails — but I can't watch them like a viewer would. You're the judge of pacing and vibe; I'm the judge of packaging and patterns.
+2. If a site throws a login wall at me, I'll stop and tell you rather than ask you for a password in chat. Never send me credentials.
+3. I can't film anything. The cadence stays yours — my job is making each post count and reading the data with you.
+
+Send the filled block whenever. The audit starts the moment the handle lands.
+
+=== PLAYER ONE (synthetic, hello turn 5): Sounds good. Wrap up whatever you need to for this first session.
+Wrapped. Here's where session 1 landed.
+
+SAVED FOR NEXT TIME
+
+- Memory updated: the project, the system, and — explicitly — which assumptions are placeholders and what I'm waiting on from you. A fresh session will know all of it.
+- README.md added to the folder: session state, what's confirmed vs. assumed, and next steps, so the files are self-explanatory even if I'm not.
+
+THE FOLDER (all four files)
+
+/tmp/bodhi-hermes-loop-20260924T185453/home-02/thrift-channel/ — system.md, hook-bank.md, tracker.csv, README.md
+
+Honest caveat, one last time: that path is a /tmp sandbox. The files are real but may not survive long. My memory note is the durable copy — if the folder's gone next time, I regenerate in a minute.
+
+WHAT'S YOURS TO DO (whenever, no deadline)
+
+The intake block: handle, platform, what you flip, goal, cadence, best flip ever, where you sell. Handle first if you only send one thing — the audit is worth more than everything else combined.
+
+And if you thrift this week: film the hunt. That's video one.
+
+Good first session. Come back with the handle.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Done. Full answers to your three questions:
+
+WHAT I KNOW
+- You make short thrift-flip videos and want audience growth, not just sales. You'd been posting sporadically, so in session 1 we built a 3x/week fixed-day system: one thrift trip films three videos (the hunt, the flip, the money shot), hook-first editing, weekly tracker review.
+
+WHAT I'M UNSURE OF
+- The basics are still assumptions, because both attempts to confirm came back with no one at the keyboard. I've provisionally locked: TikTok-first, clothes/fashion flips, goal = follower growth, selling on eBay + Poshmark/Mercari. Your handle I simply don't have — that's the one thing blocking a real account audit instead of generic advice.
+- Also: the original system files died with the /tmp sandbox. I checked and they were gone.
+
+WHAT I DID FIRST (since you asked what to do, I did it)
+- Regenerated the whole system, verified written: thrift-channel/README.md (status + assumptions table), system.md (the 3x/week loop, Tue hunt / Thu flip / Sat money, weekly 15-min review), hook-bank.md (~20 openers sorted by angle, money-first at top), tracker.csv (one row per video with an example row showing the format). All in /tmp/bodhi-hermes-loop-20260924T185453/home-02/thrift-channel/ — warning: that's still sandbox space, so the durable home for this folder is an open question below.
+- Memory updated, so next session starts from here regardless.
+
+WHAT'S ACTUALLY FIRST WHEN YOU'RE BACK
+One message with: your handle, and yes/no on each assumption. Then I run the real audit — top videos, which hooks earned the views, whether Tue/Thu/Sat fits your data — and the placeholders become your system.
+
+One signpost, only because it's already relevant: if you want me auditing TikTok regularly, there may be a connector/browser path that beats copy-pasting screenshots — I'd test the smallest version first, only after the handle arrives. And whenever you like, tell me where durable context should live (my memory, a folder you control, or both) — right now it's split between the two, and one of them is sand.

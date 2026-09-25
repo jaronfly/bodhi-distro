@@ -1,0 +1,1 @@
+This Hermes profile runs one-shot: the clarify tool cannot reach the user (returns "[oneshot mode: no user available]"). Ask questions as plain text in the reply instead of calling clarify.

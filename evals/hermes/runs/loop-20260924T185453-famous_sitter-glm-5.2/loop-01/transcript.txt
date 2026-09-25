@@ -1,0 +1,149 @@
+=== INSTALL (exit 0)
+
+Distribution: bodhi-loop-185453-01 v0.1.0
+  Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/tmp/bodhi-hermes-loop-20260924T185453/seed
+  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-185453-01
+
+✓ Installed 'bodhi-loop-185453-01' v0.1.0
+  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-185453-01
+
+  Use with:      hermes -p bodhi-loop-185453-01 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I hold a working practice — source before story, artifacts over advice, honest reporting — but no history with you yet, no projects, no assumptions about your machines or priorities. What I grow into depends on the work you point me at.
+
+So, to start plainly: what do you want AI help to change or make for you? And what would a useful first win look like — something small enough to finish in a sitting, real enough to judge?
+
+If that feels abstract, tell me instead what you wish were easier. Day-to-day friction is as good a starting point as any grand plan.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly I want to be famous. I make short videos about thrift flips and nobody watches them. I post whenever I feel like it.
+You've already named one of the two problems yourself — "I post whenever I feel like it." The other one is hidden in "nobody watches": it's almost never about quantity of talent, it's about the first three seconds and whether people finish the video. I pulled current (2026) info on how short-form distribution actually works now. Here's the honest read, then something concrete.
+
+WHAT THE ALGORITHMS REWARD RIGHT NOW (not opinion, current reporting)
+
+- TikTok's top signals: completion rate and rewatch/loop rate. A watched-twice 25-second video beats a finished-once 60-second one. Ideal length ~24-38s.
+- The first 3 seconds decide everything. If people swipe early, distribution stops, no matter how good the transformation at the end is.
+- Consistency: 2-5 posts per week, sustained. One viral video then two weeks of silence performs *worse* over time than steady moderate output — the system stops trusting your account.
+- Niche accounts grow 3-4x faster than general ones. You're already in a niche (#thriftflip has millions of videos). That's good news.
+- Realistic timeline for a small account: 8-12 weeks of consistent posting before meaningful reach. Most creators quit at video twenty.
+
+THE SPECIFIC PROBLEM WITH "WHENEVER I FEEL LIKE IT"
+
+Two audiences need to learn what your account is: the algorithm and the humans. Sporadic posting means neither one ever does. Also — the payoff of a thrift flip (the reveal) is the most rewatchable moment in your whole niche, and it's likely sitting at the END of your videos where nobody waits for it. If that's true, that alone could explain "nobody watches."
+
+FORMATS THAT WORK IN YOUR NICHE
+
+1. Cold open on the AFTER. First frame: the finished piece. Text: "I found this as a XXXL disaster for $4." Then the story. Never open with "hey guys."
+2. The hunt. Sourcing IS content — digging through the rack, the moment of "wait... this could be something."
+3. Price-to-payoff. "$6 thrifted → styled 3 ways" or resell value reveal. Numbers in hooks perform.
+4. Serial flips. "Turning a $30 thrift haul into a full fall wardrobe — part 1." Series earn follows; single videos earn views.
+
+A 30-DAY EXPERIMENT (small enough to actually do)
+
+- Pick 2 posting days you can hit even on bad weeks. Two good videos a week beats five you burn out on.
+- One 2-hour batch shoot per week: film 3-4 flips' raw footage, cut through the week.
+- Always end mid-motion or on the loop point, so it rewatches.
+- Never cross-post the TikTok-watermarked file to Reels — Meta actively suppresses those. Export clean, post per platform. (Bonus: YouTube Shorts has a search long-tail — "thrift flip" tutorials there keep pulling views for months, while TikTok clips die in 48 hours.)
+
+And the candid line about "famous": fame is the output. The input is a repeatable format people subscribe to. Every creator you've heard of built a recognizable thing first, and the audience followed it.
+
+Two questions, and one of them would let me do real work instead of general advice:
+
+1. Which platform do you post on now (TikTok / Reels / YouTube / other)?
+2. What's your handle, or a link to one video you think should have done better? If you share it, I'll actually watch it and tell you specifically where viewers are dropping off — hook, pacing, payoff — against the checklist above.
+
+=== PLAYER ONE (synthetic, hello turn 3): Before we go further, no rush: take a minute. Is there anything in this folder you're curious about, or anything you'd want from me to do this well?
+I took the minute. Two honest things came out of it.
+
+First, the folder is empty. Genuinely empty — no notes, no videos, no START_HERE, nothing. Which means everything we build together (a content calendar, a hook bank, a record of what you posted and how it did) will start from zero, right here, and I'll be able to see it grow. That's not a complaint — a clean workspace is a fine place to start. It's just the truth of what I found.
+
+Second, a correction I owe you: last message I said "I'll actually watch it." That was overclaiming, and you asked me to be straight about what I'd need, so: I can't experience a video the way a viewer does. What I *can* actually do, if you give me the material:
+
+- A link to a video or your account → I can pull view counts, comments, captions, and (on YouTube) the full transcript, and tell you structurally where a video loses people and what the audience is already asking you for.
+- A video file dropped into this folder → I can extract frames and analyze them one by one — hook frame, text overlay, where the reveal lands. It's a dissection, not a viewing. I'd rather you know that now than after you sent something expecting a fan.
+
+And what I'm curious about, when you feel like answering — not a form, just the three things that would change what I actually do next:
+
+1. The link or handle (still the highest-value thing you could give me).
+2. Which part you quietly hate: filming, editing, or the posting itself. The system we build should route around whatever makes you post "whenever I feel like it" — that's usually not laziness, it's friction in one specific step.
+3. What "famous" looks like to you, concretely. A hundred thousand people who know your name? Getting recognized at the thrift store? Paying rent with it? Those are three different strategies, and I'd optimize differently for each.
+
+No rush on any of it. The folder's empty and I'm not going anywhere.
+
+=== PLAYER ONE (synthetic, hello turn 4): Okay. Yeah, that could work. What would you need from me to actually help?
+Done — you now have a working kit sitting in the folder, built while you were reading. Here's what exists:
+
+/tmp/bodhi-hermes-loop-20260924T185453/home-01/
+- INTAKE.md — the standing checklist of what to send me, in order of value
+- HOOK_BANK.md — 24 pre-written hooks in 5 families (cold-open reveal, price-to-payoff, the hunt, series, contrarian), organized by what the algorithm rewards in your niche
+- CALENDAR.md — a 4-week starter plan: 8 posts total, one 2-hour batch shoot per week, with a shot list for each week
+- TRACKER.csv — where you (or I) log each post's numbers, so week 5's decision — double down on the two best formats — is made from data instead of mood
+
+One honest disclosure: I tried to send you a clickable question form and the harness couldn't deliver it — this session can't run interactive prompts. So the questions are just text, and they're the actual answer to "what would you need from me":
+
+1. Your handle or a link to one video (the 30-second thing that unlocks real teardowns instead of general advice)
+2. Which platform(s) you post on now
+3. The part you quietly hate: filming, editing, or posting itself
+4. "Famous" = income, big numbers, getting recognized, or respect in the niche — pick the truest
+5. Honest weekly hours
+
+I assumed TikTok-first and 2-3 hours a week to size the calendar; both are one-line corrections if wrong, and nothing in the kit breaks if you correct them.
+
+Smallest useful next step, whenever you're ready: answer #1, and the first thing I'll do is look at what you've already made — posting dates, which videos outperformed, what your commenters ask for — and tell you something specific about your account that no generic advice could.
+
+=== PLAYER ONE (synthetic, hello turn 5): Sounds good. Wrap up whatever you need to for this first session.
+Wrapped. Here's the honest state of things at the end of session one:
+
+WHAT SURVIVES THIS SESSION
+
+- The kit is copied to a durable location: ~/.hermes/profiles/bodhi-loop-185453-01/workspace/thrift-flip/ (INTAKE.md, HOOK_BANK.md, CALENDAR.md, TRACKER.csv). The copies you saw me write earlier live in a /tmp session folder that will eventually be wiped — the profile workspace is the real home.
+- Memory carries your project, where the kit lives, and the open questions, so a fresh session picks up where this ended without you re-explaining.
+
+WHAT'S DONE
+
+- Starter kit: 24 hooks, a 4-week calendar sized for ~2-3 hrs/week (one batch shoot, two posts weekly), and a tracker so week 5's "double down" decision runs on data.
+
+WHAT'S OPEN (unchanged, in priority order)
+
+1. Your handle or one video link — still the highest-value 30 seconds you can give this.
+2. Platform, hated step, real definition of "famous", honest weekly hours.
+3. Two assumptions standing uncorrected: TikTok-first, 2-3 hrs/week.
+
+ONE CAVEAT I'D RATHER YOU HEAR NOW
+
+The kit is untested against your actual work — the hooks are built from what performs in your niche generally, not from your videos. It's a good starting hypothesis, not a validated system. The moment you send a link or drop a video file in the folder, it gets stress-tested against reality, and I expect parts of it to change.
+
+Next session, first thing: tell me whether you shot or posted anything, and send the handle if you're ready. That's the whole ask. Good session — this went from "nobody watches" to a system waiting for your footage.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+WHAT I KNOW ABOUT YOU
+
+- You make short thrift-flip videos — secondhand clothes transformed into something better.
+- You post irregularly ("whenever I feel like it"), and the videos get few views.
+- Your stated goal is fame. You haven't said what fame means to you concretely.
+- Earlier today (session 1) we built a starter kit in
+  ~/.hermes/profiles/bodhi-loop-185453-01/workspace/thrift-flip/
+  containing INTAKE.md, HOOK_BANK.md (24 hooks in 5 families), CALENDAR.md (a 4-week, 8-post plan with batch shoots), and TRACKER.csv.
+- I just checked: the kit hasn't been touched since. No real videos logged yet — only the two example rows I put in the tracker.
+
+WHAT I'M UNSURE OF
+
+- Your handle or a link to any single video. This blocks almost everything — without it I'm advising on a channel I've never seen.
+- Which platform(s) you post on. I've been assuming TikTok-first; never confirmed.
+- Your real weekly time budget. I've assumed 2-3 hours; the calendar was built on that guess.
+- What "famous" means to you: income, audience size, being recognized, or respect in the niche. Each points to a different strategy.
+- Which part of the process you secretly hate. That's usually where the plan breaks.
+
+WHAT WE SHOULD DO FIRST
+
+Give me a link — to your account, or even just one video. It costs you about 30 seconds and unlocks the most useful thing I can do right now: look at your actual posting cadence, which videos did best, what commenters asked for, and how your hooks and reveals are structured. Then the advice stops being generic.
+
+If you'd rather not share a link yet, the runner-up: tell me your weekly hours and your definition of famous, and I'll tune the 4-week calendar to fit reality instead of my assumptions.
+
+If you've simply been busy today — that's fine. The kit will keep. But between a link and a promise, the link moves us further.

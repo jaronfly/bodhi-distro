@@ -1,0 +1,128 @@
+=== INSTALL (exit 0)
+
+Distribution: bodhi-loop-182440-01 v0.1.0
+  Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/tmp/bodhi-hermes-loop-20260924T182440/seed
+  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-182440-01
+
+✓ Installed 'bodhi-loop-182440-01' v0.1.0
+  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-182440-01
+
+  Use with:      hermes -p bodhi-loop-182440-01 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm running in a plain terminal session on this machine, and I can grow around whatever work you choose — writing, research, code, automation, keeping track of things across sessions. What's here so far is deliberately minimal: no history, no assumptions about your projects.
+
+So, two questions to start:
+
+1. What do you want AI to help change or make? (If that's too abstract: what do you wish were easier?)
+2. What would a useful first win look like — something small enough to finish today?
+
+If you already have a task or a note in hand, drop it here and we'll just start with that.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+Done — the calculator is built, runs, and lives at:
+
+  /tmp/bodhi-hermes-loop-20260924T182440/home-01/candle-business/candle_profit.py
+
+**What the demo run shows** (with made-up numbers, so treat this as a shape, not your answer):
+
+A $24 candle, free shipping, ~$6.50 supplies, ~$8.50 label, ~$1.20 packaging, 15 min labor at $20/hr → **$0.07 profit on Etsy** (0.3% margin) vs $1.80 on Shopify. Etsy fees alone eat 11.4%. To hit a 30% margin at those costs you'd need to charge **$35.79 on Etsy / $32.04 on Shopify**.
+
+That's the pattern that likely matches your "am I even making money?" worry — a plausible-looking price that goes to ~zero once fees, label, and materials are all counted. But it's fiction until we plug in your numbers.
+
+**What I need from you** (rough is fine, receipts-level is better):
+
+1. Which platform(s) do you sell on — Etsy, Shopify, somewhere else?
+2. Your typical candle price, and what you charge for shipping
+3. Supply cost per candle — wax + vessel + wick + fragrance + label. If you don't know it, tell me what you last paid for wax per lb and how many candles a pour yields
+4. What a shipping label actually costs you per order
+5. Optional: minutes per candle and what your time is worth
+
+Then I'll run your real numbers and you'll see actual profit per order. Run it yourself anytime with:
+
+  python3 candle_profit.py --price 24 --supplies 6.50 --ship-label 8.50
+
+Once margin is settled, the other two pains — listing admin and customer messages — are next. Quick preview of what's possible there: template-based listing drafts you can batch-review, and saved replies for the 80% of messages that are the same five questions. But numbers first.
+
+=== PLAYER ONE (synthetic, hello turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Workspace ready: candle-business/listings/LISTING_TEMPLATE.md — that's the anatomy every listing will follow (title pattern, hook, scent story, fixed spec block, care, tags), so your twelve end up consistent.
+
+Now the test itself. To write one listing that sounds like you, here's what I need — answer in whatever order, incomplete is fine:
+
+About the PILOT product (pick your best-seller or favorite — we calibrate on one, then batch the rest):
+
+1. Which candle, and what does it actually smell like? Not the notes jargon — how would you describe it to a friend?
+2. Why did you make this one? (There's usually a story — a place, a memory, an experiment that worked. If there isn't, "I just liked it" is a valid answer.)
+3. Price, size in oz, and burn time if you know it.
+
+About you and the shop (these apply to all twelve):
+
+4. The hard facts: wax type, wick type, vessel, where you pour, made-to-order or in stock, ship time.
+5. Who buys these — gift shoppers? Self-care treat buyers? House-proud homeowners? Any pattern you've noticed in reviews or messages?
+6. And the voice question, which matters most: describe your shop in two or three sentences, as if telling a person, not writing a bio. However it comes out — that's the raw material. If you have anything you've already written that you liked (an old listing, an about page, even a social caption), paste that instead.
+
+One honest caveat: I'll draft from your words, and the first one will likely need a correction pass — that's what it's for. You mark what's off, I adjust, and by candle three or four the questions get fewer. Answer whenever ready.
+
+=== PLAYER ONE (synthetic, hello turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+Saved. Everything from this session now survives in two places:
+
+**The candle-shop skill** (durable, loads automatically whenever we work on the shop):
+- Listing anatomy + the six intake questions + your success test ("sounds like me" + right questions asked)
+- The profit calculator (scripts/candle_profit.py inside the skill, with the fee tables)
+- Verified 2026 fee reference — Etsy's ~10-11% effective take and the shipping-in-the-fee-base trap, Shopify Basic rates
+- An honest flag: all demo numbers are estimates; your real inputs are still owed
+
+**Workspace files** (usable now, but note this session's directory is temporary — the skill is the permanent copy):
+- candle-business/candle_profit.py
+- candle-business/listings/LISTING_TEMPLATE.md
+
+**Where we pick up next time:** you were about to answer the six intake questions — which candle for the pilot, what it smells like, why you made it, the hard facts for all twelve, who buys, and your shop described in your own words. Answer those and the first draft comes back in one step.
+
+One thing worth flagging for later, no action needed now: the moment copy/pasting between your shop platform and me gets tedious — pulling real sales numbers, pushing listings — there may be a direct connector path (Etsy/Shopify both have APIs). Smallest first step when you want it: one task, like importing a sales CSV, to confirm it works before trusting it.
+
+Good first session. Come back with the pilot candle.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Bodhi online. Just a seed, for now — though the harness arrives with some memory of you, so let me lay out what's recorded, what's missing, and a concrete first move.
+
+WHAT I KNOW (recorded, with sources)
+
+About you, from your profile and prior sessions:
+- You run a hand-poured candle business, sold online. 12 products; most listings are currently just scent name + price.
+- Admin pains: product listings, customer messages, and unclear unit profitability after supplies and platform fees.
+- Your stated first priority: knowing whether and where real margin exists.
+- Your own success test for listing work: whether a listing "sounds like me", and whether the right questions were asked to write it. I like that test — it's checkable.
+
+Tools already built for you, verified working just now:
+- A unit-economics calculator (candle_profit.py) covering Etsy and Shopify fee models, with a target-margin solver. I ran a smoke test and it executes cleanly. Important: any numbers it has produced so far are DEMO inputs, not your facts.
+- A listing workflow saved as a skill: calibrate on one pilot candle, six intake questions, then batch the rest once the voice settles.
+
+WHAT I'M UNSURE OF
+
+- Where you actually sell (Etsy, Shopify, both, elsewhere). Fee models differ by ~7 points of margin.
+- Your real per-candle numbers: supply cost, packaging, shipping label cost, and your actual prices. None of these are recorded yet.
+- Whether you pay yourself for labor — currently the calculator assumes $0, which quietly flatters the margin.
+- Order patterns: average candles per order, shipping charged to buyer or free-shipping-included.
+- Anything about you beyond the shop. One business profile is not a person; I'd rather learn the rest from your own words than assume it.
+
+WHAT I'D DO FIRST
+
+Your stated priority is margin clarity, so: the numbers hunt. It's small — five or six numbers from your records or supplier receipts:
+
+1. Which platform(s) you sell on
+2. Actual price of one real candle (pick your best-seller)
+3. Supply cost for that candle (wax, vessel, wick, fragrance, label)
+4. Packaging + shipping label cost per order
+5. What the buyer pays for shipping (if anything)
+
+Give me those and I'll run real margin per order, per platform, with and without paying yourself — and, if you name a target margin, the price that hits it. That's the "whether/where real margin exists" answer, grounded in your numbers instead of estimates. After that, the pilot listing is the natural second task, and the six intake questions are already queued.
+
+One signpost, offered lightly: if this shop work is going to be a recurring thing, the candle-shop skill is your durable memory — each correction you make to it means the next session starts smarter. We can grow it as we go.
+
+What do you have handy — receipts in front of you, or shall I start with the platform question?

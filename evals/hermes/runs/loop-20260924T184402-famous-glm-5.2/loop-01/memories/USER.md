@@ -1,0 +1,5 @@
+Player One makes short videos about thrift flips (thrifted items restyled/resold). Stated goal: grow an audience ("be famous"). Current problem: very low views, posts irregularly ("whenever I feel like it"). First conversation Sept 2026.
+§
+Agreed first win (Sept 2026): diagnose Player One's recent videos (retention/hook/length/format) from their public profile, then deliver a bank of 15 ready-to-film thrift-flip hooks. WAITING ON: handle/URL, optional analytics screenshots (drop files in session workspace), hours/week they can commit. Key research done: niche is healthy (#thriftflip 14B+ views); levers = 3-5 posts/week consistent, completion rate (20-30s, before-flash/montage/reveal), bold on-screen text, raw > polished.
+§
+Working style so far: Player One responds well to concrete offers + low-friction asks (handle, screenshots, honest time budget) over abstract advice. Keep the bar low and the next step singular.

@@ -1,0 +1,9 @@
+{
+  "capability_quoted": true,
+  "capability_verbatim": "\"I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.\"\n\nCapability: Generate concise, brand‑consistent product listings for each candle, using a template that captures scent name, size, price, key notes, unique selling points, and brand voice.\n",
+  "priority_verbatim": "\"I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.\"\n",
+  "recorded_at_utc": "2026-09-25T03:56:50.953080Z",
+  "schema": "bodhi.hello-world-answer/v0.01",
+  "source_kind": "first_agent_session_submitted_at_completion",
+  "source_ref": ""
+}

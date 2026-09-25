@@ -1,0 +1,57 @@
+{
+  "inputs": {
+    "price": 24.0,
+    "ship_charged": 0.0,
+    "supplies": 6.5,
+    "ship_label": 8.5,
+    "packaging": 1.2,
+    "labor_hours": 0.25,
+    "labor_rate": 20.0
+  },
+  "results": {
+    "etsy": {
+      "platform": "etsy",
+      "revenue": 24.0,
+      "fees": {
+        "listing": 0.2,
+        "transaction": 1.56,
+        "processing": 0.97
+      },
+      "total_fees": 2.73,
+      "costs": {
+        "supplies (wax/vessel/wick/fragrance/label)": 6.5,
+        "packaging": 1.2,
+        "shipping label": 8.5,
+        "labor": 5.0
+      },
+      "total_costs": 21.2,
+      "profit_per_order": 0.07000000000000028,
+      "profit_after_monthly_fixed": 0.07000000000000028,
+      "margin_pct": 0.29166666666666785,
+      "effective_fee_pct": 11.375,
+      "amortized_monthly_fee": 0.0
+    },
+    "shopify": {
+      "platform": "shopify",
+      "revenue": 24.0,
+      "fees": {
+        "listing": 0.0,
+        "transaction": 0.0,
+        "processing": 0.996
+      },
+      "total_fees": 0.996,
+      "costs": {
+        "supplies (wax/vessel/wick/fragrance/label)": 6.5,
+        "packaging": 1.2,
+        "shipping label": 8.5,
+        "labor": 5.0
+      },
+      "total_costs": 21.2,
+      "profit_per_order": 1.804000000000002,
+      "profit_after_monthly_fixed": 1.804000000000002,
+      "margin_pct": 7.5166666666666755,
+      "effective_fee_pct": 4.15,
+      "amortized_monthly_fee": 0.0
+    }
+  }
+}

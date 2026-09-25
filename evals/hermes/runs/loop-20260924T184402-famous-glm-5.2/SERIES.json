@@ -1,0 +1,11 @@
+{
+  "series": "loop-20260924T184402-famous-glm-5.2",
+  "installer_commit": "06b8d8f25ee012160ae36527e16d825230887060",
+  "persona": "evals/local/personas/famous.json",
+  "persona_synthetic": true,
+  "provider": "zai",
+  "model": "glm-5.2",
+  "loops": 2,
+  "steering": "none; fresh profile from the frozen distribution, identical scripted turns every loop",
+  "isolation": "HOME=<loop scratch> and HERMES_HOME=<loop profile> for every hermes call"
+}

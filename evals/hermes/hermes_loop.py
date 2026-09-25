@@ -128,6 +128,10 @@ def main() -> int:
 
         if (profile / "memories").is_dir():
             shutil.copytree(profile / "memories", out / "memories")
+        grown = [d for d in (profile / "skills").iterdir() if d.is_dir() and d.name != "bodhi-seed"] \
+            if (profile / "skills").is_dir() else []
+        for skill in grown:   # skills Bodhi wrote for itself during the session: growth evidence
+            shutil.copytree(skill, out / "skills_grown" / skill.name)
         created = [p for p in scratch.rglob("*") if p.is_file() and ".hermes" not in p.parts]
         if created:
             shutil.copytree(scratch, out / "files_created", ignore=shutil.ignore_patterns(".hermes", ".cache"))
@@ -135,7 +139,8 @@ def main() -> int:
         noticed = {"loop": loop, "profile": name,
                    "limit_or_need_sentences": [s.strip()[:240] for s in re.split(r"(?<=[.!?])\s+", text)
                                                if LIMIT.search(s)][:40],
-                   "files_created": [str(p.relative_to(scratch)) for p in created][:60]}
+                   "files_created": [str(p.relative_to(scratch)) for p in created][:60],
+                   "skills_grown": [d.name for d in grown]}
         with (series / "noticings.jsonl").open("a") as handle:
             handle.write(json.dumps(noticed, ensure_ascii=False) + "\n")
         run(["hermes", "profile", "delete", name, "-y"])

@@ -1,0 +1,1 @@
+Player One runs a hand-poured candle business sold online. Admin pains: product listings, customer messages, and unclear unit profitability after supplies and platform fees. Stated first priority: knowing whether/where real margin exists.

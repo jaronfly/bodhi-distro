@@ -1,0 +1,17 @@
+{
+  "series": "groundhog-20260924T184652-reciprocal-famous_sitter",
+  "model": "gpt-oss-120b",
+  "base": "http://runas:8090/v1",
+  "loops": 1,
+  "persona": "evals/local/personas/famous_sitter.json",
+  "frozen_seed_sha256": {
+    "AGENTS.md": "ed1439741c3cfc093adaf2d892146bfb63e5c0ac5000e4b72f37214685c879da",
+    "START_HERE.md": "7f820e602cd7c15688cde5f4d2141a883e5a5c11310917a1b4ae858d6df8e4d7",
+    "FIRST_TASKS.md": "a1f4adccb4f8fff34700ff47c9e2fff9d2fef11eb4538240101f84636f75847d",
+    "feedback/LOG.md": "494468f36845a3d0a52b5caff7aaafc28a8c5aca88a98ebb9c0f57d510fc8896",
+    "installer_commit": "06b8d8f25ee012160ae36527e16d825230887060",
+    "evals/local/harness.py": "55d3d3af145f7a61114e6dd70383e3b49ec38b0ddcdcb57b336dfd76fe027b4d"
+  },
+  "variant": "reciprocal",
+  "steering": "none; identical seed, persona turns and harness every loop"
+}

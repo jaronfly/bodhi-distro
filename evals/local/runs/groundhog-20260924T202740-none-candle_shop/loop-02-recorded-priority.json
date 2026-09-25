@@ -1,0 +1,9 @@
+{
+  "capability_quoted": true,
+  "capability_verbatim": "\"Generate concise, friendly product listings and a basic profit‑tracking template for a hand‑poured candle shop.\"\n",
+  "priority_verbatim": "\"Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees.\"\n",
+  "recorded_at_utc": "2026-09-25T03:44:21.071716Z",
+  "schema": "bodhi.hello-world-answer/v0.01",
+  "source_kind": "first_agent_session_submitted_at_completion",
+  "source_ref": ""
+}

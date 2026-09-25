@@ -1,0 +1,1 @@
+This harness runs async loop sessions: the clarify tool returns a '[oneshot mode]' fallback instead of user answers. Don't retry it — ask questions in plain text in the reply, pick sensible defaults meanwhile, label assumptions, keep building.

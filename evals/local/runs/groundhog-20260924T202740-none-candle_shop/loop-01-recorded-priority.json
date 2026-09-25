@@ -1,0 +1,9 @@
+{
+  "capability_quoted": true,
+  "capability_verbatim": "\"Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.\"\n\nCapability: Provide a simple profit‑tracking spreadsheet template (with sections for supplies, fees, and revenue) and draft reusable customer‑message templates for order confirmations, shipping updates, and FAQs. This will let you see whether you are making money and reduce admin overhead.\n",
+  "priority_verbatim": "\"Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.\"\n",
+  "recorded_at_utc": "2026-09-25T03:33:06.718558Z",
+  "schema": "bodhi.hello-world-answer/v0.01",
+  "source_kind": "first_agent_session_submitted_at_completion",
+  "source_ref": ""
+}

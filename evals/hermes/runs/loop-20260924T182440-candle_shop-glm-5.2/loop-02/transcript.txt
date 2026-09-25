@@ -1,0 +1,142 @@
+=== INSTALL (exit 0)
+
+Distribution: bodhi-loop-182440-02 v0.1.0
+  Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/tmp/bodhi-hermes-loop-20260924T182440/seed
+  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-182440-02
+
+✓ Installed 'bodhi-loop-182440-02' v0.1.0
+  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-182440-02
+
+  Use with:      hermes -p bodhi-loop-182440-02 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm running in a plain terminal on your machine, with web access, a browser, shell, and persistent memory across sessions. What I become grows around the work you actually give me — so the useful question is simple:
+
+What do you want AI help to change or make? And what would a useful first win look like — a thing done, not a plan discussed?
+
+If that's too abstract, tell me instead what you wish were easier. Even one small real task beats a setup tour.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+Done — the first win exists and runs. Here's the honest state of things:
+
+WHAT I BUILT
+A profit tool at /tmp/bodhi-hermes-loop-20260924T182440/home-02/candle-business/candle_profit.py
+It reads your Etsy Order CSV export plus a simple costs file (one row per product: what the wax + jar + wick + fragrance + label + packaging cost you per unit), then reports:
+- Monthly summary: orders, units, revenue, fees, materials, net — after fixed monthly costs if you give them
+- Per-product profit and margin %, so you can see what's carrying the shop
+- A plain verdict: are you making money, per month and per order, plus your effective hourly earnings if you tell it your minutes per candle
+
+It computes Etsy's real fee stack: 6.5% transaction, $0.20 renewal per unit, card processing (uses the actual column from your CSV when present, estimates 3% + $0.25 otherwise), and 15% Offsite Ads fee on orders flagged as such. All of those are flags you can override.
+
+WHAT I VERIFIED
+I generated realistic demo data (69 orders over 3 months, ~$3.1k revenue) and ran it end-to-end. Output was correct — I caught and fixed a display bug where scent variations split one product into lookalike rows, and an independent recomputation of a raw order matched the tool's numbers exactly (selftest PASS). Those demo numbers are fake, clearly: they say nothing about your shop.
+
+WHAT I ASSUMED (correct me on any)
+Etsy as your platform, a few dozen orders/month, and that you can export your order CSV. The tool handles Shopify exports poorly if at all — if that's you, tell me and I'll adapt it.
+
+WHAT I NEED FROM YOU (15 minutes, once)
+1. Etsy: Shop Manager -> Orders -> download the CSV (last 3 months is plenty). Drop it somewhere I can reach and tell me the path.
+2. A costs file — I'll draft it with you line by line if you tell me your products and roughly what's in each one.
+3. Optional: monthly fixed costs (Etsy Plus, insurance, etc.) and how many minutes a candle takes you.
+
+Then I'll run it on real numbers and you get the actual answer to "am I making money?" — not a spreadsheet tutorial, the answer.
+
+Two things I noticed while doing this: once your real run works, I can save this as a reusable skill so any future session reruns it in one line. And of the three drowning-pains, this fixes the profit one — the listings and customer-messages ones are next, and message triage in particular is very tractable from here.
+
+=== PLAYER ONE (synthetic, hello turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Everything runs. Here's where listings stand — and the part I need you for.
+
+WHAT EXISTS (all in candle-business/)
+- listing_kit.py — validates and assembles. It enforces Etsy's real rules (verified today, not from memory): 140-char titles; 13 tags max, 20 characters each, no duplicates, letters/hyphens/apostrophes only. It rejects bad tags with reasons and flags empty tag slots ("every empty tag is a search you can't appear in"). Tested: it correctly threw out a 36-character tag and a duplicate, passed the 13 good ones.
+- sheet_cedar_sage.json — a filled-in example sheet, and the draft it produced:
+
+  "Cedar shavings, fresh-cut sage, and a thread of pine underneath. Dry and green, not sweet — the smell of a workshop door left open in fall." ... followed by a details block (size, burn time, wax, wick), a short story paragraph, and a care section.
+
+  That voice is PLACEHOLDER — labeled as such in the sheet and the output, and it's deliberately written in one register so you have something to push against.
+
+THE QUESTIONS — this is what you said you'd judge me on
+INTERVIEW.md, two parts:
+
+Part A — voice, answered once for all 12 products. Eight questions, but the load-bearing ones are:
+  A4. What do you REFUSE to do that bigger candle brands do? (This is usually where a maker's identity actually lives — paraffin, mystery fragrance loads, whatever yours is.)
+  A5. How do you describe scents to a friend: ingredients, mood, or memory? (Determines every hook sentence I write.)
+  A8. One line you've actually written to a customer. (Calibrates formality better than any description of it.)
+
+Part B — seven quick facts per candle: what it actually smells like in plain words, why the scent exists, vessel/wax/wick, burn time, price, who buys it, anything special about making it.
+
+Answer Part A plus one product's Part B, and I'll write that listing for real — then you correct it, and the corrections teach me the voice for the other eleven.
+
+WHAT I'D LIKE BACK, IN ORDER OF USEFULNESS
+1. Reactions to the demo draft above — what feels wrong or right, even just "I'd never say 'workshop door'"
+2. Part A answers, however messy
+3. One product's Part B
+
+If it's easier to just talk, answer in messages and I'll fill the files in myself.
+
+=== PLAYER ONE (synthetic, hello turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+Session wrapped. Everything that matters survives — final state:
+
+ON DISK (verified just now)
+candle-business/ in the workspace holds all five artifacts:
+- candle_profit.py — the profit tool, demo-run and selftest-PASS
+- listing_kit.py + sheet_cedar_sage.json — the listing validator and worked example
+- INTERVIEW.md — the voice + product questions
+- START_HERE.md — anchor file; a fresh session reads this first and knows exactly where things stand
+
+IN THE HARNESS
+- A candle-shop skill: procedures for both tools, Etsy's verified rules, the lessons from this session (ask questions in plain text here; label every placeholder), and a resume-state section pointing at what's unfinished.
+- Memory: your business, your three pains, and how you judge listing work.
+
+HONEST LEDGER
+Done: profit tooling (demo-verified), listing pipeline, the interview you'll be judged against me by.
+Not done: anything with your real data. No real numbers, no real listings — every figure you've seen was generated demo data, and the demo listing's voice was labeled placeholder. The three things that unlock real work, in value order:
+1. Etsy Order CSV (3 months) + rough per-unit materials costs → the actual "am I making money" answer
+2. INTERVIEW.md Part A + one product's Part B → your first real listing
+3. After those: customer-message triage, untouched so far
+
+Bring any one of those three to the next session and it picks up mid-stride. Good first session — there's now a place for this work to live.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Grounded in what's actually on disk (not just memory). Here's the honest picture.
+
+WHAT I KNOW ABOUT YOU
+
+From your own words (stored profile + last session, Sept 24, 2026):
+- You sell hand-poured candles online. 12 products.
+- Three pains, in your words: listing admin, customer-message volume, and not knowing true profit after supplies and platform fees.
+- Your stated priority: real profitability numbers — unit economics plus a monthly P&L.
+- Your listings are currently just scent name + price.
+- You judge listing work by two things: whether the copy sounds like your own voice, and whether I asked the right discovery questions before writing anything.
+
+From the workspace (candle-business/ under /tmp/bodhi-hermes-loop-20260924T182440/home-02):
+- candle_profit.py — computes real profit from an Etsy Order CSV + a per-product materials cost file. Built and demo-verified, never run on your real data.
+- listing_kit.py + sheet_cedar_sage.json — validates and assembles Etsy listings (140-char titles, 13 tags x 20 chars).
+- INTERVIEW.md — voice + product questions, unanswered.
+- START_HERE.md — the anchor file tying it together.
+
+WHAT I'M UNSURE OF
+
+- Platform: I've assumed Etsy (fees, CSV format, listing rules are all Etsy-specific). Never confirmed by you.
+- Sales volume: I assumed roughly 20-100 orders/month. Unconfirmed.
+- Every profit number you've seen from me so far is DEMO data. I know nothing real about your sales, costs, or fees yet.
+- Your voice: I haven't heard you answer a single INTERVIEW question, so I can't write copy that sounds like you yet.
+- Whether the third pain (message triage) is even still a priority.
+
+WHAT TO DO FIRST
+
+Your stated #1 priority is the profit question, and it's the one only you can unblock. I need two things:
+
+1. Your Etsy Order CSV export — in Etsy: Shop Manager → Orders → Download CSV. Three months is plenty to start.
+2. Rough per-candle materials cost per product — wax + jar + wick + fragrance + label + packaging. Ballpark numbers are fine; I'll label them as rough.
+
+Optional but sharpens it: fixed monthly costs (studio rent, tools, subscriptions) and your Etsy statement CSV for exact fees instead of estimated rates.
+
+Drop those in (file paths or pasted numbers) and I'll come back with per-product margin, monthly net, and your effective hourly rate — plus a loud list of anything I couldn't cost, so the number never quietly lies to you.
+
+If getting the CSV is a hassle right now, the zero-effort alternative: answer even half of INTERVIEW.md Part A in your own words, and I'll draft your first real listing (cedar + sage is staged as the example) — you'd correct my voice until it sounds like you. But profit is the one you named first.

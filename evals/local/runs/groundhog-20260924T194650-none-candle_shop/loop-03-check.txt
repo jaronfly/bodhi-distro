@@ -1,0 +1,1 @@
+{"status": "pending_hello_world", "vault": "/tmp/bodhi-groundhog-20260924T194650/vault-03", "version": "0.01"}

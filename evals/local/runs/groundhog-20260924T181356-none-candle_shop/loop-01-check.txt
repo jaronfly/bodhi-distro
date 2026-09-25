@@ -1,0 +1,1 @@
+{"status": "complete", "vault": "/tmp/bodhi-groundhog-20260924T181356/vault-01", "version": "0.01"}

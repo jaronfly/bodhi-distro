@@ -1,0 +1,3 @@
+Player One sells hand-poured candles online. Main pains: listing admin, customer-message volume, and not knowing true profit after supplies and platform fees. Priority as of Sept 2026: get real profitability numbers (unit economics + monthly P&L).
+§
+Candle shop: 12 products; current listing descriptions are just scent name + price. Player One judges listing work by (a) whether copy sounds like their own voice and (b) whether Bodhi asked the right discovery questions first.

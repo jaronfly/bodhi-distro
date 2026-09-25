@@ -1,0 +1,112 @@
+=== INSTALL (exit 0)
+
+Distribution: bodhi-loop-184402-02 v0.1.0
+  Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/tmp/bodhi-hermes-loop-20260924T184402/seed
+  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02
+
+✓ Installed 'bodhi-loop-184402-02' v0.1.0
+  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02
+
+  Use with:      hermes -p bodhi-loop-184402-02 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm running in a plain terminal session on this machine, with tools for search, files, shell, browser, and web research — and I can keep notes and skills that persist across sessions, so whatever we build together can accumulate rather than reset each time.
+
+The short version of how I work: you bring the intent, I do the useful part of the work and show you the result, and I tell you plainly what worked and what's still uncertain.
+
+So — what do you want AI to help change or make? And what would a useful first win look like? If that's too abstract a place to start: what's something you wish were easier right now?
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly I want to be famous. I make short videos about thrift flips and nobody watches them. I post whenever I feel like it.
+Good — that's a goal I can actually work with, and your one sentence already contains the diagnosis. I dug into what's working for thrift-flip creators right now. Here's the honest picture.
+
+TWO PROBLEMS, AND ONLY ONE OF THEM IS YOUR POSTING
+
+1. "Whenever I feel like it" is the killer. Every post is a test where the algorithm learns who your audience is; sporadic posting keeps resetting that lesson, and no audience habit forms. The consensus for short-form in 2026: the minimum effective cadence is about 4-5 posts a week, held for months. The compounding is back-loaded — months 4-6 usually outperform months 1-3 combined, which is exactly when most people quit.
+
+2. But frequency alone won't fix views-per-video. What stops the scroll is the first 2 seconds. The single most reliable thrift-flip opener is the price spread: "I paid $4 for this. It sells for $80." Lead with the number, the brand, or the ugliness of the before — never a slow intro. If viewers bounce before your reveal, the video never gets distributed no matter how good the transformation is.
+
+WHAT'S WORKING IN YOUR NICHE RIGHT NOW
+
+- Price-spread cold opens (resale content lives and dies on this)
+- Before/after transformation montages set to trending audio, under 30 seconds
+- "Thinking out loud" thrifting — filming the decisions, showing yourself picking up a blazer, examining it, putting it back, saying why. One creator pivoted to this and her average views went from 180K to 290K in eight weeks
+- How-to content (repair techniques, styling) gets shared about 30% more than simple hauls
+- Comments as content: respond to everything; every question in your comments is the next video's brief
+
+A CAUTION ABOUT "FAMOUS"
+
+The viral cases I found (like the 50M-view curtain dress) were followed by weeks of deliberate work — follow-ups, comment-driven sequels, platform-specific repurposing. The video is the spark; the system is the career. So we build the system, and let fame be a possible outcome of it.
+
+HERE'S MY OFFER — THE USEFUL FIRST WIN
+
+Give me three facts and I'll draft your first month as a real artifact: a 30-day calendar with 16-20 specific video ideas with their hooks written out, a batching schedule, and what to measure (3-second retention, not follower count).
+
+1. Which platform(s) are you posting on now — TikTok, Reels, Shorts, all?
+2. What kind of flips — do you sew/upcycle the clothing yourself, resell as-is for profit, or furniture/home stuff?
+3. Are you on camera talking, or mostly hands-and-garment footage?
+
+=== PLAYER ONE (synthetic, hello turn 3): Okay. Yeah, that could work. What would you need from me to actually help?
+The plan exists now, on disk:
+
+/tmp/bodhi-hermes-loop-20260924T184402/home-02/thrift-flip-30-day-plan.md
+
+What's in it: 14 scheduled videos across 4 weeks with hooks already written, 4 backlog ideas, a batching schedule (~4.5 hrs/week total), the metrics that matter, and an "echo protocol" for the day something hits ~10K views. The spine of it is 3 repeatable series — a flagship FLIP with a price-spread cold open, a SOURCE WITH ME where you think out loud and reject things on camera, and a weekly micro-tutorial — because audiences attach to series and formats, not random videos.
+
+Since the question form couldn't reach you, I assumed: TikTok primary (cross-post the same cut to Reels and Shorts), you sew the flips yourself, mix of face and hands on screen, 3/week worst-case floor. Any of those wrong, say so and I'll regenerate the plan around it — takes a minute.
+
+So, back to your actual question — what I need from you. Four things, and only one is ongoing:
+
+1. ONE-TIME: corrections to those four assumptions above.
+2. ONE-TIME (optional): your handle. Then after you've posted for two weeks, ten minutes of your analytics screen — 3-second retention, watch time, saves per video. I'd turn that into which hook family to kill and which to double.
+3. WEEKLY, tiny: film with the plan open. Follow the calendar; it already made the creative decisions so your worst week survives.
+4. HONESTY: if a week collapses, tell me. We swap in backlog ideas and lower the cadence temporarily — we don't silently vanish for three weeks. The single most predictive behavior in the research was judging on 90-day trends while posting through the flat months, and that's exactly the part nobody does alone.
+
+First scheduled post is Monday 6pm: "This $4 muumuu is about to become my favorite summer dress" (or whatever your actual ugliest unworn find is — the hook shape stays, the item is yours).
+
+One honest caveat: I found strong convergence on format, cadence, and hook structure from creator case studies and platform guidance, but nobody can promise views — the plan maximizes shots on goal and makes each one measurable. The fame case studies all had one thing in common: they were ready with a system when the lucky video came. That's what you're building.
+
+Open the file, tell me what's wrong, and if you want, I'll also write the first two video scripts shot-by-shot.
+
+=== PLAYER ONE (synthetic, hello turn 4): Sounds good. Wrap up whatever you need to for this first session.
+Wrapped. Session close-out:
+
+SAVED FOR NEXT TIME
+- The plan lives in two places: your ephemeral workspace and the persistent profile directory at /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02/thrift-flip-30-day-plan.md — verified on disk, so it survives this session.
+- A "creator-growth-plan" skill records the workflow and the 2026 findings behind it, so a future me won't re-derive any of this.
+- Memory holds the state of the goal and where we left off.
+
+STILL OPEN (the honest list)
+- The four assumptions are unconfirmed: TikTok primary, you sew the flips, mixed face/hands, 3/week floor. Wrong ones cost you a regeneration, nothing more.
+- No handle on file — I've never seen your actual videos, so this plan is built from niche research, not your work.
+- First data checkpoint: two weeks after you start posting, bring me the analytics (3-second retention, watch time, saves). That's when this becomes an iteration loop instead of advice.
+
+YOUR ONE ACTION
+Film Monday's video this weekend. Ugliest unworn find you own, price in the first two seconds, reveal on camera.
+
+One thought for later, not now: if this takes off, there will eventually be money in it (the resellers who grow usually start selling via LIVE and DMs around 1,000 followers). When that day comes we can look at simple tracking for buys and sales. Not today's problem.
+
+Good luck with the muumuu. Come back with numbers.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Done for this session. Plain-text recap:
+
+WHAT I KNOW (from memory of our work)
+- You make short videos about thrift flips; the goal is fame / a large audience, not side income.
+- Posting used to be "whenever I feel like it," near-zero views.
+- A 30-day plan already exists: thrift-flip-30-day-plan.md — 3 posts/week (Mon/Wed ~6pm, Sat ~11am), TikTok primary cross-posted to Reels and Shorts, three repeatable series (FLIP #N price-spread cold open, SOURCE WITH ME decision-narration, MICRO-TUTORIAL), batched Sun/Tue/Thu, biweekly metric reviews, first milestone 1,000 followers.
+
+WHAT I'M UNSURE OF (I asked; no one was at the keyboard, so I applied labeled defaults)
+- Whether you sew/upcycle yourself (defaulted: yes), whether anything is posted since the plan (defaulted: nothing yet), whether you'll go on camera (defaulted: yes). All three marked provisional in memory and the skill — one line from you regenerates the plan around the truth.
+
+WHAT I DID JUST NOW
+- Built week1-launch-kit.md: a Sunday thrift-run shot sheet (film 6 pickups, reject 3 on camera, state the flip plan the moment you decide), Tuesday transform checklist (before/first-cut/reveal), Thursday edit-and-schedule list, and a 15-min account setup. Written to the workspace and copied to the durable profile dir (/Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02/week1-launch-kit.md) since /tmp is ephemeral.
+- Updated the creator-growth skill's open items and my memory so the next session picks up exactly here.
+
+WHAT'S FIRST
+Sunday's 2-hour run with the phone out — it stocks the entire first week. Then Thursday's single edit session schedules all three posts. The only failure mode this week is a missing slot; ugly and late are both fine. First data check-in ~Oct 8: bring 3-second retention, completion, saves+shares per 1,000 views, and profile-visit conversion, and we'll kill or double hook families on numbers instead of vibes.
