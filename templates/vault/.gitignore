@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+*.pem
+*.key
+credentials/
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+*.sqlite3
+node_modules/
+.venv/
+

@@ -1,0 +1,38 @@
+# Bodhi v0.01 — seed pilot
+
+This repository is a small, runnable starting point for **Player One**, the human founding a Bodhi instance, and the agents who work with them. It creates a local Git vault, preserves captured words exactly, shows what has not been reviewed, and records what was done with a source link. It does not install a model, harness, browser recorder, or background service.
+
+The name **Player One** comes from [Jaron's direct terminology choice](sources/origin/PLAYER_ONE_2026-09-24.md). The original system's [Hello World](sources/origin/HELLO_WORLD.md) states the broader aim. These are attributed sources. A fresh installation starts from the new person's answers and observations, not Jaron's personal canon.
+
+## Try it locally
+
+Requires Git and Python 3.9 or newer. On macOS, open Terminal; on Windows, use PowerShell or Windows Terminal with Python and Git installed.
+
+```sh
+python3 bin/bodhi.py init ~/Bodhi
+python3 bin/bodhi.py check ~/Bodhi
+```
+
+The first command asks which computer and primary AI harness Player One uses, which model access they have, and which kinds of capture they may eventually want. A life priority can be supplied now or discussed in the first agent session. Capture choices are preferences only; no recording begins during setup. `check` initially reports `pending_hello_world`.
+
+Open `~/Bodhi` as the working folder in the chosen harness and say **“Hello, Bodhi.”** Its small [AGENTS.md](templates/vault/AGENTS.md) entrypoint directs it to the one-time [START_HERE.md](templates/vault/START_HERE.md). After an actual exchange confirms Player One's priority and a useful first capability, the agent records the answers and completion receipt with the vault's `bin/bodhi.py onboard-complete` command. `START_HERE.md` then moves to `history/` and leaves the working context; its exact bytes remain in Git. `check` then reports `complete`, and capture and review commands become available.
+
+The generated vault is local and has its own Git history. Captured text persists in that history; inspect the contents before choosing any sync destination. A private GitHub remote is an optional later step chosen by Player One.
+
+For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run `python3 -m unittest discover -s tests -v` to check the CLI, and use [the trial protocol](evals/TRIAL.md) for a fresh-model test.
+
+## What is in the seed
+
+- `bin/bodhi.py` and `templates/vault/` create the local vault and operate its small evidence loop. The CLI is copied into each vault, so the installed workspace remains usable without this installer repository.
+- [FIRST_TASKS.md](templates/vault/FIRST_TASKS.md) offers five plain doors for a first useful task, including learning, writing, planning, comparisons, and posts or listings. Player One can choose another path.
+- `sources/` contains byte-preserved excerpts and documents from the original Brain, with hashes and status in [SOURCE_MANIFEST.json](SOURCE_MANIFEST.json). They are examples and provenance, not active instructions for a new Player One.
+- [MODULES.md](MODULES.md) names functions the seed may grow toward. Each module has an observable acceptance condition and stays optional.
+- `evals/` tests whether the seed helps a fresh model behave usefully without pretending the original infrastructure exists.
+
+The full Bodhi Bible remains in the original Brain. This pilot carries only the verbatim founding section, still marked **draft and unratified**. Later addenda include extended third-party quotations and personal material. The installer does not inject even the founding section into a new person's agent prompt.
+
+## What v0.01 proves
+
+The pilot can prove that a new Player One can initialize a versioned local space, complete a first-session handoff, capture an exact source, find what remains unattended, and record a review with provenance. It does **not** yet prove autonomous mining, cross-harness continuity, model quality, or a useful long-term relationship. Those require trials with real people and models, plus receipts that show the work actually helped.
+
+No public reuse license has been selected for this private pilot. The copied source documents retain their own authorship and draft status.

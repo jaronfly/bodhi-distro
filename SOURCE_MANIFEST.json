@@ -1,0 +1,43 @@
+{
+  "schema": "bodhi-distro-source-manifest/v0.01",
+  "generated_at": "2026-09-24",
+  "source_authority": "canonical ruNAS Brain where available; exact Player One message for terminology",
+  "files": [
+    {
+      "path": "sources/origin/HELLO_WORLD.md",
+      "origin": "context/HELLO_WORLD.md",
+      "sha256": "055aeccb3a6a42beda7cc924ef84a2a95baca97e02661c837ebf3ab6de3a3b2f",
+      "role": "attributed source; not an installed rule"
+    },
+    {
+      "path": "sources/origin/PLAYER_ONE_2026-09-24.md",
+      "origin": "Codex Desktop direct message, 2026-09-24",
+      "sha256": "a4a74d8a97891a7fbb3553cfb1e95d6897d5d7cbdd9891318138bf2fcbc3bce6",
+      "role": "owner terminology directive; exact quote inside"
+    },
+    {
+      "path": "sources/covenant/BODHI_BIBLE_CORE.md",
+      "origin": "context/BODHI_BIBLE.md, bytes before Addendum A",
+      "sha256": "5ed3204ed7fbfe3022b087ae78e5a196c916c1ed66ba73d870bd6d4fc347a0c4",
+      "role": "verbatim excerpt; draft, unratified; reference only"
+    },
+    {
+      "path": "sources/covenant/BODHI_BIBLE_README.md",
+      "origin": "context/BODHI_BIBLE_README.md",
+      "sha256": "9628752434bf4a025cdbf915f9425b2ed8558ec667b18957d5cfb7bd90346fa3",
+      "role": "verbatim draft status note; reference only"
+    }
+  ],
+  "local_only": [
+    {
+      "origin": "context/BODHI_BIBLE.md, full",
+      "sha256": "11074c222530744b1f99f22c2554164e60d40a9f2c8e9aa9c2207e1cf1309b78",
+      "reason": "draft addenda contain extended third-party quotations and personal details; full text remains in the Brain"
+    },
+    {
+      "origin": "READY_PLAYER_ONE.md",
+      "sha256": "36a1d6547c2b89732d1ed65d568ed838ae8a27c0bdcd91ab9eab3153d451cf52",
+      "reason": "current Jaron fleet front door contains host and contact rules; not an onboarding prompt for another Player One"
+    }
+  ]
+}
