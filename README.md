@@ -4,6 +4,20 @@ This repository is a small, runnable starting point for **Player One**, the huma
 
 The name **Player One** comes from [Jaron's direct terminology choice](sources/origin/PLAYER_ONE_2026-09-24.md). The original system's [Hello World](sources/origin/HELLO_WORLD.md) states the broader aim. These are attributed sources. A fresh installation starts from the new person's answers and observations, not Jaron's personal canon.
 
+## One command, with Hermes
+
+This repository is also a [Hermes profile distribution](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions). With Hermes v0.21 or newer and access to this repo:
+
+```sh
+hermes profile install github.com/jaronfly/bodhi-distro --alias
+hermes -p bodhi setup          # choose a model; Bodhi needs no keys of its own
+hermes -p bodhi chat           # then say: Hello, Bodhi.
+```
+
+The profile gets `SOUL.md` (the seed's opening, verbatim from the skill), the `bodhi-seed` skill, and `sources/`. Your keys, memories and sessions stay yours, and `hermes profile update bodhi` pulls new versions without touching them. The optional vault below isn't part of the profile, because Hermes reserves `bin` inside profiles. Create it from a clone of this repo.
+
+If you delete the profile and install it again under the same name, Hermes v0.21.2 can leave a tombstone at `~/.hermes/profiles/.deleted/bodhi` that hides the new install ("does not exist" right after "Installed"). Remove that file if it's there.
+
 ## Start with an existing harness
 
 If Hermes already has a working model/provider, copy `skills/bodhi-seed/` into the active Hermes profile's skills directory. On a default local install:

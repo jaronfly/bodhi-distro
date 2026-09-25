@@ -1,0 +1,18 @@
+name: bodhi
+version: 0.1.0
+description: "Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs."
+hermes_requires: ">=0.21.0"
+author: "Jaron Flynn (founder), built by Codex and Claude"
+license: "UNLICENSED (private pilot)"
+
+# Only these paths are installed into a Hermes profile. Tests, evals, docs and the optional vault
+# (bin/, templates/) stay in the repo: Hermes reserves `bin` inside a profile and strips it on install,
+# so the vault is created from a clone of this repo with `python3 bin/bodhi.py init`.
+distribution_owned:
+  - SOUL.md
+  - distribution.yaml
+  - skills/bodhi-seed
+  - sources
+
+# No keys are required by Bodhi itself; the installer chooses a model with `hermes -p bodhi setup`.
+env_requires: []

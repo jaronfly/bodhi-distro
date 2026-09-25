@@ -178,5 +178,33 @@ class SourceManifestTests(unittest.TestCase):
             self.assertEqual(digest, entry["sha256"], entry["path"] + " changed since it was recorded")
 
 
+class HermesDistributionTests(unittest.TestCase):
+    # Names Hermes strips from any profile distribution (hermes_cli/profile_distribution.py,
+    # USER_OWNED_EXCLUDE in v0.21.2). Shipping one of them fails silently: install prints success.
+    HERMES_RESERVED = {"auth.json", ".env", "memories", "sessions", "logs", "plans", "workspace", "home",
+                       "cache", "backups", "checkpoints", "sandboxes", "profiles", "bin", "node_modules",
+                       "local", "hermes-agent"}
+
+    def test_manifest_ships_only_existing_unreserved_paths(self):
+        text = (ROOT / "distribution.yaml").read_text(encoding="utf-8")
+        self.assertIn("name: bodhi", text)
+        owned, inside = [], False
+        for line in text.splitlines():
+            if line.startswith("distribution_owned:"):
+                inside = True
+                continue
+            if inside:
+                if line.startswith("  - "):
+                    owned.append(line[4:].strip())
+                elif line.strip() and not line.startswith("#"):
+                    inside = False
+        self.assertIn("skills/bodhi-seed", owned)
+        self.assertIn("SOUL.md", owned)
+        for path in owned:
+            self.assertTrue((ROOT / path).exists(), path + " is listed in distribution_owned but missing")
+            self.assertNotIn(path.split("/")[0], self.HERMES_RESERVED,
+                             path + " would be stripped by Hermes on install")
+
+
 if __name__ == "__main__":
     unittest.main()

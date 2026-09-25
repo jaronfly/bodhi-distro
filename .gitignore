@@ -12,3 +12,16 @@ __pycache__/
 *.pfx
 .private/
 trial-output/
+
+# Hermes profile user data (anchored to the root so evals/local/ is not caught)
+/auth.json
+/.env
+/memories/
+/sessions/
+/state.db*
+/logs/
+/workspace/
+/plans/
+/home/
+/local/
+/*_cache/
