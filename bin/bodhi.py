@@ -226,13 +226,16 @@ def verify_vault(dest):
                       "context/player_one.json", "sources/README.md", "evidence/README.md",
                       "evidence/captures.jsonl", "inbox/README.md", "projects/README.md",
                       "feedback/LOG.md", "review/QUEUE.md",
-                      "review/reviews.jsonl")
+                      "review/reviews.jsonl", "memory/attempts.jsonl",
+                      "memory/README.md")
     if not dest.is_dir():
         return ["vault directory is missing"]
     errors.extend("missing directory: " + item for item in required_dirs
                   if not (dest / item).is_dir())
     errors.extend("missing file: " + item for item in required_files
                   if not (dest / item).is_file())
+    if not (dest / "memory/attempts.jsonl").is_file():
+        errors.append("attempt ledger missing (memory/attempts.jsonl); replay would exit 3")
     if errors:
         return errors
     try:
@@ -373,6 +376,8 @@ def init_vault(dest, answers):
         shutil.copytree(str(SKILL_SOURCE), str(stage / ".agents/skills/bodhi-seed"), dirs_exist_ok=True)
         (stage / "bin").mkdir(exist_ok=True)
         shutil.copy2(str(Path(__file__).resolve()), str(stage / "bin/bodhi.py"))
+        replay_src = Path(__file__).resolve().parent / "replay.py"
+        shutil.copy2(str(replay_src), str(stage / "bin/replay.py"))
         git(stage, "init", "-q")
         git(stage, "add", "-A")
         git(stage, "commit", "-q", "-m", "Bodhi v0.01: first-run scaffold")

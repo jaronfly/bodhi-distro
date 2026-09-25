@@ -8,6 +8,7 @@ The [Hello World source](sources/origin/HELLO_WORLD.md) names the loop: capture 
 | Attention | Report captured items without review | A fresh source appears in `gaps`; a reviewed source leaves that list without deletion |
 | Review | Record keep, project, hold, or dismiss with a note linked to the source | Read back the disposition and source ID; changed judgment gets another dated receipt |
 | Projects | Hold current work near its sources | A project has a desired result, next action, source links, and an observable completion test |
+| Look before repeating | About to retry something that already failed once | Ask "what happened last time?" — `bin/replay.py query` before the retry, `append` after any failed attempt | A failed attempt recorded in one session is returned by `query` in a fresh session; a vault without the ledger exits 3 instead of answering "no prior attempts" |
 | Recall | Use the harness's existing memory or search; retrieve exact past material when relevant | A response cites the source file and distinguishes quotation from inference |
 | Parallel mining | Revisit older unreviewed or weakly reviewed sources | The run names its search window, coverage, misses, and any candidate it surfaced |
 | Return home | Explore another app, site, model, or workspace for a bounded purpose, then bring the finding back | The local vault records where the agent went, what it observed, what remains uncertain, and the next action; an outbound claim without a return receipt stays open |

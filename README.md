@@ -57,6 +57,7 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 
 - [skills/bodhi-seed/](skills/bodhi-seed/SKILL.md) is the standalone persona and practice. Its reference file maps task signals to optional tools. It can run without the vault.
 - `bin/bodhi.py` and `templates/vault/` create the optional local vault and operate its small evidence loop. The CLI is copied into each vault, so the installed workspace remains usable without this installer repository.
+- [replay](bin/replay.py) is "what happened last time I tried this?" for the vault. The ledger ships empty on purpose — a missing ledger exits 3 instead of answering "no prior attempts" — and only the six inherited failure *shapes* come from the original swarm; every recorded failure is this vault's own.
 - [FIRST_TASKS.md](templates/vault/FIRST_TASKS.md) offers five plain doors for a first useful task, including learning, writing, planning, comparisons, and posts or listings. Player One can choose another path.
 - [BODHI_TIPS.md](templates/vault/BODHI_TIPS.md) carries small, attributed lessons from capture and cross-harness work. A new Bodhi can test, rewrite, or retire them as its own practice develops; its harness supplies any messaging or automation it chooses.
 - [READING_SHELF.md](templates/vault/READING_SHELF.md) is optional direct reading for Player One and Bodhi. The books are questions and counter-questions, never injected as authority at boot.

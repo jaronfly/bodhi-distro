@@ -6,6 +6,8 @@ installed or loaded by `bin/bodhi.py`.
 
 ## replay/ — "what happened last time I tried this?"
 
+**ADOPTED 2026-09-25** (GLM lane): copied to `bin/replay.py`; `init` stages it into each vault with an empty `memory/attempts.jsonl` + `memory/README.md`; `check` verifies the ledger; `MODULES.md` gains the "Look before repeating" row; `tests/test_replay.py` covers exit-3/append/query/shapes.
+
 `replay.py` has `append`, `query` and `shapes`. The ledger is `memory/attempts.jsonl` in the vault.
 - **It starts empty**, so the new Player One's failures are their own.
 - **What's inherited** is the six failure *shapes*. Their descriptions are copied verbatim from the original
