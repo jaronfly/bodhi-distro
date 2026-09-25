@@ -37,6 +37,7 @@ LIMIT = re.compile(r"\b(I can(?:not|'t)|I'm unable|I am unable|I don't have|I do
                    r"I wasn't able|I couldn't)\b", re.I)
 ODD = re.compile(r"\b(odd|strange|unexpected|curious|notice[d]?|why (?:is|are|does)|seems to be missing|"
                  r"not sure why|looks like)\b", re.I)
+QUOTED = re.compile(r'"([^"\n]+)"|“([^”\n]+)”|(?<!\w)\'([^\'\n]+)\'(?!\w)')
 
 
 def sha(path: Path) -> str:
@@ -76,6 +77,29 @@ def notice(run_dir: Path) -> dict:
                     questions.append(sentence.strip()[:240])
     return {"run": run_dir.name, "files_opened": opened, "dirs_listed": listed,
             "limit_or_need_sentences": limits, "oddity_sentences": odd, "questions_asked": questions}
+
+
+def check_recorded_words(answer: dict, transcript: Path) -> dict:
+    """Compare a recorded capability quote to the synthetic Player One's actual turns.
+
+    The vault's `capability_quoted` flag checks only quotation marks. This independent
+    trial check can say whether the quoted words actually appeared in the transcript.
+    It cannot decide whether those words describe the latest chosen capability.
+    """
+    user_turns = [row["content"] for line in transcript.read_text(encoding="utf-8").splitlines()
+                  if (row := json.loads(line)).get("role") == "user" and isinstance(row.get("content"), str)]
+    capability = answer.get("capability_verbatim", "")
+    match = QUOTED.search(capability)
+    if not match:
+        return {"quote_status": "absent", "matched_user_turn": None}
+    quote = next(group for group in match.groups() if group is not None)
+    normalize = lambda value: " ".join(value.replace("’", "'").split())
+    quote_normalized = normalize(quote)
+    source_turn = next((index for index, turn in enumerate(user_turns, 1)
+                        if quote_normalized in normalize(turn)), None)
+    return {"quote_status": "matched" if source_turn is not None else "unmatched",
+            "matched_user_turn": source_turn, "quoted_text": quote,
+            "quote_leads_capability": not capability[:match.start()].strip()}
 
 
 def main() -> int:
@@ -121,11 +145,14 @@ def main() -> int:
             if (variant / "AGENTS.append.md").exists():
                 with (vault / "AGENTS.md").open("a", encoding="utf-8") as handle:
                     handle.write((variant / "AGENTS.append.md").read_text(encoding="utf-8"))
+        hello_transcript = None
         for trial in ("hello", "restart"):
             out = subprocess.run([sys.executable, str(harness), "--vault", str(vault),
                                   "--condition", "seeded", "--persona", str(args.persona), "--trial", trial,
                                   "--base", args.base, "--model", args.model, "--out", str(series)],
                                  check=True, capture_output=True, text=True).stdout.strip().splitlines()[-1]
+            if trial == "hello":
+                hello_transcript = Path(out) / "transcript.jsonl"
             row = notice(Path(out))
             row.update({"loop": loop, "trial": trial})
             with (series / "noticings.jsonl").open("a", encoding="utf-8") as handle:
@@ -137,8 +164,13 @@ def main() -> int:
         (series / ("loop-%02d-check.txt" % loop)).write_text(check.stdout + check.stderr, encoding="utf-8")
         priority = vault / "sources" / "hello_world_answer.json"
         if priority.exists():
+            answer = json.loads(priority.read_text(encoding="utf-8"))
             (series / ("loop-%02d-recorded-priority.json" % loop)).write_text(
                 priority.read_text(encoding="utf-8"), encoding="utf-8")
+            if hello_transcript is not None:
+                (series / ("loop-%02d-quote-check.json" % loop)).write_text(
+                    json.dumps(check_recorded_words(answer, hello_transcript),
+                               ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(series)
     return 0
 

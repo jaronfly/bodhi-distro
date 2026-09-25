@@ -200,6 +200,7 @@ class HermesDistributionTests(unittest.TestCase):
                     inside = False
         self.assertIn("skills/bodhi-seed", owned)
         self.assertIn("SOUL.md", owned)
+        self.assertNotIn("sources", owned, "founder source material should remain optional, outside profiles")
         for path in owned:
             self.assertTrue((ROOT / path).exists(), path + " is listed in distribution_owned but missing")
             self.assertNotIn(path.split("/")[0], self.HERMES_RESERVED,

@@ -2,8 +2,8 @@
 """Minimal local-model harness for evals/TRIAL.md.
 
 It stands in for the "only local models" Player One: an OpenAI-compatible
-endpoint (llama.cpp / llama-swap / Ollama / LM Studio), a model, and four tools
-that are confined to one vault folder. The same harness runs the seeded vault
+endpoint (llama.cpp / llama-swap / Ollama / LM Studio), a model, and tools
+scoped to one vault folder. This is a trial harness, not an OS sandbox. The same harness runs the seeded vault
 (created by bin/bodhi.py init) and an unseeded folder, so the only difference
 between conditions is what is in the folder.
 
@@ -67,7 +67,7 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {
         "name": "run_bodhi",
-        "description": "Run `python3 bin/bodhi.py <args>` inside the working folder. Pass arguments as a list.",
+        "description": "Run the trial's frozen Bodhi CLI for this vault. Pass arguments as a list; init and paths outside this vault are unavailable.",
         "parameters": {"type": "object", "properties": {"args": {"type": "array", "items": {"type": "string"}}},
                        "required": ["args"]}}},
 ]
@@ -78,6 +78,7 @@ def utc_now() -> str:
 
 
 def inside(vault: Path, rel: str) -> Path:
+    vault = vault.resolve()
     target = (vault / rel).resolve()
     if target != vault and vault not in target.parents:
         raise ValueError("path leaves the working folder: " + rel)
@@ -86,12 +87,64 @@ def inside(vault: Path, rel: str) -> Path:
     return target
 
 
-def run_tool(vault: Path, name: str, args: dict, conversation: list = ()) -> str:
+BODHI_OPTIONS = {
+    "check": set(), "gaps": set(),
+    "capture": {"--text", "--file", "--source"},
+    "onboard-complete": {"--priority", "--priority-file", "--capability", "--capability-file",
+                         "--receipt", "--receipt-file"},
+    "review": {"--disposition", "--note"},
+}
+BODHI_FILE_OPTIONS = {"--file", "--priority-file", "--capability-file", "--receipt-file"}
+
+
+def checked_bodhi_args(vault: Path, raw: object) -> list[str]:
+    """Allow only the vault-scoped subset of the CLI used by this local trial."""
+    if not isinstance(raw, list) or not all(isinstance(a, str) for a in raw):
+        raise ValueError("run_bodhi args must be a list of strings")
+    if len(raw) < 2 or raw[0] not in BODHI_OPTIONS:
+        raise ValueError("run_bodhi permits check, gaps, capture, onboard-complete, and review only")
+    vault = vault.resolve()
+    if inside(vault, raw[1]) != vault:
+        raise ValueError("Bodhi destination must be this working folder")
+    command = raw[0]
+    checked = [command, str(vault)]
+    index = 2
+    if command == "review":
+        if len(raw) <= index or raw[index].startswith("--"):
+            raise ValueError("review requires a capture ID")
+        checked.append(raw[index])
+        index += 1
+    while index < len(raw):
+        option, equals, inline_value = raw[index].partition("=")
+        if option not in BODHI_OPTIONS[command]:
+            raise ValueError("unavailable Bodhi option: " + option)
+        if equals:
+            value = inline_value
+            index += 1
+        else:
+            if index + 1 >= len(raw):
+                raise ValueError("missing value for " + option)
+            value = raw[index + 1]
+            index += 2
+        if option in BODHI_FILE_OPTIONS:
+            value = str(inside(vault, value))
+        checked.extend([option, value])
+    return checked
+
+
+def run_tool(vault: Path, name: str, args: dict, conversation: list = (),
+             source_ref: str | None = None) -> str:
     try:
         if name == "search_files":
             query = args.get("query", "").lower()
             hits = []
             for path in sorted(vault.rglob("*")):
+                if path.is_symlink():
+                    continue
+                try:
+                    inside(vault, str(path.relative_to(vault)))
+                except ValueError:
+                    continue
                 if ".git" in path.parts or not path.is_file() or path.stat().st_size > 500_000:
                     continue
                 try:
@@ -124,10 +177,12 @@ def run_tool(vault: Path, name: str, args: dict, conversation: list = ()) -> str
             target.write_text(args["content"], encoding="utf-8")
             return "wrote " + str(target.relative_to(vault)) + " (" + str(len(args["content"].encode())) + " bytes)"
         if name == "run_bodhi":
-            script = vault / "bin" / "bodhi.py"
+            script = REPO / "bin" / "bodhi.py"
             if not script.exists():
-                return "error: bin/bodhi.py does not exist in this folder"
-            argv = [str(a) for a in args.get("args", [])]
+                return "error: frozen bin/bodhi.py does not exist in this trial"
+            argv = checked_bodhi_args(vault, args.get("args", []))
+            if argv[0] == "onboard-complete" and source_ref:
+                argv.extend(["--source-ref", source_ref])
             proc = subprocess.run([sys.executable, str(script)] + argv, cwd=vault, capture_output=True,
                                   text=True, timeout=120)
             return ("exit " + str(proc.returncode) + "\n" + proc.stdout + proc.stderr)[:TOOL_OUTPUT_LIMIT]
@@ -192,7 +247,8 @@ def run(args) -> Path:
                 except json.JSONDecodeError as exc:
                     call_args, result = {}, "error: arguments were not valid JSON: " + str(exc)
                 else:
-                    result = run_tool(vault, call["function"]["name"], call_args, messages)
+                    result = run_tool(vault, call["function"]["name"], call_args, messages,
+                                      source_ref=str(log))
                 record({"role": "tool", "name": call["function"]["name"], "args": call_args, "result": result})
                 messages.append({"role": "tool", "tool_call_id": call.get("id", ""), "content": result})
         else:

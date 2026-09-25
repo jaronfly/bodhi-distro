@@ -14,7 +14,7 @@ hermes -p bodhi setup          # choose a model; Bodhi needs no keys of its own
 hermes -p bodhi chat           # then say: Hello, Bodhi.
 ```
 
-The profile gets `SOUL.md` (the seed's opening, verbatim from the skill), the `bodhi-seed` skill, and `sources/`. Your keys, memories and sessions stay yours, and `hermes profile update bodhi` pulls new versions without touching them. The optional vault below isn't part of the profile, because Hermes reserves `bin` inside profiles. Create it from a clone of this repo.
+The profile gets `SOUL.md` (the seed's opening, verbatim from the skill) and the `bodhi-seed` skill. The original founder's source material stays in this repository for optional inspection; it is not installed into a new person's profile. Your keys, memories and sessions stay yours, and `hermes profile update bodhi` pulls new versions without touching them. The optional vault below isn't part of the profile, because Hermes reserves `bin` inside profiles. Create it from a clone of this repo.
 
 If you delete the profile and install it again under the same name, Hermes v0.21.2 can leave a tombstone at `~/.hermes/profiles/.deleted/bodhi` that hides the new install ("does not exist" right after "Installed"). Remove that file if it's there.
 
@@ -68,8 +68,8 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 
 The full Bodhi Bible remains in the original Brain. This pilot carries only the verbatim founding section, still marked **draft and unratified**. Later addenda include extended third-party quotations and personal material. The installer does not inject even the founding section into a new person's agent prompt.
 
-## What v0.01 proves
+## What the pilot has shown
 
-The pilot can prove that a new Player One can initialize a versioned local space, complete a first-session handoff, capture an exact source, find what remains unattended, and record a review with provenance. [Smoke evidence](evals/SMOKE_2026-09-24.md) records what was checked and an early local-model failure. The standalone skill has a clear install and invocation path, but its effect on a fresh Hermes model still needs direct trials. This version has not proved autonomous mining, cross-harness continuity, model quality, or a useful long-term relationship. Those require trials with real people and models, plus receipts that show the work actually helped.
+The vault CLI can initialize a versioned local space, complete a first-session handoff, capture an exact source, find unattended captures, and record a review with provenance. [Smoke evidence](evals/SMOKE_2026-09-24.md) records the checks and an early local-model failure. Six [synthetic Hermes loops](evals/FINDINGS_2026-09-24.md) showed the seed greeting and useful artifacts, but also exposed premature building, drift away from Player One's latest choice, and unsupported precise figures. Local Groundhog runs found a fabricated quote in an onboarding record. These are failure-finding trials, not proof of benefit for a new person. Autonomous mining, cross-harness continuity, model quality, and a useful long-term relationship still need real-user trials and receipts.
 
 No public reuse license has been selected for this private pilot. The copied source documents retain their own authorship and draft status.

@@ -3,8 +3,10 @@
 This runs [the v0.01 trial](../TRIAL.md) for a Player One who has **only local models**: an OpenAI-compatible
 endpoint (llama.cpp, llama-swap, Ollama, LM Studio) and no cloud harness.
 
-`harness.py` is a small tool loop with four tools confined to one folder: `list_dir`, `read_file`,
-`write_file`, and `run_bodhi` (runs that folder's `bin/bodhi.py`). Like Codex and Claude Code, it puts the
+`harness.py` is a small tool loop with vault-scoped file/search/history tools and a limited `run_bodhi`
+command that uses the trial's frozen CLI. It rejects external file operands and supplies the transcript
+reference itself. This is a trial boundary, not an OS security sandbox; use only synthetic data in the
+workspace. Like Codex and Claude Code, it puts the
 folder's `AGENTS.md` into the system message when the file exists. Nothing else about Bodhi is given to the
 model. That makes the seeded vault and an unseeded folder the only difference between conditions.
 
@@ -34,6 +36,8 @@ python3 evals/local/harness.py --vault /tmp/v_seeded --condition seeded \
 - Each loop gets a fresh vault, the same persona turns and the same model. It runs `hello`, then `restart`.
 - `noticings.jsonl` records what the model opened, sentences where it named a limit or a need, oddities it
   mentioned, and questions it asked. That's a pointer for a reader; the transcripts are the evidence.
+- `loop-XX-quote-check.json` compares the first recorded capability quote to the synthetic Player One's
+  actual turns. A matching quote is source-fidelity evidence, not proof it reflects the latest choice.
 
 ```sh
 python3 evals/local/groundhog.py --loops 2 --variant none --persona evals/local/personas/candle_shop.json \

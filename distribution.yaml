@@ -12,7 +12,6 @@ distribution_owned:
   - SOUL.md
   - distribution.yaml
   - skills/bodhi-seed
-  - sources
 
 # No keys are required by Bodhi itself; the installer chooses a model with `hermes -p bodhi setup`.
 env_requires: []
