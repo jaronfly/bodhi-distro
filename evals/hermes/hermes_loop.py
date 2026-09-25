@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import re
@@ -47,12 +48,17 @@ def run(argv, **kw):
     return subprocess.run(argv, capture_output=True, text=True, **kw)
 
 
-def freeze(dest: Path) -> str:
-    """Export the repo's last commit once per series, so every loop installs the identical seed."""
+def freeze(dest: Path, ref: str = "HEAD") -> str:
+    """Export one commit once per series, so every loop installs the identical seed."""
     dest.mkdir(parents=True)
-    archive = subprocess.run(["git", "-C", str(REPO), "archive", "HEAD"], capture_output=True, check=True).stdout
-    subprocess.run(["tar", "-x", "-C", str(dest)], input=archive, check=True)
-    return run(["git", "-C", str(REPO), "rev-parse", "HEAD"]).stdout.strip()
+    commit = run(["git", "-C", str(REPO), "rev-parse", "--verify", ref + "^{commit}"])
+    if commit.returncode:
+        raise RuntimeError("seed ref does not resolve to a commit: " + ref)
+    commit_sha = commit.stdout.strip()
+    archive = subprocess.run(["git", "-C", str(REPO), "archive", commit_sha],
+                             capture_output=True, check=True).stdout
+    subprocess.run(["tar", "-x", "-C", str(dest)], input=archive, capture_output=True, check=True)
+    return commit_sha
 
 
 def model_config(args) -> str:
@@ -104,6 +110,7 @@ def hermes(profile_home: Path, scratch_home: Path, cwd: Path, prompt: str, cont:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--loops", type=int, default=2)
+    parser.add_argument("--seed-ref", default="HEAD", help="commit/ref to install; runner and persona stay current")
     parser.add_argument("--persona", type=Path, required=True)
     parser.add_argument("--provider", default="zai")
     parser.add_argument("--model", default="glm-5.2")
@@ -122,13 +129,15 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="bodhi-hermes-loop-") as temp:
         work = Path(temp)
         source = work / "seed"
-        commit = freeze(source)
+        commit = freeze(source, args.seed_ref)
         root = work / "hermes-root"
         install_home = work / "install-home"
         install_home.mkdir()
         install_env = trial_env(install_home, root)
         (series / "SERIES.json").write_text(json.dumps({
             "series": series.name, "installer_commit": commit, "persona": str(args.persona),
+            "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "persona_sha256": hashlib.sha256(args.persona.read_bytes()).hexdigest(),
             "persona_synthetic": True, "provider": args.provider, "model": args.model, "loops": args.loops,
             "steering": "none; fresh profile from the frozen distribution, identical scripted turns every loop",
             "isolation": "install and profile state under a temporary HERMES_HOME; HOME=<loop scratch> for chat",

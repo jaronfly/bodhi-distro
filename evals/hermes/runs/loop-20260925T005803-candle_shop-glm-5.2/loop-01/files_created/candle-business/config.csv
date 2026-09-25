@@ -1,0 +1,15 @@
+key,value
+shop_name,My Candle Shop (edit me)
+currency,USD
+listing_fee,0.20
+transaction_fee_pct,6.5
+processing_fee_pct,3.0
+processing_fee_fixed,0.25
+offsite_ads_pct,15
+share_of_orders_with_offsite_ads,0.10
+etsy_ads_budget_monthly,90
+etsy_plus_monthly,0
+other_fixed_monthly,0
+labor_rate_per_hour,0
+minutes_per_unit,0
+target_profit_per_unit,10

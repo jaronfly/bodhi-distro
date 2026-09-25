@@ -1,0 +1,12 @@
+{
+  "series": "loop-20260925T005803-candle_shop-glm-5.2",
+  "installer_commit": "1689b7141b656597819eb21b805d4315c78f25b5",
+  "persona": "evals/local/personas/candle_shop.json",
+  "persona_synthetic": true,
+  "provider": "zai",
+  "model": "glm-5.2",
+  "loops": 1,
+  "steering": "none; fresh profile from the frozen distribution, identical scripted turns every loop",
+  "isolation": "install and profile state under a temporary HERMES_HOME; HOME=<loop scratch> for chat",
+  "provider_key": "passed by environment, not copied into the profile"
+}

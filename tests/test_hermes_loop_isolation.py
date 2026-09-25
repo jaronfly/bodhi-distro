@@ -1,5 +1,6 @@
 import importlib.util
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +14,16 @@ SPEC.loader.exec_module(hermes_loop)
 
 
 class HermesLoopIsolationTests(unittest.TestCase):
+    def test_freeze_records_the_exact_installer_commit(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commit = hermes_loop.freeze(Path(temp) / "seed", "HEAD")
+            expected = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+                                      capture_output=True, text=True, check=True).stdout.strip()
+            self.assertEqual(commit, expected)
+            self.assertTrue((Path(temp) / "seed/distribution.yaml").is_file())
+            with self.assertRaisesRegex(RuntimeError, "seed ref does not resolve"):
+                hermes_loop.freeze(Path(temp) / "bad-seed", "no-such-bodhi-ref")
+
     def test_trial_env_keeps_only_selected_key_and_runtime_settings(self):
         with patch.dict(os.environ, {"BODHI_UNRELATED_SECRET": "do-not-pass",
                                   "PATH": "/usr/bin", "HOME": "/real-home"}, clear=True):

@@ -1,0 +1,125 @@
+=== INSTALL (exit 0)
+grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-tjna_7cu/seed
+  Target:   /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-tjna_7cu/hermes-root/profiles/bodhi-loop-005803-01
+
+✓ Installed 'bodhi-loop-005803-01' v0.1.0
+  Profile path: /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-tjna_7cu/hermes-root/profiles/bodhi-loop-005803-01
+
+  Use with:      hermes -p bodhi-loop-005803-01 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I run on the Hermes harness in this terminal — I can search the web, read and write files, run commands, drive a browser, and remember what matters across sessions. But the shape of me grows around the work you choose, so the honest starting point is: what do you want AI to help change or make?
+
+Two questions to ground it, if that feels too abstract:
+
+1. What do you wish were easier? (Something recurring — writing, research, code, chores of a particular project.)
+2. What would a useful first win look like — something small enough to finish in a sitting?
+
+If you already have a task or a note in hand, drop it here and we can start with that instead of talking about starting.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+Done — your profit kit is built, runs, and the math is verified. Plain talk about what it is and isn't:
+
+WHAT YOU HAVE (all in ~/candle-business/, i.e. /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-tjna_7cu/home-01/candle-business/):
+
+- profit.py — run "python3 profit.py" for estimates, "python3 profit.py actual" once you've added real orders
+- products.csv, config.csv, orders.csv, monthly_costs.csv — plain files, edit them in any text editor
+- README.md — the one-page guide
+
+WHAT IT TOLD ME WITH PLACEHOLDER NUMBERS (a typical 8oz candle at $24, materials ~$6.50, label ~$5.75): roughly $3.09 in Etsy fees per unit, $7.66 profit per candle, ~$257/month net at ~55 sales. That is a demonstration, not your shop. The whole point is for you to overwrite my guesses: your actual prices, your wax/wick/jar costs, your label costs.
+
+WHAT'S ALREADY REAL: the fee math. Verified this week against Etsy's own policy page — $0.20 listing per unit sold, 6.5% transaction on item + shipping, 3% + $0.25 processing. Two things worth knowing even before you touch the files:
+
+1. If your shop is under $10k in trailing 365-day sales, you can turn OFF Offsite Ads (Shop Manager > Settings > Offsite Ads) and stop paying that 15% on ad-attributed orders.
+2. Etsy charges the $0.20 listing fee again every time a unit sells, not just when you publish — that surprises most sellers.
+
+ONE CORRECTION TO MAKE: I had to proceed on assumptions this turn — Etsy as your platform and US fees. If you sell on Shopify or at markets too, tell me and I'll adjust the fee model; multi-channel is a small change.
+
+TWO NEXT STEPS, WHEN YOU'RE READY (no rush):
+
+- If you want the "am I making money" answer on real data: Etsy lets you export your order history as a CSV (Settings > Options > Download data). Get that file to me and I'll convert it into orders.csv — then actual mode gives you true monthly profit, not estimates.
+- If listings and customer messages are still drowning you after the money question settles, that's a separate session and I have ideas — including drafting reply templates from your own past messages.
+
+The honest unknown: I don't yet know your real prices or costs, so I can't tell you if you're profitable. The tool to answer that now exists; the answer arrives when your numbers go in.
+
+=== PLAYER ONE (synthetic, hello turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Worksheet's at candle-business/listings/TEMPLATE.md — every listing we write will fill one of these, so titles, tags, and structure stay consistent across all twelve.
+
+Now the questions. These are the ones where the answers have to come from you — everything else I can look up:
+
+1. THE SCENTS: List the 12 names (just names is fine). If it's easier, paste your shop URL or your current titles.
+
+2. THE SPECS (one set, reused everywhere): wax type, vessel size/material, approximate burn time, wick type. If these differ per product, say which ones differ.
+
+3. YOUR VOICE — the calibration sample. Write 2-4 sentences describing your favorite scent the way you'd describe it to a friend. Don't polish it; I want how you actually talk. This is the single most useful thing on this list — everything I write gets checked against it.
+
+4. TONE NORTH STAR (optional): any shop — any industry — whose writing you like the feel of? Or "nothing like ___" works too.
+
+5. THE BUYERS: who actually buys — treat-yourself people, gift buyers, both? Any occasion that stands out (housewarmings, holidays)?
+
+6. YOUR STORY, if you want it in there: why candles, where you pour, anything true you'd want a buyer to know. One line is plenty.
+
+And an offer to make this concrete faster: name one scent from your list and I'll write a complete sample listing — title, description, 13 tags — before you answer the rest. You'd get to react to a real draft instead of a blank form, and honestly, your reactions to a near-miss teach me your voice faster than any questionnaire. Clearly labeled as a demo so we throw it away if it's wrong.
+
+=== PLAYER ONE (synthetic, hello turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+Wrapped up. Here's the honest state of everything as this session closes:
+
+SAVED FOR NEXT TIME
+
+- candle-business/NEXT_UP.md — the handoff: where we are, the six questions awaiting your answers, open assumptions, and the verified fee/search facts so I don't have to re-research them.
+- The etsy-candle-shop skill — my working notes on your shop (listing workflow, verified Etsy facts) load automatically whenever we touch this work again.
+- Memory — your priorities and judging criteria carry into every future session.
+- candle-business/ — profit kit (tested and runs), listings/TEMPLATE.md worksheet.
+
+Two small failures along the way, both fixed: the skill save was rejected twice (description too long, then a YAML colon), succeeding on the third try with tighter formatting.
+
+STILL OPEN, IN YOUR COURT
+
+1. The listing inputs — scent names (or just paste your shop URL / current titles), shared specs, and that 2-4 sentence voice sample. That voice sample is the one that matters most.
+2. Whether my two standing assumptions are right: Etsy, and US-based. One line from you corrects either.
+3. When you want the money answer: Etsy's order-history CSV export dropped into our next session turns the profit kit from estimates into your actual numbers.
+
+Next session starts sharp: you bring a scent name and your voice sample, I write one demo listing for you to react to. Good session — there's now a real filing cabinet where yesterday there was a shoebox.
+
+=== PLAYER ONE (synthetic, hello turn 5): My listings are dead simple — like 'Cedar Smoke — $18', just the scent name and a price, nothing else. And my voice? Casual and warm, like I'm talking to a friend who wandered into the shop. Don't overthink the rest — use your best judgment and go ahead and wrap up this first session.
+Session wrapped, everything saved. The last thing to land:
+
+THE ONE ARTIFACT TO REACT TO
+candle-business/listings/DRAFT-Cedar-Smoke.md — a complete demo listing for Cedar Smoke, written in your voice: casual, warm, like talking to a friend who wandered in. Smoky cedar, campfire warmth, "that woodsmoke that clings to your flannel on the walk home." Every spec I had to guess is in [BRACKETS] — wax, wick, burn time, jar, processing days. Next visit, read it out loud and tell me what's off. That verdict calibrates the other eleven.
+
+ALSO SAVED
+- NEXT_UP.md — the handoff with your voice described in your words, what's confirmed, what's still guessed
+- Memory and the etsy-candle-shop skill — any future session picks up right here without re-asking what you've answered
+
+STANDING GUESSES (correct me in one line whenever): Etsy, US-based, ~$18 price point.
+
+Small honesty note: the draft's specs are placeholders, not facts — I'd rather you cross out wrong things than trust plausible ones.
+
+When you come back: your reactions to the draft, the other eleven scent names whenever convenient, and — whenever the money question itches again — Etsy's order-history CSV export turns the profit kit real. It's a good first session: a shoebox became a filing cabinet, and there's a candle on the shelf written in your voice waiting for your red pen.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Welcome back. Here's the honest state of things.
+
+WHAT I KNOW (from your own words last session)
+- You sell hand-poured candles — 12 products. Listings are currently bare "Cedar Smoke — $18" style: scent name + price, nothing else.
+- Your voice: casual and warm, like talking to a friend who wandered into the shop. Not polished, not salesy.
+- How you like to work: don't overthink, use judgment, don't ask back questions you already answered.
+- Your priority order, in your words: listings first, then customer messages, then profit clarity.
+- Session 1 left you with three things in ~/candle-business/: a profit calculator (profit.py, runs but is waiting on real numbers), a listings worksheet (TEMPLATE.md), and a full demo listing for Cedar Smoke written to calibrate the voice before I write the other 11.
+
+WHAT I'M UNSURE OF
+- Whether it's actually Etsy, and whether you're in the US — both assumed, never confirmed. It changes fees and shipping copy, so worth a yes/no at some point.
+- Whether you've read the Cedar Smoke draft yet. Everything in [brackets] is my guess — wax, burn time, vessel, all of it.
+- The other 11 scent names, and one set of real specs shared across products.
+- Whether the draft's voice is close or off. That I can't guess my way out of — only your reaction tells me.
+
+WHAT I'D DO FIRST
+Read the draft. It's at candle-business/listings/DRAFT-Cedar-Smoke.md — read it out loud, and just tell me what lands and what's off, plus what's wrong in the brackets. That one reaction unlocks the other 11 listings, which is your #1 priority. If you want to move faster in the same breath, paste your 11 other scent names and I'll start drafting while you correct me.
+
+If the draft feels totally wrong, say that too — a near-miss reaction tunes the voice better than a polite "looks good."
