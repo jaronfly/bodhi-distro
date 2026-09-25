@@ -169,14 +169,17 @@ def main() -> int:
             (out / "transcript.txt").write_text("\n\n".join(log) + "\n", encoding="utf-8")
 
             if (profile / "memories").is_dir():
-                shutil.copytree(profile / "memories", out / "memories")
+                shutil.copytree(profile / "memories", out / "memories",
+                                ignore=shutil.ignore_patterns("*.lock"))
             grown = [d for d in (profile / "skills").iterdir() if d.is_dir() and d.name != "bodhi-seed"] \
                 if (profile / "skills").is_dir() else []
             for skill in grown:
                 shutil.copytree(skill, out / "skills_grown" / skill.name)
-            created = [p for p in scratch.rglob("*") if p.is_file() and ".hermes" not in p.parts]
+            created = [p for p in scratch.rglob("*") if p.is_file() and ".hermes" not in p.parts
+                       and "__pycache__" not in p.parts and p.suffix != ".pyc"]
             if created:
-                shutil.copytree(scratch, out / "files_created", ignore=shutil.ignore_patterns(".hermes", ".cache"))
+                shutil.copytree(scratch, out / "files_created",
+                                ignore=shutil.ignore_patterns(".hermes", ".cache", "__pycache__", "*.pyc"))
             text = "\n".join(log)
             noticed = {"loop": loop, "profile": name,
                        "limit_or_need_sentences": [s.strip()[:240] for s in re.split(r"(?<=[.!?])\s+", text)

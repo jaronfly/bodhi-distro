@@ -1,0 +1,126 @@
+=== INSTALL (exit 0)
+grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/seed
+  Target:   /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/hermes-root/profiles/bodhi-loop-011708-01
+
+✓ Installed 'bodhi-loop-011708-01' v0.1.0
+  Profile path: /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/hermes-root/profiles/bodhi-loop-011708-01
+
+  Use with:      hermes -p bodhi-loop-011708-01 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I checked the workspace for any existing notes or a START_HERE file — none yet, so this is genuinely a first meeting. A little about how this works: I'm a portable practice running on the Hermes harness, and I grow around whatever work you choose to do with me. The tools here include a browser, a terminal, web search, persistent memory, and skills I can build as we go — but none of that matters until there's something you actually want done.
+
+So, two questions to start:
+
+1. What do you want AI help to change or make? (If that's too abstract: what do you wish were easier?)
+2. What would a useful first win look like — something small enough to finish in a session, real enough to matter?
+
+Even a rough sketch is enough to start. One real example grounds this better than a setup tour would.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+The calculator works — that output above is real execution, not a mock-up. But read it carefully, because it comes with a big caveat and one immediate insight.
+
+The caveat: those numbers are placeholders. I estimated supplies ($7.40/candle) and shipping ($8.20) from typical small-batch soy candle costs — I don't know your actual wax price, jar cost, or what you pay for labels. Until you replace them, the specific dollar figures are guesses. You edit the CONFIG block at the top of the file with your real numbers and run it again; everything recalculates.
+
+The insight that holds regardless: **fees alone were 23% of revenue in that run, and Offsite Ads was the single biggest one.** If Etsy's ads win the sale, they take 12–15% off the top before the 6.5% and processing fees even start. And shipping label cost ($8.20 in my guess) is a silent profit-killer on a $28 candle. The spread in that table is the real story — with numbers even close to my guesses, an $18 price loses $1.92 per order while $30 makes $7.50. The gap between "busy" and "profitable" is about $10 of price or a few dollars of cost, not a hundred.
+
+Files (plain text paths, open them yourself):
+- Calculator: /private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/home-01/candle_business/candle_profit.py
+- Run it: python3 candle_business/candle_profit.py
+
+Etsy fee figures came from Etsy's own help pages ($0.20 listing, 6.5% transaction, 3% + $0.25 US processing), cross-checked against two 2026 fee guides. If you sell somewhere other than Etsy, tell me where and I'll adjust the fee block — Shopify's math is completely different (no 6.5%, but a monthly fee).
+
+To make this yours, I'd need from you: actual supply costs per candle (or supplier invoices and I'll compute per-candle), your real shipping label cost, your price, and roughly what share of your sales come through Offsite Ads (Etsy shows this in Stats).
+
+One thing I noticed while building this: you named three pains, and the other two — listings and customer messages — are the ones eating your day. If the money question is settled by a tool like this, the inbox is probably the next most recoverable time. Tell me which thread to pull and bring your real numbers when you have them.
+
+=== PLAYER ONE (synthetic, hello turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Done — the pilot listing kit is built and waiting on one thing only you can supply: your voice. Three files in candle_business/:
+
+1. VOICE_CAPTURE.md — the five questions, set up so you answer by talking, not writing listings:
+   Q1. Describe your favorite scent to a friend who's never smelled it (plain spoken words)
+   Q2. The pilot candle's facts — name, vessel/oz, wax, wick, burn time, price
+   Q3. What buyers are usually doing — self-treat, gift, seasonal, setting a scene
+   Q4. Your start story, the real two-sentence version
+   Q5. Anti-voice — which clichés would embarrass you (spa brochure, cottagecore, luxury minimalism, SEO stuffing)
+
+2. LISTING_STRUCTURE.md — the Etsy skeleton those answers get poured into: title rules from Etsy's own 2026 seller handbook (clear noun first, no subjective filler, no keyword stuffing), first-160-characters hook, bullet details, first-person maker note, care line, and the 13-tag plan.
+
+3. PILOT_DEMO.md — the same assumed candle written three ways: A plain spoken, B warm and personal, C dry and direct. Facts inside are labeled assumptions (9 oz soy, ~50 hr, $28, "Wild Fig & Cedar" — all invented). Point at a letter and tell me what's off; that's faster than describing a voice from scratch.
+
+I tried to collect your answers through the interactive prompt twice and nothing came back, so to be plain about quality: the structure is real and current, but every fact and every sentence of voice in the demos is a placeholder. The listing that passes your test gets written the moment you answer Q1 and Q2 — those two alone are enough for a first draft of one real listing. Answer in chat or fill in VOICE_CAPTURE.md, whichever's easier.
+
+You'll judge me on whether I asked the right questions — if one of the five is wrong, or something's missing (say, you already have a tagline or shop-name convention I should know), say so and I'll correct the capture sheet before we draft.
+
+=== PLAYER ONE (synthetic, hello turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+Wrapped. Here's the honest state of everything as this session closes:
+
+DONE AND VERIFIED
+- candle_profit.py — runs, math checked against Etsy's published 2026 US fees. Costs inside are still my estimates, so its dollar output is a demonstration, not your books.
+- The listing kit — VOICE_CAPTURE.md (the five questions you approved), LISTING_STRUCTURE.md (Etsy-skeleton), PILOT_DEMO.md (three demo voices with assumed facts).
+- SESSION_NOTES.md — the handoff note, so any future session picks up exactly where this ended without you re-explaining.
+- A skill called etsy-candle-shop now exists in this harness — it carries the verified fee table, the listing structure, and the rules I learned the hard way (never write your voice before hearing it; label every placeholder). Took three attempts to save; the final one stuck.
+
+WAITING ON YOU (the only two things that unlock real output)
+1. Q1 + Q2 from VOICE_CAPTURE.md — your favorite scent described in spoken words, and the pilot candle's facts. That's enough for the first real listing.
+2. Real supply and shipping-label costs — that turns the calculator from demo into answer.
+
+STILL OPEN
+- The inbox. Named, not started.
+
+One signpost worth naming: everything I've saved lives in this harness's memory and workspace. If you'd rather the durable version of your business context live somewhere you own — a synced folder, a repo — say so next time and I'll move it. Otherwise this is where it grows.
+
+Come back with a sentence about how your favorite candle smells, and we'll write something that sounds like you.
+
+=== PLAYER ONE (synthetic, hello turn 5): My listings are dead simple — like 'Cedar Smoke — $18', just the scent name and a price, nothing else. And my voice? Casual and warm, like I'm talking to a friend who wandered into the shop. Don't overthink the rest — use your best judgment and go ahead and wrap up this first session.
+Session wrapped — and you left me just enough to make it worth it. Here's your draft, written warm and casual, in one piece you can judge against your own ear:
+
+TITLE: Cedar Smoke Scented Candle, Hand Poured Smoky Woodsy Candle
+
+First 160 characters (the hook buyers actually see):
+"Cedar Smoke smells like a campfire that behaved itself — real cedar, real smoke, none of the perfume-counter stuff. Hand poured in small batches."
+
+The scent, spoken: "It's cedar first, then the smoke settles in behind it — like the morning after a fire, when the room still remembers it. Not cologne-smoky, not barbecue-smoky. More like a cabin with the windows open."
+
+The full draft — with details, care line, and 13 suggested tags — is at candle_business/DRAFT_cedar_smoke.md. Four [BRACKETED] slots remain (vessel, wax/wick, burn time, and your two-sentence story), because those are facts only you know and I wasn't going to invent them.
+
+One thing I can't let slide, flagged honestly: at $18, the calculator's placeholder math came out to roughly -$1.92 per order with break-even around $20.45. That is NOT a verdict — my cost estimates aren't your costs, and if your jars are cheaper or you charge shipping, the answer changes completely. But it's exactly the question you said keeps you up at night, so bring real numbers next time and we'll settle it in one run.
+
+Everything is saved and waiting: the draft, the calculator, the session notes, and a skill so the next session already knows your voice and your rules. Come back with what goes in the brackets — plus real supply costs if you have receipts handy — and we finish Cedar Smoke and start on the other eleven.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Here's the full picture, now with tonight's verification run behind it.
+
+WHAT I KNOW ABOUT YOU
+
+- You run a small hand-poured candle business on Etsy US — 12 products.
+- Your listings today are, in your words, "dead simple — like 'Cedar Smoke — $18', just the scent name and a price, nothing else."
+- Your voice, your words: "casual and warm, like I'm talking to a friend who wandered into the shop." You confirmed the voice-capture questions were the right ones — that was your acceptance test.
+- Your three pains: listing admin, customer messages, and not knowing if you're profitable after supplies and fees.
+- Already built: a complete Cedar Smoke draft listing, a verified 2026 Etsy fee sheet, and a working profit calculator.
+
+WHAT I'M UNSURE OF
+
+- Physical facts: vessel/size, wax/wick, burn time.
+- Your two-sentence start story — that has to be your words, not mine.
+- Your real per-candle costs. Everything dollar-shaped below rests on placeholder estimates.
+- The other 11 scents, and your whole inbox (named pain, untouched).
+
+WHAT HAPPENED TONIGHT (I asked, got no reply back, so I verified instead of guessing)
+
+I re-ran the profit math rather than trusting old notes. With placeholder costs, Cedar Smoke at $18 with free shipping loses $1.92 per order (-10.7% margin) and needs $20.45 to break even — Etsy fees alone eat 24% of an $18 sale. That is a flag, not a verdict: if your real supplies are cheaper than my placeholders, the worry may evaporate. One run with your numbers settles it.
+
+I also left you a two-minute fill-in sheet — six questions covering the vessel, wax/wick, burn time, rough costs, your start story, and how often Offsite Ads actually bite. It's at:
+
+  /private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/home-01/candle_business/FILL_IN Cedar Smoke.txt
+
+Answer any subset whenever you're back — partial beats perfect. The moment I have those answers: Cedar Smoke becomes publishable, the $18 price gets a real verdict, and then we stamp the pattern across the other 11 and move to the inbox.
+
+⚠️ File-mutation verifier: 1 file(s) were NOT modified this turn despite any wording above that may suggest otherwise. Run `git status` or `read_file` to confirm.
+  • `candle_business/SESSION_NOTES.md` — [patch] Failed to read file: `/private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-ndo1kxeq/home-01/candle_business/candle_business/SESSION_NOTES.md`

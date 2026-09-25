@@ -1,0 +1,128 @@
+=== INSTALL (exit 0)
+grows around what its Player One actually needs.
+  Author:   Jaron Flynn (founder), built by Codex and Claude
+  Requires: Hermes >=0.21.0
+  Source:   /private/var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-3ms5mpuy/seed
+  Target:   /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-3ms5mpuy/hermes-root/profiles/bodhi-loop-011214-01
+
+✓ Installed 'bodhi-loop-011214-01' v0.1.0
+  Profile path: /var/folders/64/lfj39wg16h59gw700t5w990c0000gn/T/bodhi-hermes-loop-3ms5mpuy/hermes-root/profiles/bodhi-loop-011214-01
+
+  Use with:      hermes -p bodhi-loop-011214-01 chat
+
+
+=== PLAYER ONE (synthetic, hello turn 1): Hello, Bodhi.
+Bodhi online. Just a seed, for now.
+
+I'm running in a plain terminal on this machine, and I can grow around whatever work you choose — writing, research, code, scheduling, poking at files or the web. The useful question at the start is simple:
+
+What do you want AI help to change or make? And what would a useful first win look like — one concrete task, done well, that you'd point at and say "that helped"?
+
+If that feels too abstract, tell me instead what you wish were easier. One real example grounds things better than a wish list.
+
+=== PLAYER ONE (synthetic, hello turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
+I built and tested a working profitability calculator for your candles. It's at:
+
+  candle-business/profit.py
+
+It runs from your terminal: `python3 candle-business/profit.py`
+
+I ran it with example numbers (a $24 8oz candle) to show the shape of the answer — with typical Etsy fees it nets $11.76/candle at 36.7% margin; the same candle on Shopify would keep $14.02 but costs $39/month before the first sale. It also computes break-even and what price holds a 30% margin. The full example output is above.
+
+Two things I need from you to make it yours:
+
+1. Your real numbers: candle price, what you charge for shipping, and what you actually pay for wax/jar/wick/fragrance/label/packaging per candle (rough is fine — your last supply receipts are the source of truth).
+2. Where you sell: Etsy, Shopify, somewhere else, or several? And do you have a CSV export of sales you could drop here? With that, instead of one candle's math, I can tell you actual profit by product and by month from your real sales history — that's the "am I making money" answer, not a model of it.
+
+One caveat honestly stated: the fee presets (Etsy 6.5% + $0.20 + 3% + $0.25, Shopify 2.9% + $0.30) are typical US rates, not verified against today's fee schedule — check them against your platform's current fee page, and I can look up current rates when we sit down with your real numbers.
+
+The other half of your drowning-in-admin problem — listings and customer messages — is real too, and worth attacking once the money picture is solid. What does the message backlog actually look like: how many per day, and are they mostly pre-purchase questions, "where's my order," or something else?
+
+=== PLAYER ONE (synthetic, hello turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
+Everything runs, and the workflow is saved as a skill so the next eleven candles go faster. Here's where the listings project stands.
+
+What exists now (all in candle-business/):
+
+- listing-intake.md — one form covering brand voice (once) plus facts for each of the twelve candles, with a status tracker
+- check_listing.py — a checker that enforces current Etsy listing rules (140-char titles with the item noun up front, all 13 tags as phrases under 20 characters, no keyword-stuffing, description structured so the first two sentences carry search weight and the labeled sections answer buyer questions)
+- listings/rainy-day-read.json — a demo listing that passes the checker 0-fail/0-warn. It caught two real problems during iteration ("gift" in 4 tags, then "candle" in 4 tags) and I fixed both — that's the checker doing its job.
+
+To judge the voice question, here's the demo's opening lines — written in a plausible cozy-candle register, NOT yours:
+
+  Title: Rainy Day Read Soy Candle, Cedar and Black Tea Scent, Hand Poured 8oz, Amber Glass
+  Opening: "A hand-poured soy candle made for rainy days and long chapters — cedar, black tea, and a whisper of old paper. If you read by candlelight, or know someone who does, this one was poured for you."
+
+Now the part you actually judge me on — the questions. Answer these in one plain reply and I'll draft your first real listing:
+
+1. Voice: paste a few sentences you've actually written about your candles — an About page, a caption, a reply to a customer, a text describing a smell to a friend. Rough is ideal.
+2. First candle: name, what it smells like, any story behind it, size / burn time / price.
+3. Who buys: gift shoppers, self-care buyers, decor buyers, locals at markets — which mix?
+4. Platform: Etsy, your own site, or both? (I assumed Etsy for the checker; it's wrong for titles/tags if you're elsewhere.)
+
+Until your answers arrive, the demo stays marked PLACEHOLDER-voice and nothing should be published from it. When you send answers, I'll draft, you correct what sounds wrong, and that corrected version becomes the voice template for the remaining eleven.
+
+=== PLAYER ONE (synthetic, hello turn 4): Yes, that sounds right. Go ahead and wrap up whatever you need to for this first session.
+Session wrapped. What's in place:
+
+On disk (verified: 5 files)
+  candle-business/README.md          pickup point — read this first next time
+  candle-business/profit.py          per-candle profit calculator (runs, example numbers)
+  candle-business/listing-intake.md  voice + facts form for all 12 candles
+  candle-business/check_listing.py   Etsy rules checker (runs, enforces title/tag/description rules)
+  candle-business/listings/rainy-day-read.json  demo listing, passes clean, PLACEHOLDER voice — not for publishing
+
+In memory: your business, how you judge the work, and a pointer to the README so a fresh session picks up without re-explaining. The listing workflow is also saved as a skill.
+
+Honest open items: all numbers in profit.py are examples (fee rates unverified against today's schedules), platform is assumed Etsy, and no real listing exists yet — the first one drafts only after your voice samples arrive. Next session starts with your answers to the questions in the README: writing samples, first candle's facts, who buys, where you sell.
+
+One signpost worth naming now: once the listings and the profit picture are real, a weekly fifteen-minute check-in (sales CSV in, profit-by-week out, listing status reviewed) is the natural next habit — Hermes can run that on a schedule when you want it. And when this workspace's rhythm feels right, we swap the generic seed greeting for your own short context — the training wheels come off.
+
+Bring the voice samples whenever you're ready. That's the unlock.
+
+=== PLAYER ONE (synthetic, hello turn 5): My listings are dead simple — like 'Cedar Smoke — $18', just the scent name and a price, nothing else. And my voice? Casual and warm, like I'm talking to a friend who wandered into the shop. Don't overthink the rest — use your best judgment and go ahead and wrap up this first session.
+Session 1 is wrapped, and your voice arrived just in time to make it real. Final state:
+
+THE DRAFT — Cedar Smoke, written warm and casual, like a friend behind the counter:
+
+  Title: Cedar Smoke Soy Candle, Woodsmoke and Cedar Scent, Hand Poured, Amber Glass Jar
+
+  "Come here, you've got to smell this one. Cedar Smoke is a hand-poured soy candle that smells like a campfire after it settles down — real cedar, real woodsmoke, a little sweet underneath. If you've ever wanted your living room to feel like a cabin in November, this is the one."
+
+Then labeled lines: SCENT / VESSEL / WAX & WICK / BURN TIME / CARE, and a shipping note. Passes the Etsy rules checker 0 fail, 0 warn. Filed at candle-business/listings/cedar-smoke.json.
+
+WHAT'S REAL VS. BORROWED, honestly: the scent name, the $18 price, and the voice direction are yours. The 8oz jar, 45-hour burn, soy wax, cotton wick, and 1–3 day shipping are my assumptions — each flagged in the file, and each one line of your typing away from being corrected. Nothing publishes until you've eyeballed it.
+
+EVERYTHING ELSE: the placeholder demo is deleted. The README pickup point, memory, and the listing skill all carry your voice direction now, so a fresh session picks up warm. The eleven siblings need only name + price + one line each from you — "Cedar Smoke — $18 — smells like a cabin fireplace" is genuinely enough to draft from.
+
+WHEN YOU COME BACK: corrections to Cedar Smoke's assumed facts, the other eleven in any rough form, and — when the listings stop hurting — the money question, which still wants your supply receipts and a sales CSV.
+
+It was a good first session. You gave me a sentence of voice and I could suddenly hear the shop.
+
+=== NEW SESSION: PLAYER ONE (synthetic, restart): What do you know about me, what are you unsure of, and what should we do first?
+Welcome back. I picked this up from candle-business/README.md (the session pickup point) and re-read the Cedar Smoke draft — here's where things stand, straight from the files.
+
+WHAT I KNOW ABOUT YOU
+
+- You hand-pour candles and sell them online, solo, small-batch. First person "I" is fine in copy because it's true.
+- Your voice direction, in your words: "casual and warm, like I'm talking to a friend who wandered into the shop."
+- Your current listings are bare — scent name plus price, e.g. "Cedar Smoke — $18". The goal is upgrades that still sound like you, not a takeover.
+- Your pain points: listing admin, customer messages, and not knowing your real profitability.
+- From session 1, all working: a profit calculator (profit.py), an Etsy listing-rules checker (check_listing.py), and the first real draft listing (cedar-smoke.json) which passes the checker clean. Real facts in it: name Cedar Smoke, price $18.
+
+WHAT I'M UNSURE OF
+
+- Every physical fact in the Cedar Smoke draft beyond name and price is my assumption, flagged in the file: 8oz amber jar, ~45h burn, soy wax, cotton wick, ships in 1-3 days.
+- Platform — Etsy is assumed, never confirmed. The checker is Etsy-specific.
+- The other eleven candles: I have names nowhere, just a 12-row tracker waiting.
+- Real numbers: profit.py runs on example costs and unverified fee presets. No sales CSV yet.
+- Your voice beyond the one-liner — no real written snippets captured yet.
+- Message volume and types, before I build anything for customer replies.
+
+WHAT I'D DO FIRST
+
+The README's own ground rule is: one listing approved by you, then batch the remaining eleven. So the first move is small — correct Cedar Smoke. Two quick answers from you cover it:
+
+1. Is Etsy actually the platform? (30 seconds, and it decides whether the checker is even pointed right)
+2. Which of these assumed facts are wrong: 8oz amber jar, ~45 hour burn, soy wax, cotton wick, ships in 1-3 days?
+
+Once you've okay'd Cedar Smoke, send the other eleven as just "name + price + a line about the scent" each — that's enough for me to draft all of them in one pass. And whenever you can export a sales CSV or jot real supply costs, I'll turn the profit model from a demo into an answer. If you'd rather start with a different thread (messages, profit), say so and we go there instead.
