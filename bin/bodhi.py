@@ -408,6 +408,24 @@ def init_vault(dest, answers):
           "capture_enabled": False})
 
 
+def _contains_quoted_span(text):
+    """True if text contains a quoted span of >= 8 chars in any common quote style.
+
+    A soft structural signal: the onboarding instructions ask for the player's
+    exact words in quotation marks. A paraphrase usually arrives unquoted, and
+    this makes that visible in the recorded evidence instead of silent.
+    """
+    pairs = [('"', '"'), ("\u201c", "\u201d"), ("'", "'"), ("\u2018", "\u2019")]
+    for opener, closer in pairs:
+        first = text.find(opener)
+        if first == -1:
+            continue
+        second = text.find(closer, first + len(opener))
+        if second != -1 and (second - first) >= 9:
+            return True
+    return False
+
+
 def onboard_complete(dest, priority, capability, interaction_receipt, source_ref):
     require_vault(dest)
     if onboarding_state(dest) == "complete":
@@ -431,7 +449,8 @@ def onboard_complete(dest, priority, capability, interaction_receipt, source_ref
     answer = {"schema": "bodhi.hello-world-answer/v0.01", "recorded_at_utc": utc_now(),
               "source_kind": "first_agent_session_submitted_at_completion",
               "source_ref": source_ref, "priority_verbatim": priority,
-              "capability_verbatim": capability}
+              "capability_verbatim": capability,
+              "capability_quoted": _contains_quoted_span(capability)}
     answer_path.write_text(json.dumps(answer, ensure_ascii=False, indent=2,
                                       sort_keys=True) + "\n", encoding="utf-8")
     answer_path.chmod(0o600)
