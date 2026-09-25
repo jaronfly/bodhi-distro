@@ -26,6 +26,13 @@
       "origin": "context/BODHI_BIBLE_README.md",
       "sha256": "9628752434bf4a025cdbf915f9425b2ed8558ec667b18957d5cfb7bd90346fa3",
       "role": "verbatim draft status note; reference only"
+    },
+    {
+      "path": "sources/fossils/BODHI_BOOT_2.1.0_BEHAVIORAL_PROTOCOL.md",
+      "origin": "skills/bodhi.skill (zip) -> bodhi-boot/SKILL.md v2.1.0, genesis 2026-03-26, section 'The Behavioral Protocol'",
+      "origin_file_sha256": "5d669dbe744526f5d0472508286165c99605b6e9b038a83a72c30d26bc202d8e",
+      "sha256": "c2289ad361a310ecd3d8f9bfaceeaae6df02941278cd0e3446020ff9a51d4b36",
+      "role": "fossil; verbatim excerpt the bodhi-seed skill says it was adapted from; reference only, not an installed rule"
     }
   ],
   "local_only": [

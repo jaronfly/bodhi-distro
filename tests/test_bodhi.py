@@ -167,5 +167,16 @@ class BodhiCliTests(unittest.TestCase):
             module.git(self.vault, "push", "origin", "main")
 
 
+class SourceManifestTests(unittest.TestCase):
+    def test_every_listed_source_matches_its_recorded_hash(self):
+        manifest = json.loads((ROOT / "SOURCE_MANIFEST.json").read_text(encoding="utf-8"))
+        self.assertTrue(manifest["files"])
+        for entry in manifest["files"]:
+            path = ROOT / entry["path"]
+            self.assertTrue(path.is_file(), entry["path"] + " is listed but missing")
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertEqual(digest, entry["sha256"], entry["path"] + " changed since it was recorded")
+
+
 if __name__ == "__main__":
     unittest.main()
