@@ -1,6 +1,6 @@
 # Growth map for the seed
 
-The [Hello World source](sources/origin/HELLO_WORLD.md) names the loop: capture → distillation → synthesis → action → feedback, with parallel mining for missed information. v0.01 implements the first local custody steps. The rows below are possible functions to grow with Player One; choosing a tool is a later design decision.
+The [Hello World source](sources/origin/HELLO_WORLD.md) names the loop: capture → distillation → synthesis → action → feedback, with parallel mining for missed information. The standalone skill gives that loop a behavioral starting point. The optional vault implements the first local custody steps. The rows below are possible functions to grow with Player One; use the chosen harness's existing facilities first.
 
 | Function | Seed behavior | Acceptance before claiming it works |
 |---|---|---|
@@ -8,7 +8,7 @@ The [Hello World source](sources/origin/HELLO_WORLD.md) names the loop: capture 
 | Attention | Report captured items without review | A fresh source appears in `gaps`; a reviewed source leaves that list without deletion |
 | Review | Record keep, project, hold, or dismiss with a note linked to the source | Read back the disposition and source ID; changed judgment gets another dated receipt |
 | Projects | Hold current work near its sources | A project has a desired result, next action, source links, and an observable completion test |
-| Recall | Retrieve exact past material when relevant | A response cites the source file and distinguishes quotation from inference |
+| Recall | Use the harness's existing memory or search; retrieve exact past material when relevant | A response cites the source file and distinguishes quotation from inference |
 | Parallel mining | Revisit older unreviewed or weakly reviewed sources | The run names its search window, coverage, misses, and any candidate it surfaced |
 | Return home | Explore another app, site, model, or workspace for a bounded purpose, then bring the finding back | The local vault records where the agent went, what it observed, what remains uncertain, and the next action; an outbound claim without a return receipt stays open |
 | Participant feedback | Notice a narrow framing, repeated failure, unsuitable tool, or resource pressure | The agent can describe the observed friction, its uncertainty, and a proposed adjustment in its own voice; Player One can accept, correct, or decline it |

@@ -18,6 +18,7 @@ from pathlib import Path
 
 VERSION = "0.01"
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "vault"
+SKILL_SOURCE = Path(__file__).resolve().parent.parent / "skills" / "bodhi-seed"
 OS_CHOICES = ("macos", "windows", "linux", "other")
 HARNESS_CHOICES = ("hermes", "openclaw", "other", "undecided")
 MODEL_CHOICES = ("local", "cloud", "both", "none", "undecided")
@@ -217,11 +218,14 @@ def read_jsonl(path):
 def verify_vault(dest):
     errors = []
     required_dirs = ("bin", "context", "sources", "evidence", "evidence/objects",
-                     "inbox", "projects", "memory", "feedback", "review")
-    required_files = (".gitignore", "AGENTS.md", "BODHI_TIPS.md", "FIRST_TASKS.md", "READING_SHELF.md", "SESSION_LOG.md", "bin/bodhi.py",
+                     "inbox", "projects", "feedback", "review")
+    required_files = (".gitignore", "AGENTS.md", ".agents/skills/bodhi-seed/SKILL.md",
+                      ".agents/skills/bodhi-seed/references/TOOL_SIGNALS.md",
+                      ".agents/skills/bodhi-seed/references/SETUP_SIGNPOSTS.md",
+                      "BODHI_TIPS.md", "FIRST_TASKS.md", "READING_SHELF.md", "SESSION_LOG.md", "bin/bodhi.py",
                       "context/player_one.json", "sources/README.md", "evidence/README.md",
                       "evidence/captures.jsonl", "inbox/README.md", "projects/README.md",
-                      "memory/README.md", "feedback/LOG.md", "review/QUEUE.md",
+                      "feedback/LOG.md", "review/QUEUE.md",
                       "review/reviews.jsonl")
     if not dest.is_dir():
         return ["vault directory is missing"]
@@ -360,10 +364,13 @@ def init_vault(dest, answers):
     nonempty_target(dest)
     if not TEMPLATE.is_dir():
         raise BodhiError("Bodhi vault template is missing")
+    if not SKILL_SOURCE.is_dir():
+        raise BodhiError("Bodhi skill source is missing")
     dest.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=".bodhi-init-", dir=str(dest.parent)))
     try:
         shutil.copytree(str(TEMPLATE), str(stage), dirs_exist_ok=True)
+        shutil.copytree(str(SKILL_SOURCE), str(stage / ".agents/skills/bodhi-seed"), dirs_exist_ok=True)
         (stage / "bin").mkdir(exist_ok=True)
         shutil.copy2(str(Path(__file__).resolve()), str(stage / "bin/bodhi.py"))
         git(stage, "init", "-q")
