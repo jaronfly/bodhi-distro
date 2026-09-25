@@ -55,6 +55,6 @@ The full Bodhi Bible remains in the original Brain. This pilot carries only the 
 
 ## What v0.01 proves
 
-The pilot can prove that a new Player One can initialize a versioned local space, complete a first-session handoff, capture an exact source, find what remains unattended, and record a review with provenance. The standalone skill has a clear install and invocation path, but its effect on a fresh Hermes model still needs direct trials. This version has not proved autonomous mining, cross-harness continuity, model quality, or a useful long-term relationship. Those require trials with real people and models, plus receipts that show the work actually helped.
+The pilot can prove that a new Player One can initialize a versioned local space, complete a first-session handoff, capture an exact source, find what remains unattended, and record a review with provenance. [Smoke evidence](evals/SMOKE_2026-09-24.md) records what was checked and an early local-model failure. The standalone skill has a clear install and invocation path, but its effect on a fresh Hermes model still needs direct trials. This version has not proved autonomous mining, cross-harness continuity, model quality, or a useful long-term relationship. Those require trials with real people and models, plus receipts that show the work actually helped.
 
 No public reuse license has been selected for this private pilot. The copied source documents retain their own authorship and draft status.
