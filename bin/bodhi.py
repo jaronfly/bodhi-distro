@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,7 +21,7 @@ VERSION = "0.01"
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "vault"
 SKILL_SOURCE = Path(__file__).resolve().parent.parent / "skills" / "bodhi-seed"
 OS_CHOICES = ("macos", "windows", "linux", "other")
-HARNESS_CHOICES = ("hermes", "openclaw", "other", "undecided")
+HARNESS_CHOICES = ("hermes", "openclaw", "claude-code", "codex", "other", "undecided")
 MODEL_CHOICES = ("local", "cloud", "both", "none", "undecided")
 CAPTURE_CHOICES = ("web_history", "app_usage", "audio", "screen")
 DISPOSITIONS = ("keep", "project", "hold", "dismiss")
@@ -79,8 +80,12 @@ def choice(value, allowed, field):
     normalized = value.strip().lower()
     aliases = {"mac": "macos", "macos": "macos", "osx": "macos",
                "win": "windows", "windows": "windows", "linux": "linux"}
+    harness_aliases = {"claude code": "claude-code", "claudecode": "claude-code",
+                       "claude_code": "claude-code", "open claw": "openclaw"}
     if field == "os":
         normalized = aliases.get(normalized, normalized)
+    if field == "harness":
+        normalized = harness_aliases.get(normalized, normalized)
     if normalized not in allowed:
         raise BodhiError(field + " must be one of: " + ", ".join(allowed))
     return normalized
@@ -126,45 +131,321 @@ def normalize_answers(raw):
     }
 
 
-def prompt_choice(label, options, default=None):
-    suffix = " [" + "/".join(options) + "]"
-    if default:
-        suffix += " (default " + default + ")"
+# ---------------------------------------------------------------------------
+# Ready Player One: the guided first run of `init`.
+#
+# Plain words carry every meaning. Color and the mark are decoration: they
+# appear only on an interactive terminal, color is dropped under NO_COLOR or
+# TERM=dumb, and --plain (or BODHI_PLAIN=1) drops both for screen readers and
+# logs. Lines wrap at the terminal width, never wider than 80 columns.
+# ---------------------------------------------------------------------------
+
+# The Bodhi mark, 11 cells wide and 10 tall. The top three rows are the sprout;
+# the bottom seven are soil with carved roots. Brand rule: whole cells only,
+# never smoothed, rotated, or stretched. A terminal cell is about twice as tall
+# as it is wide, so each cell is drawn two characters wide to stay square.
+MARK = ("...##.##...", ".....#.....", ".....#.....", "#####.#####", "#####..####",
+        "####.##.###", "###.####.##", "###.#######", "##.########", "###########")
+MARK_SPROUT_ROWS = 3
+MARK_MIN_WIDTH = 26
+SETUP_QUESTIONS = 6
+
+HARNESS_LABELS = {"hermes": "Hermes Agent", "openclaw": "OpenClaw", "claude-code": "Claude Code",
+                  "codex": "Codex", "other": "something else; you can name it next",
+                  "undecided": "decide later"}
+# Only start commands checked against each harness's own documentation (2026-09-30):
+# both read a folder's AGENTS.md when started inside it. See docs/INSTALL.md.
+HARNESS_START = {"claude-code": "claude", "codex": "codex"}
+MODEL_LABELS = {"local": "a model that runs on this computer",
+                "cloud": "a hosted service you sign in to", "both": "local and hosted",
+                "none": "none yet", "undecided": "not sure"}
+OS_LABELS = {"macos": "a Mac", "windows": "Windows", "linux": "Linux", "other": "something else"}
+CAPTURE_LABELS = {"web_history": "your browser history", "app_usage": "which apps you use",
+                  "audio": "recordings you choose", "screen": "what is on your screen"}
+
+
+def _isatty(stream):
+    try:
+        return bool(stream.isatty())
+    except (AttributeError, ValueError, OSError):
+        return False
+
+
+def _can_encode(stream, text):
+    try:
+        text.encode(getattr(stream, "encoding", None) or "ascii")
+        return True
+    except (UnicodeEncodeError, LookupError):
+        return False
+
+
+def _ansi_supported(env):
+    if os.name != "nt":
+        return True
+    # Older Windows consoles print escape codes literally; newer hosts announce themselves.
+    return any(env.get(name) for name in ("WT_SESSION", "TERM_PROGRAM", "ANSICON", "TERM"))
+
+
+class Voice:
+    """How setup speaks. Every meaning is in words; color and art only decorate."""
+
+    def __init__(self, stream=None, plain=False, env=None, width=None):
+        self.stream = sys.stdout if stream is None else stream
+        env = os.environ if env is None else env
+        tty = _isatty(self.stream)
+        dumb = env.get("TERM", "") == "dumb"
+        self.plain = bool(plain) or bool(env.get("BODHI_PLAIN"))
+        self.art = tty and not self.plain and not dumb
+        # https://no-color.org: any nonempty NO_COLOR value turns color off.
+        self.color = self.art and not env.get("NO_COLOR") and _ansi_supported(env)
+        self.palette_256 = "256color" in env.get("TERM", "") or bool(env.get("COLORTERM"))
+        if width is None:
+            width = shutil.get_terminal_size((80, 24)).columns if tty else 80
+        self.width = max(20, min(80, int(width)))
+        self.block = "█" if _can_encode(self.stream, "█") else "#"
+
+    def style(self, text, *names):
+        if not self.color or not text or not names:
+            return text
+        codes = {"bold": "1", "dim": "2",
+                 "sprout": "38;5;70" if self.palette_256 else "32",
+                 "soil": "38;5;130" if self.palette_256 else "33"}
+        return "\x1b[" + ";".join(codes[name] for name in names) + "m" + text + "\x1b[0m"
+
+    def write(self, text):
+        self.stream.write(text)
+        self.stream.flush()
+
+    def line(self, text=""):
+        self.write(text + "\n")
+
+    def para(self, text, indent=0, style=(), hang=0):
+        wrapped = textwrap.wrap(text, width=self.width, initial_indent=" " * indent,
+                                subsequent_indent=" " * (indent + hang), break_long_words=False,
+                                break_on_hyphens=False) or [""]
+        for item in wrapped:
+            self.line(self.style(item, *style))
+
+    def verbatim(self, text, indent=2):
+        """A path or command on its own line, never wrapped, so it can be copied whole."""
+        self.line(" " * indent + text)
+
+    def problem(self, text):
+        # Written in words ("Not recognized") so the message does not rely on color.
+        print("Not recognized: " + text, file=sys.stderr)
+
+    def mark_lines(self):
+        return render_mark(self.block, self.style)
+
+
+def render_mark(block="█", style=None):
+    """Draw MARK in whole cells, two characters per cell so each cell stays square."""
+    lines = []
+    for index, row in enumerate(MARK):
+        drawn = "".join(block * 2 if cell == "#" else "  " for cell in row)
+        if style is not None:
+            drawn = style(drawn, "sprout" if index < MARK_SPROUT_ROWS else "soil")
+        lines.append(drawn)
+    return lines
+
+
+def _read_line(voice, prompt="Your answer: "):
+    try:
+        if voice.stream is sys.stdout:
+            value = input(prompt)
+        else:
+            voice.write(prompt)
+            value = input()
+    except EOFError:
+        raise BodhiError("setup stopped before the last question; nothing was created")
+    if not _isatty(sys.stdin):
+        voice.line()  # keep a log readable when answers arrive from a pipe
+    return value
+
+
+def _question(voice, number, title, why):
+    voice.line()
+    voice.para("Question %d of %d. %s" % (number, SETUP_QUESTIONS, title), style=("bold",))
+    voice.para(why, indent=2)
+
+
+def _ask_choice(voice, number, title, why, field, options, labels, default, default_note=""):
+    _question(voice, number, title, why)
+    for index, value in enumerate(options, 1):
+        voice.para("%d. %s (%s)" % (index, value, labels[value]), indent=2)
+    voice.para("Press Enter to keep %s%s, or type a number or a name." % (default, default_note),
+               indent=2)
     while True:
-        value = input("Player One, " + label + suffix + ": ").strip() or default
+        raw = _read_line(voice).strip()
+        if not raw:
+            return default
+        if raw.isdigit() and 1 <= int(raw) <= len(options):
+            return options[int(raw) - 1]
         try:
-            return choice(value, options, label)
-        except BodhiError as exc:
-            print(str(exc), file=sys.stderr)
+            return choice(raw, options, field)
+        except BodhiError:
+            voice.problem("%s. Type a number from 1 to %d, a name such as %s, or press Enter "
+                          "to keep %s." % (raw, len(options), options[0], default))
 
 
-def interactive_answers():
-    priority = input("Player One, optional priority for your first agent session to confirm (Enter to ask then): ")
+def _ask_capture(voice, number):
+    _question(voice, number, "Is there anything you might want Bodhi to learn from, later on?",
+              "These are interests only. Nothing is recorded now, and nothing starts "
+              "without your say-so in a later session.")
+    for index, value in enumerate(CAPTURE_CHOICES, 1):
+        voice.para("%d. %s (%s)" % (index, value, CAPTURE_LABELS[value]), indent=2)
+    voice.para("Press Enter for none, or type numbers or names separated by commas.", indent=2)
+    while True:
+        raw = _read_line(voice).strip()
+        if not raw or raw.lower() == "none":
+            return []
+        chosen, error = [], ""
+        for part in [item for item in re.split(r"[,\s]+", raw) if item]:
+            if part.isdigit() and 1 <= int(part) <= len(CAPTURE_CHOICES):
+                chosen.append(CAPTURE_CHOICES[int(part) - 1])
+                continue
+            try:
+                chosen.append(choice(part, CAPTURE_CHOICES, "capture_surfaces"))
+            except BodhiError:
+                error = part
+                break
+        if not error and len(chosen) != len(set(chosen)):
+            error = raw + " names one choice twice"
+        if not error:
+            return chosen
+        voice.problem("%s. Type numbers from 1 to %d or names such as web_history, or press "
+                      "Enter for none." % (error, len(CAPTURE_CHOICES)))
+
+
+def _ask_words(voice, number, title, why, skip_note):
+    _question(voice, number, title, why)
+    voice.para(skip_note, indent=2)
+    return _read_line(voice)
+
+
+def interactive_answers(dest, voice=None):
+    """Ask the six setup questions one at a time. Nothing is written until they are done."""
+    voice = voice or Voice()
+    voice.line(voice.style("Bodhi seed, setup (v" + VERSION + ")", "bold"))
+    voice.line()
+    voice.para("Hello, Player One.")
+    voice.line()
+    voice.para("Bodhi is a practice more than an app: write things down, keep exact words, "
+               "check claims against evidence, and sign your work. This setup makes a folder "
+               "where that practice can live, next to the AI tools you already use.")
+    voice.line()
+    voice.para("Six short questions follow, one at a time. Each one shows a default: press "
+               "Enter to keep it or to skip. You can change any answer later.")
+    voice.line()
+    voice.para("Nothing here records you, installs tools, connects accounts, or sends anything "
+               "anywhere. Your answers are saved in one file inside the new folder:")
+    voice.verbatim(shown_path(dest / "context" / "player_one.json"))
+    priority = _ask_words(
+        voice, 1, "What is one thing you want AI to help you change or make right now?",
+        "Your words are kept exactly as you type them. Your first agent session will read "
+        "them back and ask whether they still fit.",
+        "Press Enter to skip; your first session will ask you instead.")
     detected = {"Darwin": "macos", "Windows": "windows", "Linux": "linux"}.get(
         platform.system(), "other")
-    os_name = prompt_choice("which OS will host your vault?", OS_CHOICES, detected)
-    harness = prompt_choice("which primary harness do you prefer?", HARNESS_CHOICES,
-                            "undecided")
-    harness_name = input("Player One, name that harness (optional): ") if harness == "other" else ""
-    model_access = prompt_choice("what model access do you have?", MODEL_CHOICES,
-                                 "undecided")
-    print("These are interests only; Bodhi will not start capture or install tools.")
-    while True:
-        entered = input("Player One, optional capture interests [web_history, app_usage, audio, screen; Enter for none]: ").strip()
-        surfaces = [] if not entered else [part.strip() for part in entered.split(",")]
-        try:
-            for surface in surfaces:
-                choice(surface, CAPTURE_CHOICES, "capture_surfaces")
-            if len(surfaces) != len(set(surfaces)):
-                raise BodhiError("capture_surfaces contains duplicates")
-            break
-        except BodhiError as exc:
-            print(str(exc), file=sys.stderr)
-    next_capability = input("Player One, what capability should Bodhi grow next? (optional) ")
+    os_name = _ask_choice(
+        voice, 2, "Which computer will hold your Bodhi folder?",
+        "So that agents suggest commands that work on your machine.",
+        "os", OS_CHOICES, OS_LABELS, detected, " (detected)")
+    harness = _ask_choice(
+        voice, 3, "Which AI app or agent will you mainly use with this folder?",
+        "Bodhi works through the AI tool you already use. It does not install one.",
+        "harness", HARNESS_CHOICES, HARNESS_LABELS, "undecided")
+    harness_name = ""
+    if harness == "other":
+        voice.para("What is it called? Press Enter to skip.", indent=2)
+        harness_name = _read_line(voice)
+    model_access = _ask_choice(
+        voice, 4, "What kind of AI model access do you have?",
+        "Bodhi needs no keys of its own. This only helps agents make realistic suggestions.",
+        "model_access", MODEL_CHOICES, MODEL_LABELS, "undecided")
+    surfaces = _ask_capture(voice, 5)
+    next_capability = _ask_words(
+        voice, 6, "What would you like Bodhi to be able to do next?",
+        "One small ability, in your own words. It is kept exactly as you type it.",
+        "Press Enter to skip.")
     return normalize_answers({"priority": priority, "os": os_name, "harness": harness,
                               "harness_name": harness_name, "model_access": model_access,
                               "capture_surfaces": surfaces,
                               "next_capability": next_capability})
+
+
+def _said(value, empty):
+    return '"' + value + '"' if value.strip() else empty
+
+
+def setup_summary(voice, answers):
+    harness = answers["primary_harness"]
+    if harness == "other" and answers["other_harness_name"]:
+        harness = "other: " + answers["other_harness_name"]
+    voice.line()
+    voice.para("Here is what was saved.", style=("bold",))
+    rows = (("Priority", _said(answers["priority_verbatim"], "none yet; your first session will ask")),
+            ("Computer", answers["os"]),
+            ("AI app or agent", harness),
+            ("Model access", answers["model_access"]),
+            ("Capture interests", ", ".join(answers["capture_interests"]) or "none"),
+            ("Recording", "off; nothing records"),
+            ("Next ability", _said(answers["next_capability_verbatim"], "none yet")))
+    for label, value in rows:
+        voice.para(label + ": " + value, indent=2)
+
+
+def shown_path(path):
+    """A path as a person would type it: ~/Bodhi where that works, quoted if it has spaces."""
+    path = Path(path)
+    text = str(path)
+    if os.name != "nt":
+        try:
+            relative = path.relative_to(Path.home())
+            text = "~" if str(relative) == "." else "~/" + relative.as_posix()
+        except (ValueError, RuntimeError, KeyError):
+            pass
+    if any(char.isspace() for char in text):
+        text = '"' + str(path) + '"'
+    return text
+
+
+def what_happens_next(voice, dest, answers):
+    harness = answers["primary_harness"]
+    name = HARNESS_LABELS.get(harness) if harness not in ("other", "undecided") else None
+    if harness == "other" and answers["other_harness_name"].strip():
+        name = answers["other_harness_name"].strip()
+    folder = shown_path(dest)
+    voice.line()
+    if voice.art and voice.width >= MARK_MIN_WIDTH:
+        for drawn in voice.mark_lines():
+            voice.line("  " + drawn)
+        voice.line()
+    voice.para("Your seed is planted. Its folder is:", style=("bold",))
+    voice.verbatim(folder)
+    voice.line()
+    voice.para("What happens next", style=("bold",))
+    if name:
+        voice.para("1. Open that folder in " + name + " as its working folder.", indent=2, hang=3)
+    else:
+        voice.para("1. Open that folder as the working folder in the AI app or agent you "
+                   "choose. It needs to be able to read the files there.", indent=2, hang=3)
+    if harness in HARNESS_START:
+        voice.para("In a terminal, that is these two lines:", indent=5)
+        voice.verbatim("cd " + folder, indent=7)
+        voice.verbatim(HARNESS_START[harness], indent=7)
+    voice.para("2. Say: Hello, Bodhi.", indent=2, hang=3)
+    voice.para("3. Bodhi asks what you want to change or make, then helps with one small first "
+               "thing you can judge for yourself.", indent=2, hang=3)
+    voice.para("4. After that first real exchange, your agent saves your exact words and "
+               "retires START_HERE.md. Its text stays in the folder's Git history.",
+               indent=2, hang=3)
+    voice.line()
+    voice.para("Nothing is recording. No account was connected. Nothing left this computer. "
+               "To check the folder at any time, run this inside it:")
+    voice.verbatim("python3 bin/bodhi.py check .")
+    voice.line()
+    voice.line("Receipt, for scripts and agents:")
 
 
 def read_answers(argument):
@@ -404,8 +685,8 @@ def init_vault(dest, answers):
     finally:
         if stage.exists():
             shutil.rmtree(str(stage))
-    emit({"status": "pending_hello_world", "vault": str(dest), "version": VERSION,
-          "capture_enabled": False})
+    return {"status": "pending_hello_world", "vault": str(dest), "version": VERSION,
+            "capture_enabled": False}
 
 
 def _contains_quoted_span(text):
@@ -556,9 +837,15 @@ def review(dest, capture_id, disposition, note):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Bodhi v0.01 local vault")
     sub = parser.add_subparsers(dest="command", required=True)
-    init_parser = sub.add_parser("init", help="create a local Git vault for Player One")
+    init_parser = sub.add_parser(
+        "init", help="create a local Git vault for Player One",
+        description="A guided first run: six short questions, one at a time, each with a "
+                    "default. Color and the Bodhi mark appear only on an interactive terminal; "
+                    "NO_COLOR turns color off, and --plain or BODHI_PLAIN=1 turns off both.")
     init_parser.add_argument("dest", type=Path)
     init_parser.add_argument("--answers", metavar="JSON_OR_PATH", help="JSON object or JSON file path; skips prompts")
+    init_parser.add_argument("--plain", action="store_true",
+                             help="no art and no color: plain text for screen readers and logs")
     check_parser = sub.add_parser("check", help="verify vault structure and source receipts")
     check_parser.add_argument("dest", type=Path)
     complete_parser = sub.add_parser("onboard-complete", help="retire Hello World after a real first agent session")
@@ -592,8 +879,19 @@ def main(argv=None):
     try:
         if args.command == "init":
             nonempty_target(dest)
-            answers = read_answers(args.answers) if args.answers is not None else interactive_answers()
-            init_vault(dest, answers)
+            if args.answers is not None:
+                emit(init_vault(dest, read_answers(args.answers)))
+            else:
+                voice = Voice(plain=args.plain)
+                try:
+                    answers = interactive_answers(dest, voice)
+                except KeyboardInterrupt:
+                    voice.line()
+                    raise BodhiError("setup stopped; nothing was created")
+                result = init_vault(dest, answers)
+                setup_summary(voice, answers)
+                what_happens_next(voice, dest, answers)
+                emit(result)
         elif args.command == "check":
             errors = verify_vault(dest)
             if errors:
