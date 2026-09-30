@@ -8,7 +8,7 @@ Any future trial (fresh model, fresh Player One simulation) should follow these.
 ## 1. The cwd walks: `AGENTS.md` lookup climbs the directory tree
 
 Running the trial session with working directory anywhere **under a tree that
-contains a fleet `AGENTS.md`** (e.g. `/opt/data/...` on the ruNAS gateway) makes
+contains a fleet `AGENTS.md`** (e.g. the fleet's data folder on its home server, its bodhinas) makes
 the model ingest that file and answer in the fleet's voice — door rituals,
 advisory read-backs, task queues, lane names. The seed's own `SOUL.md` and
 skill stay clean; the walk-up context drowns them.
@@ -42,7 +42,7 @@ trial profile needs, after install:
 - `hermes -p <name> config set model.default <model>`
 - `hermes -p <name> config set model.provider <provider>`
 - a profile `.env` with the provider key, owned by the profile user (uid 10000
-  in the ruNAS gateway container), mode 600 — otherwise the run dies with
+  in the first fleet's gateway container), mode 600 — otherwise the run dies with
   `PermissionError` in `env_loader`.
 
 ## 4. What a contaminated run looks like (fingerprint)

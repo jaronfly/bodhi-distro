@@ -849,9 +849,9 @@ def review(dest, capture_id, disposition, note):
 # ---------------------------------------------------------------------------
 # Relay: what one session leaves for the next, across harnesses.
 #
-# Ported from the continuity ledger running on the founder's server (its
-# monitor process and the bodhi-continuity command, September 2026), with the
-# same event shape, so a ledger can move between them. There, one server
+# Ported from the continuity ledger running on the first fleet's home server,
+# its bodhinas (the bodhinas monitor and the bodhi-continuity command, September
+# 2026), with the same event shape, so a ledger can move between them. There, one server
 # process is the only writer; here, the vault's file is the shared surface and
 # a lock serializes writers on one machine.
 #

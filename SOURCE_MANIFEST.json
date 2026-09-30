@@ -1,7 +1,7 @@
 {
   "schema": "bodhi-distro-source-manifest/v0.01",
   "generated_at": "2026-09-24",
-  "source_authority": "canonical ruNAS Brain where available; exact Player One message for terminology",
+  "source_authority": "canonical Brain on the first fleet's home server (its bodhinas) where available; exact Player One message for terminology",
   "files": [
     {
       "path": "sources/origin/HELLO_WORLD.md",

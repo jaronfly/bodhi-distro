@@ -13,7 +13,8 @@ This page names what it found, so each item can be searched for. That makes it p
 
 ## The checklist
 
-- [ ] Decide what to do about the server's LAN host name and port in eval scripts and transcripts ([hostnames](#hostnames-and-ports)).
+- [x] Rename the server in code, docs, the manifest, and eval scripts: done on 2026-09-30. It is now "bodhinas", the generic name for a Bodhi's home server, and eval scripts read `BODHI_MODEL_URL` ([hostnames](#hostnames-and-ports)).
+- [ ] Decide what to do about the old name in eval *records* (transcripts, dated notes) and in `sources/`, which were deliberately not rewritten ([hostnames](#hostnames-and-ports)).
 - [ ] Decide what to do about your Mac home path and session folders in transcripts ([paths](#private-paths)).
 - [ ] Review the flagged lines in `sources/`. They cannot be edited without updating their hashes ([sources](#sources-flagged-not-edited)).
 - [ ] Check the Bible excerpt's claims about real people and events against their sources ([people](#names-of-people-other-than-the-founder)).
@@ -47,21 +48,21 @@ This page names what it found, so each item can be searched for. That makes it p
 
 ### Hostnames and ports
 
-Your server's LAN name with port 8090, the local model endpoint (`runas:8090`), appears in:
+**Done (2026-09-30):** code, docs, the manifest, and the eval scripts no longer name your server. It is called "bodhinas" (the generic name for the home server a Bodhi runs on). The eval scripts take the model endpoint from `BODHI_MODEL_URL`, with `http://bodhinas:8090/v1` as the documented placeholder. Reworded: `evals/hermes/hermes_loop.py`, `evals/local/groundhog.py`, `evals/local/harness.py`, `evals/local/README.md`, `docs/TRIAL_HYGIENE.md`, `SOURCE_MANIFEST.json`, `bin/bodhi.py`, and the first-fleet catalogue.
 
-- Usage examples: `evals/hermes/hermes_loop.py:19`, `evals/local/README.md:44`, `evals/local/groundhog.py:17`, `evals/local/harness.py:21`, and `evals/SMOKE_2026-09-24.md:12`.
-- Run metadata: the `"base"` field on line 1 of 35 transcripts under `evals/local/runs/`, and 8 `SERIES.json` files.
+**What remains, on purpose.** These are records, and records are not rewritten:
+
+- The server's LAN name with port 8090 (`runas:8090`) in the `"base"` field on line 1 of 35 transcripts under `evals/local/runs/`, in 8 `SERIES.json` files, and in the dated note `evals/SMOKE_2026-09-24.md:12`.
+- The display name (`ruNAS`) in the dated note `evals/hermes/2026-09-25-fresh-profile-hello-glm-5.3-clean.md:4` and in `sources/covenant/BODHI_BIBLE_CORE.md:4` (hash-locked).
 - Commit messages: `aa880e3`, already on `main`.
-
-The server's display name (`ruNAS`) appears in `SOURCE_MANIFEST.json:4`, `docs/TRIAL_HYGIENE.md:11`, `docs/TRIAL_HYGIENE.md:45`, `evals/hermes/2026-09-25-fresh-profile-hello-glm-5.3-clean.md:4`, and `sources/covenant/BODHI_BIBLE_CORE.md:4` (preserved; flag only).
 
 `localhost:1234` in `evals/local/README.md:18` and `evals/local/harness.py:267` is a generic local default and is fine.
 
 A LAN name and port cannot be reached from the internet, but they show the shape of your setup. The options:
 
-- keep them as part of the record;
-- replace them in the usage examples with a placeholder such as `http://<your-model-host>:8090/v1`, and leave the transcripts as they are;
-- remove the run folders.
+- keep them as part of the record (the current choice);
+- remove the run folders before release;
+- or regenerate the runs against a server named with the placeholder.
 
 ### Private paths
 
@@ -101,7 +102,7 @@ These files are byte-preserved, and `SOURCE_MANIFEST.json` holds their SHA-256 h
 | `sources/covenant/BODHI_BIBLE_CORE.md:19`–`:20`, `:92` | Real events and a public figure, stated as fact | Check or label |
 | `sources/covenant/BODHI_BIBLE_CORE.md:242` | A family reference | Your call |
 | `sources/origin/HELLO_WORLD.md:10`, `:64` | A Codex task ID | Harmless; keep as provenance |
-| `SOURCE_MANIFEST.json:4` | "canonical ruNAS Brain" | Not hashed; can be reworded freely |
+| `SOURCE_MANIFEST.json:4` | Reworded on 2026-09-30 to "the first fleet's home server (its bodhinas)" | Done |
 
 Both Bible files already say they are a draft that nobody has ratified. `sources/origin/HELLO_WORLD.md` and `PLAYER_ONE_2026-09-24.md` are your own words, published by your choice.
 

@@ -18,7 +18,11 @@ test (TRIAL.md: "Do not show the model the scoring guide").
 Usage:
   python3 evals/local/harness.py --vault /tmp/v --condition seeded \\
       --persona evals/local/personas/candle_shop.json --trial hello \\
-      --base http://runas:8090/v1 --model gpt-oss-120b --out evals/local/runs
+      --base "$BODHI_MODEL_URL" --model gpt-oss-120b --out evals/local/runs
+
+--base defaults to $BODHI_MODEL_URL, then $BODHI_LOCAL_BASE, then LM Studio's local default.
+A home model server might be http://bodhinas:8090/v1 ("bodhinas": the generic name for the
+home server a Bodhi runs on).
 """
 
 from __future__ import annotations
@@ -264,7 +268,8 @@ def main() -> None:
     parser.add_argument("--condition", choices=("seeded", "unseeded"), required=True)
     parser.add_argument("--persona", type=Path, required=True)
     parser.add_argument("--trial", required=True)
-    parser.add_argument("--base", default=os.environ.get("BODHI_LOCAL_BASE", "http://localhost:1234/v1"))
+    parser.add_argument("--base", default=os.environ.get("BODHI_MODEL_URL")
+                        or os.environ.get("BODHI_LOCAL_BASE", "http://localhost:1234/v1"))
     parser.add_argument("--model", required=True)
     parser.add_argument("--out", type=Path, default=REPO / "evals" / "local" / "runs")
     print(run(parser.parse_args()))

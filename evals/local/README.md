@@ -41,8 +41,10 @@ python3 evals/local/harness.py --vault /tmp/v_seeded --condition seeded \
 
 ```sh
 python3 evals/local/groundhog.py --loops 2 --variant none --persona evals/local/personas/candle_shop.json \
-  --model gpt-oss-120b --base http://runas:8090/v1
+  --model gpt-oss-120b --base "$BODHI_MODEL_URL"
 ```
+
+`BODHI_MODEL_URL` is your model server's OpenAI-compatible endpoint, for example `http://bodhinas:8090/v1`. "bodhinas" is a placeholder: the generic name for the home server a Bodhi runs on. The recorded runs under `runs/` keep the endpoint the first fleet actually used; they are records and are not rewritten.
 
 `--variant` adds an experimental overlay from `variants/` after `init`. Variants test ideas before anything
 moves into the seed:
