@@ -47,9 +47,19 @@ class AgentSkillsFormatTests(unittest.TestCase):
 class InstalledContentTests(unittest.TestCase):
     """What every harness installs: SOUL.md and the skill folder."""
 
-    PRIVATE = re.compile(r"(?i)\bru-?nas\b|\b(?:100|192\.168|10)\.\d{1,3}\.\d{1,3}(?:\.\d{1,3})?\b|"
-                         r"tailnet|tailscale|/mnt/user|/Users/[a-z]|:\d{4,5}\b|randomuniverse|"
-                         r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")
+    PRIVATE = re.compile(r"(?i)\b(?:100|192\.168|10)\.\d{1,3}\.\d{1,3}(?:\.\d{1,3})?\b|"
+                         r"/mnt/user|/Users/[a-z]|:\d{4,5}\b|[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")
+    # The founder's host, network and community names, stored as SHA-256 of the
+    # lowercase word so this public test does not spell out what it guards against.
+    PRIVATE_WORDS = {"795b104abe3e4134960ca245ded0e617f162c751209347b7f003bc35e062f43e",
+                     "a840405ec063a57cfad884363a05acabb35af9de0f5f2be0589502338f084f7e",
+                     "d7b5dad1073566ca8da7d0f19acdc38ace6d0d5b3f31b9bdffdf9114d8e77490",
+                     "ec6f049478046f72becb006a2339202eae93911281dd610a7c869adec1ba3297",
+                     "f0f62cfa427ad992d828a545dda6cd30853fb4e0124a29e95c38edf5005947c9"}
+
+    def private_words(self, line):
+        words = re.findall(r"[a-z0-9]+", line.lower())
+        return [w for w in words if hashlib.sha256(w.encode()).hexdigest() in self.PRIVATE_WORDS]
 
     def test_no_private_hosts_addresses_ports_or_emails_ship(self):
         installed = [ROOT / "SOUL.md"] + sorted(SKILL.rglob("*.md"))
@@ -57,6 +67,7 @@ class InstalledContentTests(unittest.TestCase):
             for number, line in enumerate(page.read_text(encoding="utf-8").splitlines(), 1):
                 self.assertIsNone(self.PRIVATE.search(line),
                                   "%s:%d ships a private-looking identifier: %s" % (page, number, line))
+                self.assertEqual(self.private_words(line), [], "%s:%d names a private host" % (page, number))
 
     def test_every_reference_page_is_reachable_from_the_skill(self):
         pages = {p.name for p in (SKILL / "references").glob("*.md")}
