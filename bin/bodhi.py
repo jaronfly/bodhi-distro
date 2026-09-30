@@ -2,19 +2,31 @@
 """Local, standard-library onboarding and evidence loop for Bodhi v0.01."""
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
 import platform
 import re
+import secrets
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:  # POSIX file locking; Windows uses msvcrt instead.
+    import fcntl
+except ImportError:  # pragma: no cover - Windows
+    fcntl = None
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None
 
 
 VERSION = "0.01"
@@ -834,6 +846,602 @@ def review(dest, capture_id, disposition, note):
     emit(receipt)
 
 
+# ---------------------------------------------------------------------------
+# Relay: what one session leaves for the next, across harnesses.
+#
+# Ported from the continuity ledger running on the founder's server (the
+# runas-monitor ledger and its bodhi-continuity command, September 2026), with
+# the same event shape, so a ledger can move between them. There, one server
+# process is the only writer; here, the vault's file is the shared surface and
+# a lock serializes writers on one machine.
+#
+# One append-only JSONL file, one event per line, never rewritten. Thread state
+# is folded from the events on every read, so the file is its own audit trail.
+#
+#   starters     note | decision      records  -- state "logged"
+#                handoff | poke       actions  -- open -> claimed -> done | dropped
+#   transitions  claim | release | done | drop | reopen | reply  (each carries re=<id>)
+#
+# Lanes (who is writing) are derived from the events, never from a roster: a
+# new harness appears the first time it writes or is addressed.
+# ---------------------------------------------------------------------------
+
+RELAY_LEDGER = "relay/ledger.jsonl"
+RELAY_STARTERS = {"note": "record", "decision": "record", "handoff": "action", "poke": "action"}
+RELAY_TRANSITIONS = ("claim", "release", "done", "drop", "reopen", "reply")
+RELAY_POKE_TTL = 86400
+RELAY_MAX_TTL = 2592000
+RELAY_MAX_TITLE = 160
+RELAY_MAX_BODY = 4000
+RELAY_ID_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz"
+# The ledger is plain text in the vault and in its Git history. Refuse the
+# obvious credential shapes at the door rather than trusting every lane to remember.
+RELAY_SECRET = re.compile(r"""
+    \bsk-[A-Za-z0-9_-]{16,} | \bghp_[A-Za-z0-9]{20,} | \bgithub_pat_[A-Za-z0-9_]{20,}
+  | \bxox[abprs]-[A-Za-z0-9-]{10,} | \bAKIA[0-9A-Z]{16}\b | -----BEGIN[A-Z ]*PRIVATE[ ]KEY-----
+  | \b(?:api[_-]?key|token|secret|passw(?:or)?d)\s*[:=]\s*["']?[^\s"']{8,}
+""", re.IGNORECASE | re.VERBOSE)
+RELAY_WRITE_BACK = """\
+python3 bin/bodhi.py relay claim <id>                      # before you start on a thread
+python3 bin/bodhi.py relay done <id> "what you verified"   # or: drop <id> "why not"
+python3 bin/bodhi.py relay release <id> "where it stands"  # stopping before it is done
+python3 bin/bodhi.py relay note "title" ["body"]           # what the next session should know
+python3 bin/bodhi.py relay decide "title" "why"            # a settled call, so nobody relitigates it
+python3 bin/bodhi.py relay handoff --to <lane|any> "title" "what done looks like\""""
+
+
+class RelayMissing(BodhiError):
+    """No ledger yet. Reported as exit 3, never as an empty answer."""
+
+
+def relay_lane(value):
+    if not isinstance(value, str):
+        return ""
+    return re.sub(r"[^a-z0-9._-]+", "-", value.lower()).strip("-")[:40]
+
+
+def relay_line(value):
+    if not isinstance(value, str):
+        return ""
+    return re.sub(r"[\x00-\x1f\x7f]+", " ", value).strip()
+
+
+def relay_text(value):
+    if not isinstance(value, str):
+        return ""
+    value = re.sub(r"\r\n?", "\n", value)
+    value = re.sub(r"[\x00-\x08\x0b-\x1f\x7f]", "", value)
+    return value.lstrip("\n").rstrip()
+
+
+def _as_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def relay_vault(explicit=None):
+    """Find the vault: --vault, then BODHI_VAULT, then this CLI's own vault, then the cwd upward."""
+    def is_vault(path):
+        return (path / "context" / "player_one.json").is_file() and (path / "AGENTS.md").is_file()
+    chosen = explicit or os.environ.get("BODHI_VAULT")
+    if chosen:
+        path = Path(chosen).expanduser().absolute()
+        if not is_vault(path):
+            raise BodhiError(str(path) + " is not a Bodhi vault (no context/player_one.json and "
+                             "AGENTS.md); pass the vault folder with --vault")
+        return path
+    home = Path(__file__).resolve().parent.parent
+    if is_vault(home):
+        return home
+    here = Path.cwd().absolute()
+    for path in (here,) + tuple(here.parents):
+        if is_vault(path):
+            return path
+    raise BodhiError("no Bodhi vault here or above " + str(here) + "; run this inside a vault, "
+                     "pass --vault PATH, or set BODHI_VAULT")
+
+
+def relay_events(vault):
+    """Return (events, unreadable_line_count). A missing ledger is RelayMissing, not []."""
+    path = vault / RELAY_LEDGER
+    if not path.is_file():
+        raise RelayMissing(
+            "no relay ledger at " + str(path) + ". Nothing has been written to this vault's relay "
+            "yet, or this is not the vault the other session used. That is not the same as "
+            "'nothing is waiting'. Start one with: python3 bin/bodhi.py relay note \"title\"")
+    events, unreadable = [], 0
+    for raw in path.read_bytes().splitlines():
+        if not raw.strip():
+            continue
+        try:
+            event = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError):
+            unreadable += 1
+            continue
+        if isinstance(event, dict) and isinstance(event.get("id"), str) and isinstance(event.get("kind"), str):
+            events.append(event)
+        else:
+            unreadable += 1
+    return events, unreadable
+
+
+def relay_fold(events, now):
+    """Replay events into threads. Same rules the server's ledger uses."""
+    by_id, threads, lanes, ids = {}, [], {}, set()
+
+    def lane(name):
+        return lanes.setdefault(name, {"id": name, "events": 0, "last_seen": 0,
+                                       "opened": 0, "closed": 0})
+
+    for event in events:
+        kind, ts, sender = event.get("kind"), _as_int(event.get("ts")), event.get("from")
+        ids.add(event["id"])
+        if isinstance(sender, str) and sender:
+            seen = lane(sender)
+            seen["events"] += 1
+            seen["last_seen"] = max(seen["last_seen"], ts)
+        if kind in RELAY_STARTERS:
+            if event["id"] in by_id:
+                continue
+            thread = {key: event[key] for key in ("id", "kind", "from", "to", "title", "body",
+                                                  "ts", "ttl", "tags", "meta")
+                      if event.get(key) is not None}
+            thread.update({"class": RELAY_STARTERS[kind], "updated": ts, "log": [],
+                           "state": "open" if RELAY_STARTERS[kind] == "action" else "logged"})
+            by_id[event["id"]] = thread
+            threads.append(thread)
+            if sender in lanes:
+                lanes[sender]["opened"] += 1
+            addressed = event.get("to") or "any"
+            if addressed != "any":
+                lane(addressed)
+            continue
+        if kind not in RELAY_TRANSITIONS:
+            continue
+        thread = by_id.get(event.get("re") or "")
+        if thread is None:
+            continue
+        thread["log"].append({key: event[key] for key in ("id", "kind", "from", "ts", "body")
+                              if event.get(key) is not None})
+        thread["updated"] = max(thread["updated"], ts)
+        state = thread["state"]
+        if thread["class"] == "action":
+            if kind == "claim" and state in ("open", "claimed"):
+                thread.update({"state": "claimed", "owner": sender, "claimed_at": ts})
+            elif kind == "release" and state == "claimed":
+                # A session that stops mid-work hands the thread back rather than
+                # leaving it claimed by a lane that is no longer there.
+                thread["state"] = "open"
+                for key in ("owner", "claimed_at"):
+                    thread.pop(key, None)
+            elif kind in ("done", "drop") and state in ("open", "claimed"):
+                thread.update({"state": "done" if kind == "done" else "dropped",
+                               "closed_by": sender, "closed_at": ts})
+                if event.get("body") is not None:
+                    thread["resolution"] = event["body"]
+                if sender in lanes:
+                    lanes[sender]["closed"] += 1
+            elif kind == "reopen" and state in ("done", "dropped"):
+                thread["state"] = "open"
+                for key in ("owner", "claimed_at", "closed_by", "closed_at", "resolution"):
+                    thread.pop(key, None)
+        elif kind == "drop" and state == "logged":
+            thread.update({"state": "retracted", "closed_by": sender, "closed_at": ts})
+        elif kind == "reopen" and state == "retracted":
+            thread["state"] = "logged"
+            for key in ("closed_by", "closed_at"):
+                thread.pop(key, None)
+    for thread in threads:
+        ttl = _as_int(thread.get("ttl"))
+        if thread["class"] == "action" and thread["state"] == "open" and ttl > 0 \
+                and _as_int(thread.get("ts")) + ttl < now:
+            thread["state"] = "expired"
+    return {"threads": threads, "by_id": by_id, "lanes": lanes, "ids": ids}
+
+
+def relay_resolve(ref, by_id):
+    ref = relay_line(ref)
+    if ref.startswith("#"):
+        ref = ref[1:]
+    ref = ref.lower()[:40]
+    if not ref:
+        raise BodhiError("a thread id is required; run `python3 bin/bodhi.py relay list --all` to see them")
+    if ref in by_id:
+        return ref
+    matches = sorted(tid for tid in by_id if tid.startswith(ref)) if len(ref) >= 4 else []
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        raise BodhiError("'" + ref + "' matches " + str(len(matches)) + " threads (" +
+                         ", ".join(matches) + "); type more of the id")
+    if len(ref) < 4:
+        raise BodhiError("no thread '" + ref + "'; a short id needs at least 4 characters "
+                         "(ids look like c4k2q9). Run relay list --all to see them")
+    raise BodhiError("no thread '" + ref + "' in this vault's relay; run relay list --all to see them")
+
+
+def relay_transition_error(thread, kind):
+    state, tid = thread["state"], thread["id"]
+    if kind == "reply":
+        return ""
+    if thread["class"] == "action":
+        if kind in ("claim", "done", "drop") and state in ("open", "claimed", "expired"):
+            return ""
+        if kind == "reopen" and state in ("done", "dropped"):
+            return ""
+        if kind == "release" and state == "claimed":
+            return ""
+        if kind == "reopen":
+            return "thread %s is %s; only a done or dropped thread can be reopened" % (tid, state)
+        if kind == "release":
+            return ("thread %s is %s; only a claimed thread can be released. Claim it first, "
+                    "or leave it %s" % (tid, state, state))
+        return "thread %s is %s; reopen it first: relay reopen %s \"why\"" % (tid, state, tid)
+    if kind == "drop" and state == "logged":
+        return ""
+    if kind == "reopen" and state == "retracted":
+        return ""
+    if kind == "drop":
+        return "thread %s is already retracted; relay reopen %s restores it" % (tid, tid)
+    return ("thread %s is a %s (%s); a note or decision takes reply, drop (to retract it) or "
+            "reopen (to restore it), not %s" % (tid, thread["kind"], state, kind))
+
+
+def relay_new_id(taken):
+    for length in (5,) * 100 + (8,) * 100:
+        candidate = "c" + "".join(secrets.choice(RELAY_ID_CHARS) for _ in range(length))
+        if candidate not in taken:
+            return candidate
+    raise BodhiError("could not find an unused relay id")
+
+
+def relay_build(request, fold, now):
+    """Validate one request against the current fold. Returns the event to append."""
+    kind = relay_line(request.get("kind")).lower()
+    if kind == "decide":
+        kind = "decision"
+    if kind not in RELAY_STARTERS and kind not in RELAY_TRANSITIONS:
+        raise BodhiError("kind must be one of: note decision handoff poke claim release done "
+                         "drop reopen reply")
+    title, body = relay_line(request.get("title")), relay_text(request.get("body"))
+    if len(title) > RELAY_MAX_TITLE:
+        raise BodhiError("a title is limited to %d characters (this one has %d); put the rest in "
+                         "the body" % (RELAY_MAX_TITLE, len(title)))
+    if len(body) > RELAY_MAX_BODY:
+        raise BodhiError("a body is limited to %d characters (this one has %d); save the long "
+                         "text as a file in the vault and name its path" % (RELAY_MAX_BODY, len(body)))
+    if RELAY_SECRET.search(title) or RELAY_SECRET.search(body):
+        raise BodhiError("refused: that looks like a credential. The relay is plain text in the "
+                         "vault and its Git history. Keep keys in your harness's secret store and "
+                         "refer to them by name. Nothing was written")
+    event = {"kind": kind, "ts": int(now), "from": relay_lane(request.get("from")) or "unsigned"}
+    if kind in RELAY_STARTERS:
+        if not title:
+            raise BodhiError("a " + kind + " needs a title")
+        event["title"] = title
+        if body:
+            event["body"] = body
+        event["to"] = relay_lane(request.get("to")) or "any"
+        ttl = request.get("ttl")
+        if ttl is not None and str(ttl) != "":
+            if not re.fullmatch(r"\d+", str(ttl)) or int(ttl) > RELAY_MAX_TTL:
+                raise BodhiError("ttl must be whole seconds from 0 to %d (30 days); 0 never "
+                                 "expires" % RELAY_MAX_TTL)
+            event["ttl"] = int(ttl)
+        elif kind == "poke":
+            event["ttl"] = RELAY_POKE_TTL
+    else:
+        target = relay_resolve(request.get("re"), fold["by_id"])
+        why = relay_transition_error(fold["by_id"][target], kind)
+        if why:
+            raise BodhiError(why)
+        if not body and title:
+            body = title
+        if kind == "reply" and not body:
+            raise BodhiError("a reply needs text: relay reply " + target + " \"text\"")
+        event["re"] = target
+        if body:
+            event["body"] = body
+    event["id"] = relay_new_id(fold["ids"])
+    return event
+
+
+@contextlib.contextmanager
+def relay_lock(vault):
+    """Serialize writers on this machine: read, validate and append happen under one lock.
+
+    The lock file lives inside .git so it never shows as an untracked change; a vault
+    without a .git directory falls back to relay/.lock, which the template ignores.
+    """
+    lock_path = vault / ".git" / "bodhi-relay.lock"
+    if not lock_path.parent.is_dir():
+        lock_path = vault / "relay" / ".lock"
+    fd = os.open(str(lock_path), os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        if fcntl is not None:
+            fcntl.flock(fd, fcntl.LOCK_EX)
+        elif msvcrt is not None:
+            msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+        yield
+    finally:
+        try:
+            if fcntl is not None:
+                fcntl.flock(fd, fcntl.LOCK_UN)
+            elif msvcrt is not None:
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        finally:
+            os.close(fd)
+
+
+def relay_write(vault, request, now=None):
+    now = time.time() if now is None else now
+    (vault / "relay").mkdir(exist_ok=True)
+    ledger = vault / RELAY_LEDGER
+    with relay_lock(vault):
+        events, _ = relay_events(vault) if ledger.is_file() else ([], 0)
+        event = relay_build(request, relay_fold(events, now), now)
+        append_jsonl(ledger, event)
+        try:
+            git(vault, "add", "--", RELAY_LEDGER)
+            git(vault, "commit", "-q", "--only", "-m", "Bodhi relay: %s %s from %s" %
+                (event["kind"], event["id"], event["from"]), "--", RELAY_LEDGER)
+            committed = "committed"
+        except BodhiError as exc:
+            # The ledger line is the record; a failed commit is reported, not hidden.
+            committed = "not committed: " + str(exc)
+    return event, committed
+
+
+def _age(seconds):
+    seconds = max(0, int(seconds))
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return "%dm ago" % (seconds // 60)
+    if seconds < 172800:
+        return "%dh ago" % (seconds // 3600)
+    return "%dd ago" % (seconds // 86400)
+
+
+def _utc(ts):
+    return datetime.fromtimestamp(_as_int(ts), timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _oneline(text, limit):
+    text = re.sub(r"\s*\n\s*", " / ", text or "")
+    return text if len(text) <= limit else text[:limit - 3] + "..."
+
+
+def relay_for_lane(thread, lane):
+    if not lane:
+        return True
+    return (thread.get("to") or "any") == "any" or lane in (thread.get("to"), thread.get("from"),
+                                                           thread.get("owner"))
+
+
+def relay_summary(fold, lane):
+    """Everything a reader needs, ranked for attention: open, then expired, then claimed."""
+    visible = [thread for thread in fold["threads"] if relay_for_lane(thread, lane)]
+    rank = {"open": 0, "expired": 1, "claimed": 2}
+
+    def severity(thread):
+        meta = thread.get("meta") if isinstance(thread.get("meta"), dict) else {}
+        return {"critical": 2, "warning": 1}.get(meta.get("severity"), 0)
+
+    # Timestamps are whole seconds; within one second, later in the ledger counts as newer.
+    order = {thread["id"]: index for index, thread in enumerate(fold["threads"])}
+    active = sorted((t for t in visible if t["state"] in rank),
+                    key=lambda t: (rank[t["state"]], -severity(t), -t["updated"], -order[t["id"]]))
+    closed = sorted((t for t in visible if t["state"] in ("done", "dropped")),
+                    key=lambda t: (-_as_int(t.get("closed_at")), -order[t["id"]]))
+    records = sorted((t for t in visible if t["class"] == "record" and t["state"] == "logged"),
+                     key=lambda t: (-_as_int(t.get("ts")), -order[t["id"]]))
+    retracted = [t for t in visible if t["state"] == "retracted"]
+    return {"active": active, "closed": closed, "records": records, "retracted": retracted}
+
+
+def relay_list_lines(summary, now, show_all):
+    threads = summary["active"] + (summary["closed"] + summary["records"] + summary["retracted"]
+                                   if show_all else [])
+    lines = []
+    for thread in threads:
+        state = thread["state"]
+        if state == "claimed" and thread.get("owner"):
+            state += ":" + thread["owner"]
+        route = "%s -> %s" % (thread.get("from", "?"), thread.get("to", "any"))
+        lines.append("%-7s %-8s %-18s %-24s %8s  %s" % (
+            thread["id"], thread["kind"], state, route,
+            _age(now - thread["updated"]).replace(" ago", ""), thread.get("title", "")))
+    return lines
+
+
+def relay_show_text(thread, now):
+    head = "%s  %s  %s" % (thread["id"], thread["kind"], thread["state"].upper())
+    if thread["state"] == "claimed" and thread.get("owner"):
+        head += " by " + thread["owner"]
+    elif thread.get("closed_by"):
+        head += " by " + thread["closed_by"]
+    lines = [head, thread.get("title", ""),
+             "%s -> %s, %s (%s)" % (thread.get("from", "?"), thread.get("to", "any"),
+                                    _utc(thread.get("ts")), _age(now - _as_int(thread.get("ts"))))]
+    if thread.get("ttl") and thread["class"] == "action":
+        lines.append("expires %s unless claimed" % _utc(_as_int(thread["ts"]) + _as_int(thread["ttl"])))
+    if thread.get("body"):
+        lines += ["", thread["body"]]
+    if thread["log"]:
+        lines.append("")
+        lines.append("History, oldest first:")
+        for entry in thread["log"]:
+            lines.append(("  %-8s %-16s %s  %s" % (entry["kind"], entry.get("from", "?"),
+                                                   _utc(entry.get("ts")), entry.get("body", ""))).rstrip())
+    return "\n".join(lines)
+
+
+def _thread_brief(thread, now):
+    state = thread["state"].upper()
+    if thread["state"] == "claimed" and thread.get("owner"):
+        state += " by " + thread["owner"]
+    line = "- `%s` %s %s -> %s, %s, %s: %s" % (
+        thread["id"], thread["kind"], thread.get("from", "?"), thread.get("to", "any"),
+        _age(now - _as_int(thread.get("ts"))), state, thread.get("title", ""))
+    if thread.get("body"):
+        line += "\n  " + _oneline(thread["body"], 240)
+    replies = [entry for entry in thread["log"] if entry["kind"] == "reply"]
+    if replies:
+        latest = replies[-1]
+        line += "\n  latest reply (%s, %s): %s" % (latest.get("from", "?"),
+                                                   _age(now - _as_int(latest.get("ts"))),
+                                                   _oneline(latest.get("body", ""), 160))
+    return line
+
+
+def relay_brief(vault, events, unreadable, fold, lane, now):
+    summary = relay_summary(fold, lane)
+    lanes = sorted(fold["lanes"].values(), key=lambda item: (-item["last_seen"], item["id"]))
+    out = ["# Relay brief " + ("for " + lane if lane else "for every lane"), ""]
+    ledger_note = "%s, %d events" % (RELAY_LEDGER, len(events))
+    if unreadable:
+        ledger_note += ", %d unreadable lines skipped" % unreadable
+    out.append("Vault `%s`; ledger %s." % (vault, ledger_note))
+    out.append("Lanes seen: " + (", ".join(item["id"] for item in lanes) or "none yet") +
+               " (from who wrote and who was addressed; there is no roster).")
+    out += ["", "## Open threads" + (" for " + lane + " or anyone" if lane else "")]
+    active = summary["active"]
+    out += [_thread_brief(thread, now) for thread in active[:15]] or ["- none open"]
+    if len(active) > 15:
+        out.append("- ...and %d more: relay list%s" % (len(active) - 15,
+                                                         " --for " + lane if lane else ""))
+    out += ["", "## Decisions and notes, newest first"]
+    records = summary["records"][:8]
+    out += ["- `%s` %s, %s, %s: %s%s" % (t["id"], t["kind"], t.get("from", "?"),
+                                          _utc(t.get("ts"))[:10], t.get("title", ""),
+                                          "\n  " + _oneline(t["body"], 240) if t.get("body") else "")
+            for t in records] or ["- none recorded yet"]
+    if summary["closed"]:
+        out += ["", "## Recently closed"]
+        out += ["- `%s` %s %s by %s, %s: %s%s" % (
+            t["id"], t["kind"], t["state"], t.get("closed_by", "?"),
+            _age(now - _as_int(t.get("closed_at"))), t.get("title", ""),
+            " -- " + _oneline(t["resolution"], 200) if t.get("resolution") else "")
+            for t in summary["closed"][:5]]
+    out += ["", "## Write back", "```", RELAY_WRITE_BACK, "```",
+            "Sign with --as <lane> or BODHI_LANE. Ids accept any unique prefix of 4+ characters. "
+            "Never put credentials here: the ledger is plain text in the vault's Git history."]
+    return "\n".join(out) + "\n"
+
+
+def _say(text):
+    """Print text even on a console that cannot encode every character."""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        encoding = getattr(sys.stdout, "encoding", None) or "ascii"
+        print(text.encode(encoding, "replace").decode(encoding))
+
+
+def _relay_body(value):
+    if value == "-":
+        return sys.stdin.read()
+    return value or ""
+
+
+def relay_command(args):
+    vault = relay_vault(args.vault)
+    who = relay_lane(args.as_lane or os.environ.get("BODHI_LANE", ""))
+    now = time.time()
+    command = args.relay_command
+    if command in ("note", "decide", "decision", "handoff", "poke"):
+        request = {"kind": "decision" if command == "decide" else command, "from": who,
+                   "title": args.title, "body": _relay_body(args.body),
+                   "to": getattr(args, "to", None) or "any", "ttl": getattr(args, "ttl", None)}
+    elif command in RELAY_TRANSITIONS:
+        if command == "reply" and not args.text:
+            raise BodhiError("a reply needs text: relay reply <id> \"text\"")
+        request = {"kind": command, "from": who, "re": args.id, "body": _relay_body(args.text)}
+    else:
+        events, unreadable = relay_events(vault)
+        fold = relay_fold(events, now)
+        if command == "list":
+            lane = relay_lane(args.for_lane or "")
+            summary = relay_summary(fold, lane)
+            if args.json:
+                emit(summary if args.all else {"active": summary["active"]})
+                return 0
+            lines = relay_list_lines(summary, now, args.all)
+            for line in lines:
+                _say(line)
+            if not lines:
+                print("relay: nothing open" + (" for " + lane + " or anyone" if lane else "") +
+                      " in " + str(vault / RELAY_LEDGER), file=sys.stderr)
+            if unreadable:
+                print("relay: %d unreadable ledger lines skipped" % unreadable, file=sys.stderr)
+            return 0
+        if command == "show":
+            thread = fold["by_id"][relay_resolve(args.id, fold["by_id"])]
+            if args.json:
+                emit(thread)
+            else:
+                _say(relay_show_text(thread, now))
+            return 0
+        lane = relay_lane(args.for_lane or "") or who
+        _say(relay_brief(vault, events, unreadable, fold, lane, now).rstrip("\n"))
+        return 0
+    event, committed = relay_write(vault, request, now)
+    emit({"event": event, "ledger": RELAY_LEDGER, "vault": str(vault), "git": committed})
+    target = (" on " + event["re"]) if event.get("re") else (
+        " -> " + event["to"] if event.get("to", "any") != "any" else "")
+    print("relay: %s %s%s as %s" % (event["kind"], event["id"], target, event["from"]), file=sys.stderr)
+    if event["from"] == "unsigned":
+        print("relay: written as 'unsigned'. Sign with --as <lane> or BODHI_LANE so the next "
+              "reader knows who wrote it.", file=sys.stderr)
+    return 0
+
+
+def add_relay_parser(sub):
+    relay = sub.add_parser(
+        "relay", help="leave notes, decisions, handoffs and pokes for other sessions and harnesses",
+        description="An append-only ledger in the vault (relay/ledger.jsonl) that any harness "
+                    "with a shell can read and write. Ids accept any unique prefix of 4+ "
+                    "characters. A body of - is read from standard input.")
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--vault", help="the vault folder (default: BODHI_VAULT, this CLI's vault, "
+                                        "or the nearest vault at or above the current folder)")
+    common.add_argument("--as", dest="as_lane", help="your lane name (default: BODHI_LANE)")
+    actions = relay.add_subparsers(dest="relay_command", required=True)
+    for name, help_text in (("note", "context the next session needs"),
+                            ("decide", "a settled call and why, so nobody relitigates it"),
+                            ("handoff", "work for a lane or anyone, with what done looks like"),
+                            ("poke", "look at this soon; expires after a day unless claimed")):
+        starter = actions.add_parser(name, parents=[common], help=help_text)
+        if name in ("handoff", "poke"):
+            starter.add_argument("--to", default="any", help="lane to address (default any)")
+            starter.add_argument("--ttl", help="seconds until an unclaimed thread reads as expired")
+        starter.add_argument("title")
+        starter.add_argument("body", nargs="?", default="")
+    for name, help_text in (("claim", "take a thread before you start on it"),
+                            ("release", "stopping before it is done: hand it back as open"),
+                            ("done", "close it with what you verified"),
+                            ("drop", "close it without doing it, or retract a note or decision"),
+                            ("reopen", "open a closed thread, or restore a retracted record"),
+                            ("reply", "add to a thread without changing its state")):
+        move = actions.add_parser(name, parents=[common], help=help_text)
+        move.add_argument("id")
+        move.add_argument("text", nargs="?", default="")
+    listing = actions.add_parser("list", parents=[common], help="open threads, one per line")
+    listing.add_argument("--for", dest="for_lane", help="only threads for this lane or anyone")
+    listing.add_argument("--all", action="store_true", help="also closed threads, notes and decisions")
+    listing.add_argument("--json", action="store_true")
+    show = actions.add_parser("show", parents=[common], help="one thread and its whole history")
+    show.add_argument("id")
+    show.add_argument("--json", action="store_true")
+    brief = actions.add_parser("brief", parents=[common],
+                               help="markdown for the start of a session: what is waiting, what was decided")
+    brief.add_argument("--for", dest="for_lane", help="lane to brief (default: --as or BODHI_LANE)")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Bodhi v0.01 local vault")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -874,9 +1482,12 @@ def main(argv=None):
     review_parser.add_argument("id")
     review_parser.add_argument("--disposition", required=True, choices=DISPOSITIONS)
     review_parser.add_argument("--note", required=True)
+    add_relay_parser(sub)
     args = parser.parse_args(argv)
-    dest = args.dest.expanduser().absolute()
+    dest = args.dest.expanduser().absolute() if getattr(args, "dest", None) is not None else None
     try:
+        if args.command == "relay":
+            return relay_command(args)
         if args.command == "init":
             nonempty_target(dest)
             if args.answers is not None:
@@ -914,6 +1525,10 @@ def main(argv=None):
             gaps(dest)
         elif args.command == "review":
             review(dest, args.id, args.disposition, args.note)
+    except RelayMissing as exc:
+        # Absent is not empty: exit 3, the same way replay reports a missing ledger.
+        print("Bodhi: " + str(exc), file=sys.stderr)
+        return 3
     except (BodhiError, OSError, EOFError, KeyboardInterrupt) as exc:
         print("Bodhi: " + str(exc), file=sys.stderr)
         return 1
