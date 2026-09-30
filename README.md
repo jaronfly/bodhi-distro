@@ -18,6 +18,22 @@ The profile gets `SOUL.md` (the seed's opening, verbatim from the skill) and the
 
 If you delete the profile and install it again under the same name, Hermes v0.21.2 can leave a tombstone at `~/.hermes/profiles/.deleted/bodhi` that hides the new install ("does not exist" right after "Installed"). Remove that file if it's there.
 
+## Or as an extension of the tool you already use
+
+Bodhi isn't a plugin or an app, but the seed can travel as one. The same skill folder installs in several harnesses:
+
+```text
+/plugin marketplace add jaronfly/bodhi-distro     # Claude Code, inside a session
+/plugin install bodhi@bodhi-distro                # then: /bodhi:bodhi-seed Hello, Bodhi.
+```
+
+```sh
+python3 bin/package_skill.py                      # claude.ai / Claude Desktop: upload dist/bodhi-seed.zip
+mkdir -p ~/.agents/skills && cp -R skills/bodhi-seed ~/.agents/skills/   # Codex
+```
+
+[docs/INSTALL.md](docs/INSTALL.md) has one section per harness, each ending with a check that the skill actually loaded, and a table of which paths were verified here and which are still untested.
+
 ## Start with an existing harness
 
 If Hermes already has a working model/provider, copy `skills/bodhi-seed/` into the active Hermes profile's skills directory. On a default local install:
@@ -28,7 +44,7 @@ cp -R skills/bodhi-seed ~/.hermes/skills/
 hermes skills list --source local
 ```
 
-Start a new Hermes session and say **`/bodhi-seed Hello, Bodhi.`** The skill uses Hermes's current model, memory, search, tools, and channels. It asks Player One what matters and helps with a first useful task; it requires no Bodhi vault or new API key. Inspect the skill before copying it. If the active Hermes profile uses a different skills directory, copy it there instead. In another harness, load [SKILL.md](skills/bodhi-seed/SKILL.md) using that harness's supported skill or project-instruction mechanism, then verify it actually loaded. This private pilot is not yet a public Skills Hub URL.
+Start a new Hermes session and say **`/bodhi-seed Hello, Bodhi.`** The skill uses Hermes's current model, memory, search, tools, and channels. It asks Player One what matters and helps with a first useful task; it requires no Bodhi vault or new API key. Inspect the skill before copying it. If the active Hermes profile uses a different skills directory, copy it there instead. In another harness, follow [docs/INSTALL.md](docs/INSTALL.md), then verify the skill actually loaded. This private pilot is not yet a public Skills Hub URL.
 
 The skill's [early signposts](skills/bodhi-seed/references/SETUP_SIGNPOSTS.md) foreshadow a few useful choices after the first result: repos for evolving projects, coordination for multiple models or harnesses, and status views for unattended work. Its [tool signals](skills/bodhi-seed/references/TOOL_SIGNALS.md) help it suggest capabilities when a task creates the need. For example, one social post calls for a draft and an audience question; recurring publishing may justify a calendar or connected tool. Every named tool must be checked in the new installation. Once a personal context survives a fresh session, replace and retire the generic seed.
 
@@ -58,6 +74,7 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 ## What is in the seed
 
 - [skills/bodhi-seed/](skills/bodhi-seed/SKILL.md) is the standalone persona and practice. Its reference file maps task signals to optional tools. It can run without the vault.
+- [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) and [`bin/package_skill.py`](bin/package_skill.py) carry the same skill to Claude Code and to claude.ai or Claude Desktop; [docs/INSTALL.md](docs/INSTALL.md) covers those and other harnesses.
 - `bin/bodhi.py` and `templates/vault/` create the optional local vault and operate its small evidence loop. The CLI is copied into each vault, so the installed workspace remains usable without this installer repository.
 - [replay](bin/replay.py) is "what happened last time I tried this?" for the vault. The ledger ships empty on purpose — a missing ledger exits 3 instead of answering "no prior attempts" — and only the six inherited failure *shapes* come from the original swarm; every recorded failure is this vault's own.
 - [FIRST_TASKS.md](templates/vault/FIRST_TASKS.md) offers five plain doors for a first useful task, including learning, writing, planning, comparisons, and posts or listings. Player One can choose another path.
