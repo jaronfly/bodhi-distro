@@ -9,7 +9,7 @@ A checklist for Jaron to work through before switching `jaronfly/bodhi-distro` f
 
 **How it was scanned:** patterns for email addresses, credential shapes (the same list the relay refuses), IPv4 addresses, private filesystem paths, and host and network names. A pass over mid-sentence capitalized words looked for people's names. A pattern scan cannot judge meaning. The transcripts under `evals/` are long, so read the parts you care about yourself.
 
-This page names what it found, so each item can be searched for. After release, decide whether to keep it, trim it, or delete it.
+This page names what it found, so each item can be searched for. That makes it part of the problem it reports: delete it, or trim it to the decisions, before the repository goes public.
 
 ## The checklist
 
@@ -22,6 +22,7 @@ This page names what it found, so each item can be searched for. After release, 
 - [ ] Publish an accessibility statement. A draft is [below](#accessibility-statement-draft).
 - [ ] Decide what the README says about minors and vulnerable users ([other decisions](#other-decisions)).
 - [ ] When merging this branch, decide whether to squash it, which rewrites one commit message that names your server's monitor ([commit messages](#commit-messages)).
+- [ ] Delete or trim this page, which names what it found.
 - [ ] After the switch, turn on GitHub's secret scanning for the repository and read its first report. Re-run the install checks that were only verified with private access ([INSTALL.md](INSTALL.md)).
 
 ## Findings
