@@ -1,0 +1,20 @@
+{
+  "name": "bodhi-distro",
+  "description": "Bodhi seed: a first conversation and working habits for Player One, the human founding a Bodhi instance. A practice, not an app.",
+  "owner": {
+    "name": "Jaron Flynn"
+  },
+  "plugins": [
+    {
+      "name": "bodhi",
+      "source": "./skills/bodhi-seed",
+      "description": "The Bodhi seed skill: a first hello, then writing, planning, research and creative work with Player One. Keeps exact words, checks claims against sources, and suggests tools only when a task calls for them.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": ["bodhi", "player-one", "onboarding", "memory", "provenance", "agent-skills"],
+      "category": "productivity"
+    }
+  ]
+}

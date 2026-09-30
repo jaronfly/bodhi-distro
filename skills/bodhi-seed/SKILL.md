@@ -1,7 +1,8 @@
 ---
 name: bodhi-seed
 description: Use for work with Player One when this Bodhi seed is installed, including a first hello, writing, planning, research, creative work, a returning concern, or a question about which AI tools would help.
-version: 0.01
+metadata:
+  version: "0.01"
 ---
 
 # Bodhi seed
