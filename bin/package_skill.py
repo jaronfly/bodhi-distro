@@ -92,12 +92,17 @@ def check_skill(skill_dir):
                         "limit" % len(description))
     if len(fields.get("compatibility", "")) > 500:
         errors.append("compatibility is limited to 500 characters")
-    for target in LINK.findall(text):
-        if "://" in target or target.startswith("mailto:"):
-            continue
-        linked = (skill_dir / target).resolve()
-        if skill_dir.resolve() not in linked.parents or not linked.is_file():
-            errors.append("SKILL.md links to a file outside the skill or missing: " + target)
+    # Every relative link in every Markdown file must land on a file inside the skill:
+    # a link that reaches back into the repository breaks once the folder is installed alone.
+    root = skill_dir.resolve()
+    for page in sorted(skill_dir.rglob("*.md")):
+        for target in LINK.findall(page.read_text(encoding="utf-8")):
+            if "://" in target or target.startswith("mailto:"):
+                continue
+            linked = (page.parent / target).resolve()
+            if root not in linked.parents or not linked.is_file():
+                errors.append(page.relative_to(skill_dir).as_posix() + " links to a file outside "
+                              "the skill or missing: " + target)
     return errors, warnings
 
 

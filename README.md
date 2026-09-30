@@ -73,7 +73,7 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 
 ## What is in the seed
 
-- [skills/bodhi-seed/](skills/bodhi-seed/SKILL.md) is the standalone persona and practice. Its reference file maps task signals to optional tools. It can run without the vault.
+- [skills/bodhi-seed/](skills/bodhi-seed/SKILL.md) is the standalone persona and practice. It can run without the vault. Its reference files map task signals to optional tools ([tool signals](skills/bodhi-seed/references/TOOL_SIGNALS.md)); catalogue [the first fleet's tools](skills/bodhi-seed/references/FLEET_TOOLS.md), each with why it was made, how, how it could work, and what happened when it ran; lay out [notes, a graph, or nothing yet](skills/bodhi-seed/references/MEMORY_SUBSTRATE.md) as questions rather than a recommendation; and turn the seed's own claims into [founding exercises](skills/bodhi-seed/references/FOUNDING_EXERCISES.md) that a new fleet's first model can test, including trust-matrix and team exercises.
 - [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) and [`bin/package_skill.py`](bin/package_skill.py) carry the same skill to Claude Code and to claude.ai or Claude Desktop; [docs/INSTALL.md](docs/INSTALL.md) covers those and other harnesses.
 - `bin/bodhi.py` and `templates/vault/` create the optional local vault and operate its small evidence loop. The CLI is copied into each vault, so the installed workspace remains usable without this installer repository.
 - [replay](bin/replay.py) is "what happened last time I tried this?" for the vault. The ledger ships empty on purpose — a missing ledger exits 3 instead of answering "no prior attempts" — and only the six inherited failure *shapes* come from the original swarm; every recorded failure is this vault's own.
@@ -85,6 +85,10 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 - [MODULES.md](MODULES.md) names functions the seed may grow toward. Each module has an observable acceptance condition and stays optional.
 - [Existing paths](docs/EXISTING_PATHS.md) records current harness and onboarding patterns behind the seed's choices, so later Bodhis can reuse a working tool instead of rebuilding it.
 - `evals/` tests whether the seed helps a fresh model behave usefully without pretending the original infrastructure exists.
+
+## Fork it, improve it, or point us elsewhere
+
+Bodhi is one person's practice, grown with a fleet of models, and it is offered as a question more than an answer. Developers are invited to fork or improve the philosophy or any single tool: the setup session, the relay, replay, the vault, or one skill reference. If a project already does one of these jobs better, open an issue that names it, so it can be learned from or integrated. The [first fleet's tools](skills/bodhi-seed/references/FLEET_TOOLS.md#fork-it-improve-it-or-point-elsewhere) end with a list of known alternatives by function, and [existing paths](docs/EXISTING_PATHS.md) records the neighbors the seed already borrows from. Both lists are incomplete. No reuse license has been chosen yet, so forking on GitHub works under GitHub's terms, but other reuse rights are unclear until one is.
 
 The full Bodhi Bible remains in the original Brain. This pilot carries only the verbatim founding section, still marked **draft and unratified**. Later addenda include extended third-party quotations and personal material. The installer does not inject even the founding section into a new person's agent prompt.
 

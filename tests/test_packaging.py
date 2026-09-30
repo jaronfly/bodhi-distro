@@ -3,6 +3,7 @@
 import hashlib
 import importlib.util
 import json
+import re
 import tempfile
 import unittest
 import zipfile
@@ -41,6 +42,28 @@ class AgentSkillsFormatTests(unittest.TestCase):
             self.assertIn("version", joined)
             self.assertIn("lowercase", joined)
             self.assertIn("references/NONE.md", joined)
+
+
+class InstalledContentTests(unittest.TestCase):
+    """What every harness installs: SOUL.md and the skill folder."""
+
+    PRIVATE = re.compile(r"(?i)\bru-?nas\b|\b(?:100|192\.168|10)\.\d{1,3}\.\d{1,3}(?:\.\d{1,3})?\b|"
+                         r"tailnet|tailscale|/mnt/user|/Users/[a-z]|:\d{4,5}\b|randomuniverse|"
+                         r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}")
+
+    def test_no_private_hosts_addresses_ports_or_emails_ship(self):
+        installed = [ROOT / "SOUL.md"] + sorted(SKILL.rglob("*.md"))
+        for page in installed:
+            for number, line in enumerate(page.read_text(encoding="utf-8").splitlines(), 1):
+                self.assertIsNone(self.PRIVATE.search(line),
+                                  "%s:%d ships a private-looking identifier: %s" % (page, number, line))
+
+    def test_every_reference_page_is_reachable_from_the_skill(self):
+        pages = {p.name for p in (SKILL / "references").glob("*.md")}
+        linked = set()
+        for page in [SKILL / "SKILL.md"] + sorted((SKILL / "references").glob("*.md")):
+            linked |= {Path(t).name for t in load_packager().LINK.findall(page.read_text(encoding="utf-8"))}
+        self.assertEqual(pages - linked, set(), "a reference no page links to is never read")
 
 
 class ZipTests(unittest.TestCase):
