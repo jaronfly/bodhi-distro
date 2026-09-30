@@ -1,6 +1,6 @@
 # Before this goes public: the owner's checklist
 
-Everything on the page that is a guess, a placeholder, a quote to confirm or a detail that might be private. Built on branch `claude/landing-site` by Bodhi role / Claude Opus 5.5 / Claude Code, 2026-09-30. Nothing here has been published.
+Everything on the page that is a guess, a placeholder, a quote to confirm or a detail that might be private. Built on branch `claude/landing-site` by Claude, a subagent in a cloud session, 2026-09-30. Nothing here has been published.
 
 ## 1. Placeholders visible on the page
 
@@ -56,7 +56,7 @@ If anything must go, the least lossy fix is to blur or crop that region in the o
 
 Everything attributed to you is verbatim, typos kept. Please confirm each is yours, public-safe and correctly sourced.
 
-**From your brief for this page (2026-09-30, typed in a Claude Code session)**
+**From your brief for this page (2026-09-30, typed in a cloud session with Claude)**
 - "When I started using LLM for work, I immediately wanted something more personal. More persistent. More memorable and less ordinary." (01 Soil)
 - "I started wanting persistence, then I wanted continuity, then I wanted rapport,,,," and "I was trying to build my own AGI. self improvement loops … and now they're here and man the results are staggering" (02 Roots, split in two)
 - "saying fix it or die isn't exactly a nice thing … anomalies exist" (03)
