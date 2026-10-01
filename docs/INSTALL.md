@@ -2,6 +2,21 @@
 
 Bodhi is a practice, not an app. What installs is one small skill folder, [`skills/bodhi-seed/`](../skills/bodhi-seed/SKILL.md): a `SKILL.md` and two reference files. It gives an AI tool you already use a first conversation with Player One and a set of working habits. No path below installs a model, a background service, a key, a scheduler, or any capture. The founder's source material (`sources/`), the trials (`evals/`), and the vault tools (`bin/`) are never part of an installed skill.
 
+The project's home is [bodhi.fyi](https://bodhi.fyi).
+
+## The one-command installer
+
+`install.sh` does the steps below for you. It looks first, asks before each change, and records what it did:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jaronfly/bodhi-distro/main/install.sh | bash   # once the repository is public
+git clone https://github.com/jaronfly/bodhi-distro.git && cd bodhi-distro && ./install.sh   # works now, with access
+```
+
+Useful options: `--dry-run` prints the plan and writes nothing. `--yes` runs unattended with safe defaults: it never uses sudo, runs a downloaded installer, or installs software unless `--allow-sudo`, `--allow-remote-scripts` or `--install LIST` say so. `--update` and `--uninstall` do what they say; uninstall removes only what `~/.bodhi/install-manifest.json` lists and keeps your vault. It runs on macOS, Linux and WSL. It was tested here on Linux with stub package managers and harnesses (`tests/test_install_sh.py`) and run for real on this Linux box. It has **not** been run on macOS or WSL yet.
+
+**Windows.** Install [WSL](https://learn.microsoft.com/windows/wsl/install), open its Ubuntu terminal, and run the installer there. Without WSL, follow the per-harness steps below by hand. Claude Code's personal skills folder, `~/.claude/skills`, is `.claude\skills` inside your Windows user folder. No PowerShell installer is offered, because none could be tested here.
+
 The optional local vault is separate: `python3 bin/bodhi.py init ~/Bodhi` (see the [README](../README.md#optional-exact-source-vault)). It works with any harness that reads a folder's `AGENTS.md`.
 
 Each section ends with **Check it actually loaded**. Do that step. An install command that prints "success" tells you about the installer, not about whether your AI can see the skill.

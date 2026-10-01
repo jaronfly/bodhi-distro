@@ -1,5 +1,21 @@
 # Bodhi v0.01 — seed pilot
 
+**Home: [bodhi.fyi](https://bodhi.fyi)**
+
+**In 30 seconds.** Bodhi is a practice for working with AI, not an app. It comes down to a few habits: write things down, keep exact words, check claims against evidence, and sign your work. The seed is a small skill that teaches those habits to the AI tool you already use, such as Claude Code, Codex, Hermes, or OpenClaw. It adds an optional local folder, the vault, that keeps your exact notes and handoffs in Git. It installs no model and no service, and it never asks for your keys. You, the human it grows around, are called **Player One**.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jaronfly/bodhi-distro/main/install.sh | bash
+```
+
+That one line works once this repository is public. While it is private, an anonymous download fails, so clone it with your GitHub access and run the installer from the clone:
+
+```sh
+git clone https://github.com/jaronfly/bodhi-distro.git && cd bodhi-distro && ./install.sh
+```
+
+The installer looks at your computer first and asks before every change. `--dry-run` shows the plan without changing anything. Afterwards, `bin/bodhi.py doctor` checks what is installed, `./install.sh --update` refreshes it, and `./install.sh --uninstall` removes only what the installer recorded. A stranger's walkthrough, with a glossary, troubleshooting, and the privacy and accessibility notes, is in [docs/ONBOARDING_UX.md](docs/ONBOARDING_UX.md).
+
 This repository is a small, runnable starting point for **Player One**, the human founding a Bodhi instance, and the agents who work with them. The portable [Bodhi seed skill](skills/bodhi-seed/SKILL.md) gives an existing AI harness a first-meeting conversation and a set of useful working habits. A local Git vault is optional when Player One needs exact-source custody and a shared handoff trail. Neither path installs a model, browser recorder, or background service.
 
 The name **Player One** comes from [Jaron's direct terminology choice](sources/origin/PLAYER_ONE_2026-09-24.md). The original system's [Hello World](sources/origin/HELLO_WORLD.md) states the broader aim. These are attributed sources. A fresh installation starts from the new person's answers and observations, not Jaron's personal canon.

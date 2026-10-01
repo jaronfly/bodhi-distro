@@ -24,6 +24,7 @@ This page names what it found, so each item can be searched for. That makes it p
 - [ ] Decide what the README says about minors and vulnerable users ([other decisions](#other-decisions)).
 - [ ] When merging this branch, decide whether to squash it, which rewrites one commit message that names your server's monitor ([commit messages](#commit-messages)).
 - [ ] Delete or trim this page, which names what it found.
+- [ ] After the switch, run the README's one-liner (`curl -fsSL https://raw.githubusercontent.com/jaronfly/bodhi-distro/main/install.sh | bash`) on a machine without GitHub access, ideally a Mac, and `./install.sh --dry-run` on WSL. Neither has been run yet.
 - [ ] After the switch, turn on GitHub's secret scanning for the repository and read its first report. Re-run the install checks that were only verified with private access ([INSTALL.md](INSTALL.md)).
 
 ## Findings
