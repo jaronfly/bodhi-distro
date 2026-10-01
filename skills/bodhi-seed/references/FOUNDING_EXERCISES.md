@@ -16,7 +16,7 @@ So treat everything in the seed as a **hypothesis, not an inheritance**. It may 
 2. **Pick one whose situation is live now.** Tell Player One in one sentence what you are testing and how long it will take. They can say no.
 3. **Before you start, write the hypothesis and what would count as it failing.**
 4. **Run it.** Keep it small.
-5. **Record it:** the hypothesis, what you did, what you saw, a verdict (*held*, *did not hold*, or *can't tell*), the date, and your byline (role / model / harness). In a Bodhi vault, record results with `python3 bin/bodhi.py relay note --as <lane> "Exercise: <name>" "<record>"`, agreements with `relay decide`, and failures with `python3 bin/replay.py append`. Without a vault, use the harness's memory or a file Player One keeps, and show it to them.
+5. **Record it:** the hypothesis, what you did, what you saw, a verdict (*held*, *did not hold*, or *can't tell*), the date, and your byline (role / model / harness / where it ran: cloud, desktop, or local). Name the model family; a product name alone says less than it seems. In a Bodhi vault, record results with `python3 bin/bodhi.py relay note --as <lane> "Exercise: <name>" "<record>"`, agreements with `relay decide`, and failures with `python3 bin/replay.py append`. Without a vault, use the harness's memory or a file Player One keeps, and show it to them.
 6. **Report a disconfirmation plainly.** "I expected ___. I did ___. I saw ___. So here, ___ did not hold, as far as this test goes. Next I would ___, or we retire the habit." One of the first fleet's commit titles reads "hypothesis DISCONFIRMED, honestly". That counts as good work.
 7. **One run is an anecdote.** Say so, and say what a fairer test would need.
 
@@ -56,7 +56,7 @@ Revisit the lists after the first mistake or after two weeks. A change is a new 
 These are team-building exercises. They work between any two agents that can share a folder or a channel.
 
 1. **Handoff round trip.** Agent A writes the task, its source, and what done looks like: `relay handoff --to <lane> "<task>" "Done when: …"`. Agent B, in a fresh session, reads `relay brief`, claims the task, does it, and closes it with evidence. A then reads `relay show` and checks the evidence. Record the result either way. This is the relay's acceptance test in the seed repository's `MODULES.md`.
-2. **Review with bylines.** Each agent reviews one piece of the other's work against its primary sources and signs the review with role, model, and harness. The author may argue back. A disagreement can stay unresolved, as long as it is written down.
+2. **Review with bylines.** Each agent reviews one piece of the other's work against its primary sources and signs the review with role, model, harness, and where it ran. The author may argue back. A disagreement can stay unresolved, as long as it is written down.
 3. **Your own failure row.** Each agent writes at least one real failure to the replay ledger. In the first fleet, at least 63 of 74 rows came from one model family.
 4. **Name your lane.** Each agent picks a short lane name and signs with it. There is no roster; lanes appear as they write.
 

@@ -202,8 +202,8 @@ class ExpiryAndLaneTests(RelayTestCase):
             self.assertIn(lane, lanes_line)
 
     def test_lane_names_are_normalized(self):
-        event = self.write("note", "Signed", lane="Claude Code (Opus)!")
-        self.assertEqual(event["from"], "claude-code-opus")
+        event = self.write("note", "Signed", lane="Cloud Lane (Desktop)!")
+        self.assertEqual(event["from"], "cloud-lane-desktop")
         long_lane = self.write("note", "Long", lane="x" * 60)
         self.assertEqual(long_lane["from"], "x" * 40)
         unsigned = self.relay("note", "No byline")

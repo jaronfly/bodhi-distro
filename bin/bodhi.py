@@ -36,8 +36,14 @@ OS_CHOICES = ("macos", "windows", "linux", "other")
 HARNESS_CHOICES = ("hermes", "openclaw", "claude-code", "codex", "other", "undecided")
 MODEL_CHOICES = ("local", "cloud", "both", "none", "undecided")
 CAPTURE_CHOICES = ("web_history", "app_usage", "audio", "screen")
+COMFORT_CHOICES = ("new", "some", "comfortable")
+CHAT_CHOICES = ("none", "telegram", "discord", "slack", "whatsapp", "signal", "email", "teams", "other")
+DEVICE_CHOICES = ("this_computer", "another_computer", "phone", "tablet", "home_server")
+NOTES_CHOICES = ("nowhere_yet", "paper", "notes_app", "obsidian", "notion", "docs", "other")
+DELIVERY_CHOICES = ("pull", "push", "both", "undecided")
+DETECTED_KEYS = {"harnesses", "ollama", "lm_studio", "obsidian"}
 DISPOSITIONS = ("keep", "project", "hold", "dismiss")
-LOCAL_GIT_COMMANDS = {"init", "add", "commit", "rev-parse", "log", "cat-file"}
+LOCAL_GIT_COMMANDS = {"init", "add", "commit", "rev-parse", "log", "cat-file", "status"}
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -103,11 +109,53 @@ def choice(value, allowed, field):
     return normalized
 
 
+def _choice_list(raw, key, allowed):
+    items = raw.get(key, [])
+    if not isinstance(items, list) or any(not isinstance(item, str) for item in items):
+        raise BodhiError(key + " must be a list of names")
+    items = [choice(item, allowed, key) for item in items]
+    if len(items) != len(set(items)):
+        raise BodhiError(key + " contains duplicates")
+    return items
+
+
+def _optional_choice(raw, key, allowed):
+    value = raw.get(key, "")
+    if value is None or value == "":
+        return ""
+    return choice(value, allowed, key)
+
+
+def _named_other(raw, key, chosen, name_key):
+    name = raw.get(name_key, "")
+    if not isinstance(name, str):
+        raise BodhiError(name_key + " must be a string")
+    if chosen != "other" and name.strip():
+        raise BodhiError(name_key + " applies only when " + key + " is other")
+    return name.strip() if chosen == "other" else ""
+
+
+def _detected(raw):
+    """What setup observed on this computer, kept apart from what Player One answered."""
+    found = raw.get("detected", {})
+    if not isinstance(found, dict) or set(found) - DETECTED_KEYS:
+        raise BodhiError("detected must be an object with only: " + ", ".join(sorted(DETECTED_KEYS)))
+    harnesses = found.get("harnesses", [])
+    if not isinstance(harnesses, list) or any(item not in HARNESS_CHOICES for item in harnesses):
+        raise BodhiError("detected.harnesses must list harness names")
+    flags = {key: found.get(key, False) for key in ("ollama", "lm_studio", "obsidian")}
+    if any(not isinstance(value, bool) for value in flags.values()):
+        raise BodhiError("detected ollama, lm_studio and obsidian must be true or false")
+    return dict(flags, harnesses=list(harnesses)) if found else {}
+
+
 def normalize_answers(raw):
     if not isinstance(raw, dict):
         raise BodhiError("answers must be a JSON object")
     allowed = {"priority", "os", "harness", "harness_name", "model_access",
-               "capture_surfaces", "next_capability"}
+               "capture_surfaces", "next_capability", "terminal_comfort", "chat_app",
+               "chat_app_name", "devices", "notes_today", "notes_name", "findings_delivery",
+               "detected"}
     unknown = set(raw) - allowed
     if unknown:
         raise BodhiError("unknown answer fields: " + ", ".join(sorted(unknown)))
@@ -131,6 +179,8 @@ def normalize_answers(raw):
     next_capability = raw.get("next_capability", "")
     if not isinstance(next_capability, str):
         raise BodhiError("next_capability must be a string")
+    chat_app = _optional_choice(raw, "chat_app", CHAT_CHOICES)
+    notes_today = _optional_choice(raw, "notes_today", NOTES_CHOICES)
     return {
         "priority_verbatim": priority,
         "os": os_name,
@@ -140,7 +190,43 @@ def normalize_answers(raw):
         "capture_interests": surfaces,
         "capture_enabled": False,
         "next_capability_verbatim": next_capability,
+        # Optional answers; "" or [] means the question was skipped.
+        "terminal_comfort": _optional_choice(raw, "terminal_comfort", COMFORT_CHOICES),
+        "chat_app": chat_app,
+        "other_chat_app_name": _named_other(raw, "chat_app", chat_app, "chat_app_name"),
+        "devices": _choice_list(raw, "devices", DEVICE_CHOICES),
+        "notes_today": notes_today,
+        "other_notes_name": _named_other(raw, "notes_today", notes_today, "notes_name"),
+        "findings_delivery": _optional_choice(raw, "findings_delivery", DELIVERY_CHOICES),
+        "detected_at_setup": _detected(raw),
     }
+
+
+# Harnesses this seed knows how to find, by the command each one installs.
+HARNESS_BINARIES = (("claude-code", "claude"), ("codex", "codex"), ("hermes", "hermes"),
+                    ("openclaw", "openclaw"))
+
+
+def detect_tools(env=None):
+    """Look, never install: which harnesses and tools are already on this computer."""
+    env = os.environ if env is None else env
+    search = env.get("PATH", os.defpath)
+    home = Path(env.get("HOME") or str(Path.home()))
+
+    def found(name):
+        return shutil.which(name, path=search) is not None
+
+    lm_studio = found("lms") or Path("/Applications/LM Studio.app").exists() or \
+        (home / ".lmstudio").is_dir()
+    obsidian = found("obsidian") or Path("/Applications/Obsidian.app").exists() or any(
+        (home / part).is_dir() for part in (".config/obsidian", "Library/Application Support/obsidian",
+                                             ".var/app/md.obsidian.Obsidian"))
+    return {"harnesses": [key for key, command in HARNESS_BINARIES if found(command)],
+            "ollama": found("ollama"), "lm_studio": bool(lm_studio), "obsidian": bool(obsidian)}
+
+
+def detected_os():
+    return {"Darwin": "macos", "Windows": "windows", "Linux": "linux"}.get(platform.system(), "other")
 
 
 # ---------------------------------------------------------------------------
@@ -161,6 +247,7 @@ MARK = ("...##.##...", ".....#.....", ".....#.....", "#####.#####", "#####..####
 MARK_SPROUT_ROWS = 3
 MARK_MIN_WIDTH = 26
 SETUP_QUESTIONS = 6
+OPTIONAL_QUESTIONS = 5
 
 HARNESS_LABELS = {"hermes": "Hermes Agent", "openclaw": "OpenClaw", "claude-code": "Claude Code",
                   "codex": "Codex", "other": "something else; you can name it next",
@@ -172,6 +259,22 @@ MODEL_LABELS = {"local": "a model that runs on this computer",
                 "cloud": "a hosted service you sign in to", "both": "local and hosted",
                 "none": "none yet", "undecided": "not sure"}
 OS_LABELS = {"macos": "a Mac", "windows": "Windows", "linux": "Linux", "other": "something else"}
+COMFORT_LABELS = {"new": "new to it; explain as we go", "some": "I can follow steps",
+                  "comfortable": "comfortable; keep it short"}
+CHAT_LABELS = {"none": "none, or not for this", "telegram": "Telegram", "discord": "Discord",
+               "slack": "Slack", "whatsapp": "WhatsApp", "signal": "Signal", "email": "email",
+               "teams": "Microsoft Teams", "other": "something else; you can name it next"}
+# Chat apps the Hermes gateway documents (hermes gateway setup), checked 2026-09-30.
+HERMES_GATEWAY_APPS = ("telegram", "discord", "slack", "whatsapp", "signal", "email", "teams")
+DEVICE_LABELS = {"this_computer": "this computer", "another_computer": "another computer",
+                 "phone": "a phone", "tablet": "a tablet",
+                 "home_server": "a home server, a bodhinas"}
+NOTES_LABELS = {"nowhere_yet": "nowhere yet", "paper": "on paper",
+                "notes_app": "a notes app on a phone or computer", "obsidian": "Obsidian",
+                "notion": "Notion", "docs": "documents, such as Google Docs or Word",
+                "other": "somewhere else; you can name it next"}
+DELIVERY_LABELS = {"pull": "I ask when I want something", "push": "send me short findings",
+                   "both": "both", "undecided": "not sure yet"}
 CAPTURE_LABELS = {"web_history": "your browser history", "app_usage": "which apps you use",
                   "audio": "recordings you choose", "screen": "what is on your screen"}
 
@@ -215,6 +318,8 @@ class Voice:
             width = shutil.get_terminal_size((80, 24)).columns if tty else 80
         self.width = max(20, min(80, int(width)))
         self.block = "█" if _can_encode(self.stream, "█") else "#"
+        self.brief = False    # set when Player One is comfortable in a terminal
+        self.explain = False  # set when Player One is new to the terminal
 
     def style(self, text, *names):
         if not self.color or not text or not names:
@@ -261,7 +366,7 @@ def render_mark(block="█", style=None):
     return lines
 
 
-def _read_line(voice, prompt="Your answer: "):
+def _read_line(voice, prompt="Your answer: ", eof_ok=False):
     try:
         if voice.stream is sys.stdout:
             value = input(prompt)
@@ -269,28 +374,46 @@ def _read_line(voice, prompt="Your answer: "):
             voice.write(prompt)
             value = input()
     except EOFError:
+        if eof_ok:
+            voice.line()
+            return None
         raise BodhiError("setup stopped before the last question; nothing was created")
     if not _isatty(sys.stdin):
         voice.line()  # keep a log readable when answers arrive from a pipe
     return value
 
 
-def _question(voice, number, title, why):
+def _question(voice, label, title, why, more=None):
     voice.line()
-    voice.para("Question %d of %d. %s" % (number, SETUP_QUESTIONS, title), style=("bold",))
-    voice.para(why, indent=2)
+    voice.para(label + ". " + title, style=("bold",))
+    if why and not voice.brief:
+        voice.para(why, indent=2)
+    if more and voice.explain:
+        voice.para(more, indent=2)
 
 
-def _ask_choice(voice, number, title, why, field, options, labels, default, default_note=""):
-    _question(voice, number, title, why)
+def _more(voice, more):
+    voice.para(more or "Nothing more to add here. Press Enter to keep the default.", indent=2)
+
+
+def _help_hint(more):
+    return " Type ? to hear more." if more else ""
+
+
+def _ask_choice(voice, label, title, why, field, options, labels, default, default_note="",
+                more=None):
+    _question(voice, label, title, why, more)
     for index, value in enumerate(options, 1):
         voice.para("%d. %s (%s)" % (index, value, labels[value]), indent=2)
-    voice.para("Press Enter to keep %s%s, or type a number or a name." % (default, default_note),
-               indent=2)
+    voice.para("Press Enter to keep %s%s, or type a number or a name.%s"
+               % (default, default_note, _help_hint(more)), indent=2)
     while True:
         raw = _read_line(voice).strip()
         if not raw:
             return default
+        if raw == "?":
+            _more(voice, more)
+            continue
         if raw.isdigit() and 1 <= int(raw) <= len(options):
             return options[int(raw) - 1]
         try:
@@ -300,24 +423,29 @@ def _ask_choice(voice, number, title, why, field, options, labels, default, defa
                           "to keep %s." % (raw, len(options), options[0], default))
 
 
-def _ask_capture(voice, number):
-    _question(voice, number, "Is there anything you might want Bodhi to learn from, later on?",
-              "These are interests only. Nothing is recorded now, and nothing starts "
-              "without your say-so in a later session.")
-    for index, value in enumerate(CAPTURE_CHOICES, 1):
-        voice.para("%d. %s (%s)" % (index, value, CAPTURE_LABELS[value]), indent=2)
-    voice.para("Press Enter for none, or type numbers or names separated by commas.", indent=2)
+def _ask_many(voice, label, title, why, field, options, labels, default=(), more=None):
+    _question(voice, label, title, why, more)
+    for index, value in enumerate(options, 1):
+        voice.para("%d. %s (%s)" % (index, value, labels[value]), indent=2)
+    keep = ", ".join(default) if default else "none"
+    voice.para("Press Enter for %s, or type numbers or names separated by commas.%s"
+               % (keep, _help_hint(more)), indent=2)
     while True:
         raw = _read_line(voice).strip()
-        if not raw or raw.lower() == "none":
+        if not raw:
+            return list(default)
+        if raw == "?":
+            _more(voice, more)
+            continue
+        if raw.lower() == "none":
             return []
         chosen, error = [], ""
         for part in [item for item in re.split(r"[,\s]+", raw) if item]:
-            if part.isdigit() and 1 <= int(part) <= len(CAPTURE_CHOICES):
-                chosen.append(CAPTURE_CHOICES[int(part) - 1])
+            if part.isdigit() and 1 <= int(part) <= len(options):
+                chosen.append(options[int(part) - 1])
                 continue
             try:
-                chosen.append(choice(part, CAPTURE_CHOICES, "capture_surfaces"))
+                chosen.append(choice(part, options, field))
             except BodhiError:
                 error = part
                 break
@@ -325,65 +453,163 @@ def _ask_capture(voice, number):
             error = raw + " names one choice twice"
         if not error:
             return chosen
-        voice.problem("%s. Type numbers from 1 to %d or names such as web_history, or press "
-                      "Enter for none." % (error, len(CAPTURE_CHOICES)))
+        voice.problem("%s. Type numbers from 1 to %d or names such as %s, or press Enter for "
+                      "%s." % (error, len(options), options[0], keep))
 
 
-def _ask_words(voice, number, title, why, skip_note):
-    _question(voice, number, title, why)
-    voice.para(skip_note, indent=2)
-    return _read_line(voice)
+def _ask_words(voice, label, title, why, skip_note, more=None):
+    _question(voice, label, title, why, more)
+    voice.para(skip_note + _help_hint(more), indent=2)
+    while True:
+        raw = _read_line(voice)
+        if raw.strip() == "?" and more:
+            _more(voice, more)
+            continue
+        return raw
 
 
-def interactive_answers(dest, voice=None):
-    """Ask the six setup questions one at a time. Nothing is written until they are done."""
-    voice = voice or Voice()
+def _core(number):
+    return "Question %d of %d" % (number, SETUP_QUESTIONS)
+
+
+def _optional(number):
+    return "Optional question %d of %d" % (number, OPTIONAL_QUESTIONS)
+
+
+def _names(keys, labels):
+    return ", ".join(labels.get(key, key) for key in keys)
+
+
+def ask_raw_answers(voice, saved_where, found):
+    """The Ready Player One questions. Returns raw answers in --answers form; writes nothing."""
     voice.line(voice.style("Bodhi seed, setup (v" + VERSION + ")", "bold"))
     voice.line()
     voice.para("Hello, Player One.")
     voice.line()
     voice.para("Bodhi is a practice more than an app: write things down, keep exact words, "
-               "check claims against evidence, and sign your work. This setup makes a folder "
-               "where that practice can live, next to the AI tools you already use.")
+               "check claims against evidence, and sign your work. This setup gets that practice "
+               "ready next to the AI tools you already use.")
     voice.line()
-    voice.para("Six short questions follow, one at a time. Each one shows a default: press "
-               "Enter to keep it or to skip. You can change any answer later.")
+    voice.para("Six short questions follow, one at a time, then five optional ones. Each shows a "
+               "default: press Enter to keep it or to skip. Type ? at a question to hear more. "
+               "You can change any answer later.")
     voice.line()
     voice.para("Nothing here records you, installs tools, connects accounts, or sends anything "
-               "anywhere. Your answers are saved in one file inside the new folder:")
-    voice.verbatim(shown_path(dest / "context" / "player_one.json"))
-    priority = _ask_words(
-        voice, 1, "What is one thing you want AI to help you change or make right now?",
+               "anywhere. " + saved_where[0])
+    voice.verbatim(shown_path(saved_where[1]))
+    raw = {"detected": found}
+    raw["priority"] = _ask_words(
+        voice, _core(1), "What is one thing you want AI to help you change or make right now?",
         "Your words are kept exactly as you type them. Your first agent session will read "
         "them back and ask whether they still fit.",
-        "Press Enter to skip; your first session will ask you instead.")
-    detected = {"Darwin": "macos", "Windows": "windows", "Linux": "linux"}.get(
-        platform.system(), "other")
-    os_name = _ask_choice(
-        voice, 2, "Which computer will hold your Bodhi folder?",
+        "Press Enter to skip; your first session will ask you instead.",
+        more="This is the first thing you want, in your own words: a project, a chore, a question "
+             "you keep circling. It becomes the first task, not a lifetime plan.")
+    raw["os"] = _ask_choice(
+        voice, _core(2), "Which computer will hold your Bodhi folder?",
         "So that agents suggest commands that work on your machine.",
-        "os", OS_CHOICES, OS_LABELS, detected, " (detected)")
-    harness = _ask_choice(
-        voice, 3, "Which AI app or agent will you mainly use with this folder?",
+        "os", OS_CHOICES, OS_LABELS, detected_os(), " (detected)")
+    harness_default, harness_note = "undecided", ""
+    if found["harnesses"]:
+        harness_default, harness_note = found["harnesses"][0], " (found on this computer)"
+        voice.line()
+        voice.para("Found on this computer: " + _names(found["harnesses"], HARNESS_LABELS) + ".")
+    raw["harness"] = _ask_choice(
+        voice, _core(3), "Which AI app or agent will you mainly use with this folder?",
         "Bodhi works through the AI tool you already use. It does not install one.",
-        "harness", HARNESS_CHOICES, HARNESS_LABELS, "undecided")
-    harness_name = ""
-    if harness == "other":
+        "harness", HARNESS_CHOICES, HARNESS_LABELS, harness_default, harness_note,
+        more="A harness is the app or command that runs an AI model for you and lets it read "
+             "files and use tools, such as Claude Code, Codex, Hermes, or OpenClaw. If you only "
+             "chat in a browser, pick undecided; the installer can help later.")
+    raw["harness_name"] = ""
+    if raw["harness"] == "other":
         voice.para("What is it called? Press Enter to skip.", indent=2)
-        harness_name = _read_line(voice)
-    model_access = _ask_choice(
-        voice, 4, "What kind of AI model access do you have?",
+        raw["harness_name"] = _read_line(voice)
+    model_default, model_note = ("local", " (Ollama found)") if found["ollama"] else ("undecided", "")
+    raw["model_access"] = _ask_choice(
+        voice, _core(4), "What kind of AI model access do you have?",
         "Bodhi needs no keys of its own. This only helps agents make realistic suggestions.",
-        "model_access", MODEL_CHOICES, MODEL_LABELS, "undecided")
-    surfaces = _ask_capture(voice, 5)
-    next_capability = _ask_words(
-        voice, 6, "What would you like Bodhi to be able to do next?",
+        "model_access", MODEL_CHOICES, MODEL_LABELS, model_default, model_note,
+        more="Local means a model running on your own computer, for example with Ollama or LM "
+             "Studio. Cloud means a service you sign in to, such as a Claude, ChatGPT, or Gemini "
+             "plan. Keys and logins stay with those tools; Bodhi never asks for them.")
+    raw["capture_surfaces"] = _ask_many(
+        voice, _core(5), "Is there anything you might want Bodhi to learn from, later on?",
+        "These are interests only. Nothing is recorded now, and nothing starts without your "
+        "say-so in a later session.", "capture_surfaces", CAPTURE_CHOICES, CAPTURE_LABELS)
+    raw["next_capability"] = _ask_words(
+        voice, _core(6), "What would you like Bodhi to be able to do next?",
         "One small ability, in your own words. It is kept exactly as you type it.",
         "Press Enter to skip.")
-    return normalize_answers({"priority": priority, "os": os_name, "harness": harness,
-                              "harness_name": harness_name, "model_access": model_access,
-                              "capture_surfaces": surfaces,
-                              "next_capability": next_capability})
+    raw.update(optional_answers(voice, found))
+    return raw
+
+
+def optional_answers(voice, found):
+    voice.line()
+    voice.para("That covers the basics. Five optional questions help Bodhi fit how you work: "
+               "how much explaining you want, a chat app, your devices, where your notes live, "
+               "and how findings should reach you. About a minute.")
+    voice.para("Press Enter to answer them, or type n to skip them.", indent=2)
+    gate = _read_line(voice, eof_ok=True)
+    if gate is None:
+        voice.para("No more answers arrived, so the optional questions were skipped.")
+        return {}
+    if gate.strip().lower() in ("n", "no", "skip"):
+        return {}
+    raw = {}
+    raw["terminal_comfort"] = _ask_choice(
+        voice, _optional(1), "How comfortable are you with a terminal?",
+        "This sets how much Bodhi explains, here and in later sessions.",
+        "terminal_comfort", COMFORT_CHOICES, COMFORT_LABELS, "some",
+        more="A terminal is the text window where you type commands, such as Terminal on a Mac "
+             "or PowerShell on Windows. Nobody has to be an expert; this only sets the pace.")
+    voice.brief = raw["terminal_comfort"] == "comfortable"
+    voice.explain = raw["terminal_comfort"] == "new"
+    raw["chat_app"] = _ask_choice(
+        voice, _optional(2), "Is there a chat app where you would like to reach Bodhi?",
+        "Some harnesses, such as Hermes, can bring an agent into a chat app. Nothing is "
+        "connected now.", "chat_app", CHAT_CHOICES, CHAT_LABELS, "none",
+        more="Hermes Agent's gateway supports Telegram, Discord, Slack, WhatsApp, Signal, email "
+             "and Microsoft Teams, among others. Hermes asks for the app's token itself; Bodhi "
+             "never sees it.")
+    if raw["chat_app"] == "other":
+        voice.para("What is it called? Press Enter to skip.", indent=2)
+        raw["chat_app_name"] = _read_line(voice)
+    raw["devices"] = _ask_many(
+        voice, _optional(3), "Which devices do you want to use Bodhi from?",
+        "So suggestions fit where you are. Nothing is installed on them.",
+        "devices", DEVICE_CHOICES, DEVICE_LABELS, default=("this_computer",),
+        more="A home server, which the first Bodhi called its bodhinas, is a computer that stays "
+             "on at home and can run models or scheduled jobs. Most people start with one "
+             "computer.")
+    notes_default, notes_note = ("obsidian", " (Obsidian found)") if found["obsidian"] else \
+        ("nowhere_yet", "")
+    raw["notes_today"] = _ask_choice(
+        voice, _optional(4), "Where do you keep notes today?",
+        "Bodhi works with notes where they already are before suggesting anything new.",
+        "notes_today", NOTES_CHOICES, NOTES_LABELS, notes_default, notes_note,
+        more="This does not move or read your notes. It helps Bodhi ask better questions later, "
+             "for example before suggesting a notes app or a memory graph.")
+    if raw["notes_today"] == "other":
+        voice.para("What is it called? Press Enter to skip.", indent=2)
+        raw["notes_name"] = _read_line(voice)
+    raw["findings_delivery"] = _ask_choice(
+        voice, _optional(5), "How should findings reach you?",
+        "A finding is something an agent noticed that you did not ask about.",
+        "findings_delivery", DELIVERY_CHOICES, DELIVERY_LABELS, "pull",
+        more="Pull means Bodhi keeps findings until you ask. Push means it sends short notes "
+             "through a channel you choose, once one is set up. You can change this any time.")
+    return raw
+
+
+def interactive_answers(dest, voice=None, found=None):
+    """Ask the setup questions one at a time. Nothing is written until they are done."""
+    voice = voice or Voice()
+    found = detect_tools() if found is None else found
+    raw = ask_raw_answers(voice, ("Your answers are saved in one file inside the new folder:",
+                                  dest / "context" / "player_one.json"), found)
+    return normalize_answers(raw)
 
 
 def _said(value, empty):
@@ -403,6 +629,22 @@ def setup_summary(voice, answers):
             ("Capture interests", ", ".join(answers["capture_interests"]) or "none"),
             ("Recording", "off; nothing records"),
             ("Next ability", _said(answers["next_capability_verbatim"], "none yet")))
+    chat = answers.get("chat_app", "")
+    if chat == "other" and answers.get("other_chat_app_name"):
+        chat = "other: " + answers["other_chat_app_name"]
+    notes = answers.get("notes_today", "")
+    if notes == "other" and answers.get("other_notes_name"):
+        notes = "other: " + answers["other_notes_name"]
+    optional = (("Terminal comfort", answers.get("terminal_comfort", "")), ("Chat app", chat),
+                ("Devices", ", ".join(answers.get("devices", []))), ("Notes today", notes),
+                ("Findings", answers.get("findings_delivery", "")))
+    rows += tuple((label, value) for label, value in optional if value)
+    found = answers.get("detected_at_setup") or {}
+    seen = [HARNESS_LABELS[key] for key in found.get("harnesses", [])]
+    seen += [name for key, name in (("ollama", "Ollama"), ("lm_studio", "LM Studio"),
+                                    ("obsidian", "Obsidian")) if found.get(key)]
+    if found:
+        rows += (("Found on this computer", ", ".join(seen) or "none of the tools Bodhi looks for"),)
     for label, value in rows:
         voice.para(label + ": " + value, indent=2)
 
@@ -443,7 +685,9 @@ def what_happens_next(voice, dest, answers):
         voice.para("1. Open that folder as the working folder in the AI app or agent you "
                    "choose. It needs to be able to read the files there.", indent=2, hang=3)
     if harness in HARNESS_START:
-        voice.para("In a terminal, that is these two lines:", indent=5)
+        voice.para("In a terminal, that is these two lines" + (
+            " (cd means: go to this folder)" if answers.get("terminal_comfort") == "new" else "")
+            + ":", indent=5)
         voice.verbatim("cd " + folder, indent=7)
         voice.verbatim(HARNESS_START[harness], indent=7)
     voice.para("2. Say: Hello, Bodhi.", indent=2, hang=3)
@@ -452,6 +696,8 @@ def what_happens_next(voice, dest, answers):
     voice.para("4. After that first real exchange, your agent saves your exact words and "
                "retires START_HERE.md. Its text stays in the folder's Git history.",
                indent=2, hang=3)
+    for line in later_steps(answers):
+        voice.para(line, indent=2, hang=3)
     voice.line()
     voice.para("Nothing is recording. No account was connected. Nothing left this computer. "
                "To check the folder at any time, run this inside it:")
@@ -460,7 +706,30 @@ def what_happens_next(voice, dest, answers):
     voice.line("Receipt, for scripts and agents:")
 
 
-def read_answers(argument):
+def later_steps(answers):
+    """One line each for the optional answers that change what comes next."""
+    lines = []
+    chat = answers.get("chat_app", "")
+    if chat in HERMES_GATEWAY_APPS:
+        app = CHAT_LABELS[chat]
+        if answers["primary_harness"] == "hermes":
+            lines.append("Later, to reach Bodhi in " + app + ": once Hermes works in the terminal, "
+                         "run hermes gateway setup. Hermes asks for the app's token itself; Bodhi "
+                         "never sees it.")
+        else:
+            lines.append("Later, to reach Bodhi in " + app + ": Hermes Agent's gateway can do "
+                         "that (hermes gateway setup). The seed's install guide explains how.")
+    notes = answers.get("notes_today", "")
+    if notes and notes not in ("nowhere_yet", "paper"):
+        lines.append("Your notes can stay where they are. Before suggesting a new notes app or a "
+                     "memory graph, Bodhi asks what you are losing today.")
+    if answers.get("findings_delivery") in ("push", "both"):
+        lines.append("You asked for findings to reach you. Until a channel is set up, Bodhi "
+                     "leaves them in the folder's session log and says so.")
+    return lines
+
+
+def load_raw_answers(argument):
     if argument.startswith("@"):
         raw_text = Path(argument[1:]).expanduser().read_text(encoding="utf-8")
     elif argument.lstrip().startswith("{"):
@@ -468,9 +737,293 @@ def read_answers(argument):
     else:
         raw_text = Path(argument).expanduser().read_text(encoding="utf-8")
     try:
-        return normalize_answers(json.loads(raw_text))
+        raw = json.loads(raw_text)
     except json.JSONDecodeError as exc:
         raise BodhiError("invalid answers JSON: " + str(exc))
+    normalize_answers(raw)  # validate before anyone relies on it
+    return raw
+
+
+def read_answers(argument):
+    return normalize_answers(load_raw_answers(argument))
+
+
+# ---------------------------------------------------------------------------
+# Setup without a vault, and the doctor.
+#
+# `setup` asks the same questions as `init` but only saves the answers, so the
+# installer can learn which harnesses to serve before anyone decides on a
+# vault. `doctor` reads the state of this computer and says what to fix.
+# ---------------------------------------------------------------------------
+
+SKILL_NAME = "bodhi-seed"
+GREETING = "Bodhi online. Just a seed, for now."
+
+
+def bodhi_home(env=None):
+    env = os.environ if env is None else env
+    return Path(env.get("BODHI_HOME") or Path(env.get("HOME") or str(Path.home())) / ".bodhi")
+
+
+def default_answers(found):
+    """Safe defaults for an unattended setup: what was detected, nothing invented."""
+    return {"os": detected_os(), "model_access": "local" if found["ollama"] else "undecided",
+            "harness": found["harnesses"][0] if found["harnesses"] else "undecided",
+            "detected": found}
+
+
+def save_raw_answers(raw, path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(raw, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+                   encoding="utf-8")
+    tmp.chmod(0o600)
+    tmp.replace(path)
+
+
+def setup_command(args):
+    save = Path(args.save).expanduser().absolute() if args.save else bodhi_home() / "answers.json"
+    found = detect_tools()
+    voice = None
+    if args.answers is not None:
+        raw = load_raw_answers(args.answers)
+    elif args.yes:
+        raw = default_answers(found)
+    else:
+        voice = Voice(plain=args.plain)
+        try:
+            raw = ask_raw_answers(voice, ("Your answers are saved in one file, and nothing else "
+                                          "is written:", save), found)
+        except KeyboardInterrupt:
+            voice.line()
+            raise BodhiError("setup stopped; nothing was saved")
+    answers = normalize_answers(raw)
+    save_raw_answers(raw, save)
+    if voice is not None:
+        setup_summary(voice, answers)
+        voice.line()
+        voice.line("Receipt, for scripts and agents:")
+    emit({"status": "saved", "answers": str(save), "primary_harness": answers["primary_harness"],
+          "model_access": answers["model_access"], "chat_app": answers["chat_app"],
+          "detected": found})
+
+
+def tree_hash(folder):
+    """One digest for a skill folder's files and their paths; hidden files are ignored."""
+    digest = hashlib.sha256()
+    folder = Path(folder)
+    for path in sorted(folder.rglob("*")):
+        relative = path.relative_to(folder)
+        if any(part.startswith(".") or part == "__pycache__" for part in relative.parts):
+            continue
+        if path.is_file():
+            digest.update(relative.as_posix().encode("utf-8") + b"\0")
+            digest.update(hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def skill_version(folder):
+    try:
+        text = (Path(folder) / "SKILL.md").read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    found = re.search(r'^\s+version:\s*"?([^"\n]+)"?\s*$', text, re.MULTILINE)
+    return found.group(1) if found else ""
+
+
+def skill_targets(env=None):
+    """Where each harness reads a personal copy of the skill (checked against their docs)."""
+    env = os.environ if env is None else env
+    home = Path(env.get("HOME") or str(Path.home()))
+    claude = Path(env.get("CLAUDE_CONFIG_DIR") or home / ".claude")
+    hermes = Path(env.get("HERMES_HOME") or home / ".hermes")
+    return (
+        {"key": "claude-code", "label": "Claude Code", "commands": ("claude",),
+         "dest": claude / "skills" / SKILL_NAME, "first": "/bodhi-seed Hello, Bodhi."},
+        {"key": "agents", "label": "Codex and OpenClaw", "commands": ("codex", "openclaw"),
+         "dest": home / ".agents" / "skills" / SKILL_NAME, "first": "$bodhi-seed Hello, Bodhi."},
+        {"key": "hermes", "label": "Hermes", "commands": ("hermes",),
+         "dest": hermes / "skills" / SKILL_NAME, "search": hermes / "skills",
+         "first": "/bodhi-seed Hello, Bodhi."},
+    )
+
+
+def _find_skill_copy(target):
+    if (target["dest"] / "SKILL.md").is_file():
+        return target["dest"]
+    root = target.get("search")
+    if root and root.is_dir():  # `hermes skills install` may file it under a category
+        for candidate in sorted(root.glob("**/" + SKILL_NAME)):
+            if (candidate / "SKILL.md").is_file() and len(candidate.relative_to(root).parts) <= 4:
+                return candidate
+    return None
+
+
+def find_seed(explicit=None, env=None):
+    env = os.environ if env is None else env
+    choices = [explicit, env.get("BODHI_SEED_DIR")]
+    try:
+        manifest = json.loads((bodhi_home(env) / "install-manifest.json").read_text(encoding="utf-8"))
+        choices.append(manifest.get("seed_dir"))
+    except (OSError, ValueError, AttributeError):
+        pass
+    choices.append(str(SKILL_SOURCE.parent.parent))
+    for option in choices:
+        if option and (Path(option).expanduser() / "skills" / SKILL_NAME / "SKILL.md").is_file():
+            return Path(option).expanduser().absolute()
+    return None
+
+
+class Doctor:
+    def __init__(self):
+        self.checks = []
+
+    def add(self, status, what, fix=""):
+        self.checks.append({"status": status, "what": what, "fix": fix})
+
+    @property
+    def problems(self):
+        return sum(1 for check in self.checks if check["status"] == "fail")
+
+    @property
+    def warnings(self):
+        return sum(1 for check in self.checks if check["status"] == "warn")
+
+
+def doctor(vault=None, seed=None, env=None):
+    """Read this computer's Bodhi state. Returns (Doctor, first messages)."""
+    env = os.environ if env is None else env
+    report = Doctor()
+    version = "%d.%d.%d" % sys.version_info[:3]
+    if sys.version_info >= (3, 9):
+        report.add("ok", "Python " + version)
+    else:
+        report.add("fail", "Python " + version + " is older than 3.9",
+                   "install Python 3.9 or newer from python.org or your package manager")
+    if shutil.which("git", path=env.get("PATH", os.defpath)):
+        report.add("ok", "Git is installed")
+    else:
+        report.add("fail", "Git is not installed; the vault keeps its history with it",
+                   "install git with your package manager (brew install git, apt install git)")
+    seed_dir = find_seed(seed, env)
+    seed_skill = seed_dir / "skills" / SKILL_NAME if seed_dir else None
+    seed_hash = tree_hash(seed_skill) if seed_skill else ""
+    if seed_dir:
+        report.add("ok", "Seed at %s (skill version %s)" % (shown_path(seed_dir),
+                                                             skill_version(seed_skill) or "?"))
+    else:
+        report.add("warn", "The seed repository was not found, so skill copies cannot be compared",
+                   "pass --seed PATH, or set BODHI_SEED_DIR to your clone of bodhi-distro")
+    firsts = []
+    search = env.get("PATH", os.defpath)
+    for target in skill_targets(env):
+        copy = _find_skill_copy(target)
+        has_harness = [c for c in target["commands"] if shutil.which(c, path=search)]
+        source = shown_path(seed_skill) if seed_skill else "skills/bodhi-seed"
+        folder = shown_path(target["dest"].parent)
+        install_line = "./install.sh (it asks first), or copy %s into %s" % (source, folder)
+        update_line = "./install.sh --update, or copy %s into %s again" % (source, folder)
+        if copy is None:
+            if has_harness:
+                report.add("note", "%s is installed but has no Bodhi skill yet" % target["label"],
+                           install_line)
+            continue
+        if seed_hash and tree_hash(copy) == seed_hash:
+            report.add("ok", "%s: skill at %s matches the seed" % (target["label"], shown_path(copy)))
+        elif seed_hash:
+            report.add("warn", "%s: skill at %s differs from the seed (older or edited)"
+                       % (target["label"], shown_path(copy)), update_line)
+        else:
+            report.add("note", "%s: skill at %s (not compared)" % (target["label"], shown_path(copy)))
+        firsts.append((target["label"], target["first"]))
+    if not firsts:
+        report.add("note", "No harness on this computer has the Bodhi skill yet",
+                   "run ./install.sh from the seed, or see docs/INSTALL.md")
+    manifest_path = bodhi_home(env) / "install-manifest.json"
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            missing = [entry["path"] for entry in manifest.get("entries", [])
+                       if entry.get("path") and not Path(entry["path"]).exists()]
+        except (ValueError, KeyError, TypeError, AttributeError):
+            report.add("fail", "The install record %s cannot be read" % shown_path(manifest_path),
+                       "move it aside and run ./install.sh again")
+        else:
+            if missing:
+                report.add("warn", "The install record lists paths that are gone: " +
+                           ", ".join(shown_path(Path(item)) for item in missing),
+                           "./install.sh --update puts them back; ./install.sh --uninstall forgets them")
+            else:
+                report.add("ok", "Install record %s matches this computer" % shown_path(manifest_path))
+    if vault is not None:
+        _doctor_vault(report, vault)
+    return report, firsts
+
+
+def _doctor_vault(report, vault):
+    name = shown_path(vault)
+    errors = verify_vault(vault)
+    if errors:
+        for error in errors:
+            report.add("fail", "Vault %s: %s" % (name, error),
+                       "compare with python3 bin/bodhi.py check %s and the vault's Git history" % name)
+        return
+    state = "Hello World done" if onboarding_state(vault) == "complete" else "Hello World pending"
+    report.add("ok", "Vault %s passes its checks (%s)" % (name, state))
+    try:
+        changed = [line for line in git(vault, "status", "--porcelain").splitlines() if line.strip()]
+    except BodhiError as exc:
+        report.add("warn", "Vault %s: git status failed: %s" % (name, exc), "run git status inside it")
+    else:
+        if changed:
+            report.add("warn", "Vault %s has %d uncommitted change(s)" % (name, len(changed)),
+                       "cd %s && git status, then commit what should be kept" % name)
+        else:
+            report.add("ok", "Vault %s: everything is committed" % name)
+    if (vault / RELAY_LEDGER).is_file():
+        _, unreadable = relay_events(vault)
+        if unreadable:
+            report.add("warn", "Relay ledger has %d unreadable line(s)" % unreadable,
+                       "open relay/ledger.jsonl and compare with git log -p relay/ledger.jsonl")
+        else:
+            report.add("ok", "Relay ledger is present and readable")
+    else:
+        report.add("note", "No relay ledger yet (optional; the first relay note creates it)")
+
+
+def doctor_command(args):
+    vault = None
+    if args.vault:
+        vault = Path(args.vault).expanduser().absolute()
+    else:
+        try:
+            vault = relay_vault()
+        except BodhiError:
+            vault = None
+    report, firsts = doctor(vault, args.seed)
+    if args.json:
+        emit({"checks": report.checks, "problems": report.problems, "warnings": report.warnings,
+              "first_messages": [{"harness": label, "message": message} for label, message in firsts],
+              "greeting": GREETING})
+        return 1 if report.problems else 0
+    voice = Voice(plain=args.plain)
+    voice.para("Bodhi doctor", style=("bold",))
+    for check in report.checks:
+        voice.para("%-5s %s" % (check["status"], check["what"]), hang=6)
+        if check["fix"]:
+            voice.para("fix: " + check["fix"], indent=6, hang=5)
+    if vault is None:
+        voice.para("note  No vault was checked; pass its folder to check one.", hang=6)
+    if firsts:
+        voice.line()
+        voice.para("To see the skill load, paste this as your first message:", style=("bold",))
+        for label, message in firsts:
+            voice.para(label + ":", indent=2)
+            voice.verbatim(message, indent=4)
+        voice.para("A loaded seed answers: " + GREETING, indent=2)
+    voice.line()
+    voice.para("Result: %d problem(s), %d warning(s)." % (report.problems, report.warnings))
+    return 1 if report.problems else 0
 
 
 def nonempty_target(dest):
@@ -1482,12 +2035,35 @@ def main(argv=None):
     review_parser.add_argument("id")
     review_parser.add_argument("--disposition", required=True, choices=DISPOSITIONS)
     review_parser.add_argument("--note", required=True)
+    setup_parser = sub.add_parser(
+        "setup", help="ask the setup questions and save the answers, without making a vault",
+        description="The same questions as init, saved for later use with init --answers or "
+                    "the installer. Nothing else is written.")
+    setup_parser.add_argument("--save", metavar="PATH", help="where to save the answers "
+                              "(default ~/.bodhi/answers.json)")
+    setup_parser.add_argument("--answers", metavar="JSON_OR_PATH", help="use these answers instead of asking")
+    setup_parser.add_argument("--yes", action="store_true", help="no questions: save detected defaults")
+    setup_parser.add_argument("--plain", action="store_true", help="no art and no color")
+    doctor_parser = sub.add_parser(
+        "doctor", help="check Python, Git, the seed, each harness's skill copy, and a vault",
+        description="Reads this computer's Bodhi state and gives each finding a one-line fix. "
+                    "Exits 1 when something is actually broken.")
+    doctor_parser.add_argument("vault", nargs="?", help="a vault to check (default: the vault "
+                               "this command runs in, if any)")
+    doctor_parser.add_argument("--seed", help="the seed repository to compare skill copies with")
+    doctor_parser.add_argument("--json", action="store_true")
+    doctor_parser.add_argument("--plain", action="store_true", help="no color")
     add_relay_parser(sub)
     args = parser.parse_args(argv)
     dest = args.dest.expanduser().absolute() if getattr(args, "dest", None) is not None else None
     try:
         if args.command == "relay":
             return relay_command(args)
+        if args.command == "setup":
+            setup_command(args)
+            return 0
+        if args.command == "doctor":
+            return doctor_command(args)
         if args.command == "init":
             nonempty_target(dest)
             if args.answers is not None:

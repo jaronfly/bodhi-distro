@@ -16,7 +16,9 @@ from test_bodhi import CLI, PYTHON, run_cli
 ROOT = Path(__file__).resolve().parents[1]
 SGR = re.compile(r"\x1b\[[0-9;]*m")  # color and bold escapes
 BLOCK = "█"
-FULL_ANSWERS = "\nmacos\nhermes\ncloud\n\n\n"
+# Six core answers, then "n" at the optional-questions prompt. (A pipe that ends after
+# six answers also skips them; a terminal waits, so the pty tests need the "n".)
+FULL_ANSWERS = "\nmacos\nhermes\ncloud\n\n\nn\n"
 
 
 def load_bodhi():
@@ -201,8 +203,11 @@ class TerminalTests(unittest.TestCase):
         output = b""
         while True:
             ready, _, _ = select.select([fd], [], [], 20)
-            if not ready:
-                break
+            if not ready:  # the child is waiting for input it will never get: fail, don't hang
+                os.kill(pid, 9)
+                os.waitpid(pid, 0)
+                os.close(fd)
+                self.fail("init waited for more input:\n" + output.decode("utf-8", "replace")[-800:])
             try:
                 chunk = os.read(fd, 4096)
             except OSError:  # the child closed the terminal
@@ -243,3 +248,83 @@ class TerminalTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AgnosticQuestionTests(unittest.TestCase):
+    """The optional questions, detection, ? help, and setup without a vault."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="bodhi-agnostic-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.bin = self.root / "bin"
+        self.bin.mkdir()
+
+    def path_with(self, *names):
+        for name in names:
+            stub = self.bin / name
+            stub.write_text("#!/bin/sh\n", encoding="utf-8")
+            stub.chmod(0o755)
+        return str(self.bin) + ":/usr/bin:/bin"
+
+    def test_optional_questions_are_saved_and_help_explains_more(self):
+        vault = self.root / "vault"
+        lines = ["", "linux", "?", "hermes", "cloud", "", "",   # core six, with one ? for help
+                 "",                                             # yes to the optional questions
+                 "1", "?", "telegram", "1,phone,5", "notion", "push"]
+        result = run_init(vault, "\n".join(lines) + "\n", "--plain",
+                          env_update={"PATH": self.path_with()})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("A harness is the app or command", result.stdout)
+        self.assertIn("Telegram, Discord, Slack, WhatsApp, Signal", result.stdout)
+        player = json.loads((vault / "context/player_one.json").read_text(encoding="utf-8"))
+        self.assertEqual(player["terminal_comfort"], "new")
+        self.assertEqual(player["chat_app"], "telegram")
+        self.assertEqual(player["devices"], ["this_computer", "phone", "home_server"])
+        self.assertEqual(player["notes_today"], "notion")
+        self.assertEqual(player["findings_delivery"], "push")
+        self.assertIn("hermes gateway setup", result.stdout)
+        self.assertIn("Optional question 5 of 5.", result.stdout)
+
+    def test_detected_tools_become_defaults_and_are_kept_apart(self):
+        vault = self.root / "vault"
+        result = run_init(vault, "\n\n\n\n\n\nn\n", "--plain",
+                          env_update={"PATH": self.path_with("claude", "codex", "ollama")})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Found on this computer: Claude Code, Codex.", result.stdout)
+        player = json.loads((vault / "context/player_one.json").read_text(encoding="utf-8"))
+        self.assertEqual(player["primary_harness"], "claude-code")
+        self.assertEqual(player["model_access"], "local")
+        self.assertEqual(player["detected_at_setup"]["harnesses"], ["claude-code", "codex"])
+        self.assertTrue(player["detected_at_setup"]["ollama"])
+        self.assertEqual(player["chat_app"], "", "skipped questions stay empty, not guessed")
+
+    def test_setup_saves_answers_that_init_reuses(self):
+        saved = self.root / "answers.json"
+        result = subprocess.run([str(PYTHON), str(CLI), "setup", "--save", str(saved), "--plain"],
+                                input="Write a short film  \nlinux\n2\n3\n\nshare drafts\nn\n",
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=dict(os.environ, PATH=self.path_with()), check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout.splitlines()[-1])["status"], "saved")
+        self.assertFalse((self.root / "vault").exists())
+        raw = json.loads(saved.read_text(encoding="utf-8"))
+        self.assertEqual(raw["priority"], "Write a short film  ")
+        self.assertEqual(oct(saved.stat().st_mode & 0o777), "0o600")
+        made = run_cli(CLI, "init", self.root / "vault", "--answers", saved)
+        self.assertEqual(made.returncode, 0, made.stderr)
+        player = json.loads((self.root / "vault/context/player_one.json").read_text(encoding="utf-8"))
+        self.assertEqual(player["priority_verbatim"], "Write a short film  ")
+        self.assertEqual(player["primary_harness"], "openclaw")
+
+    def test_answers_json_new_fields_are_optional_and_validated(self):
+        base = {"os": "linux", "harness": "undecided", "model_access": "none"}
+        ok = dict(base, chat_app="other", chat_app_name="Matrix", devices=["phone"],
+                  notes_today="paper", findings_delivery="both", terminal_comfort="some")
+        self.assertEqual(run_cli(CLI, "init", self.root / "a", "--answers", json.dumps(ok)).returncode, 0)
+        for bad in (dict(base, chat_app="carrier-pigeon"), dict(base, devices=["phone", "phone"]),
+                    dict(base, chat_app="slack", chat_app_name="Slack"), dict(base, mood="happy"),
+                    dict(base, detected={"harnesses": ["notepad"]})):
+            refused = run_cli(CLI, "init", self.root / "b", "--answers", json.dumps(bad))
+            self.assertNotEqual(refused.returncode, 0, bad)
+            self.assertFalse((self.root / "b").exists())
