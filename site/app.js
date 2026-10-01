@@ -1170,7 +1170,7 @@
 
   /* ================================================================== THE SUMMARY THAT UNPACKS
      A one-line, model-style summary of one of Jaron's passages. Press it and it unpacks in place to
-     his verbatim words, with the phrases the summary lost highlighted. Summaries drift; verbatim doesn't. */
+     his full words, with the phrases the summary lost highlighted. Summaries drift; the full text doesn't. */
   const words = (node) => (node.textContent.match(/[A-Za-z0-9'’-]+/g) || []).length;
   doc.querySelectorAll('[data-unpack]').forEach((box) => {
     const btn = box.querySelector('[data-unpack-btn]');
@@ -1191,7 +1191,7 @@
       box.classList.toggle('is-open', open);
       if (open) {
         const lost = box.querySelectorAll('.unpack-quote mark').length;
-        announce('Unpacked to the verbatim, ' + (cf ? cf.textContent : '') + ' words. ' + lost + ' passages the summary lost are highlighted.');
+        announce('Unpacked in full, ' + (cf ? cf.textContent : '') + ' words. ' + lost + ' passages the summary lost are highlighted.');
       }
     });
   });

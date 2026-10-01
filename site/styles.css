@@ -497,7 +497,7 @@ h1 { font-size: min(8.5rem, max(min(3.5rem, 17vw), 11vw)); line-height: .9; lett
 .legend .mono { margin-left: auto; color: var(--bone); font-size: .875rem; }
 .sw { width: 12px; height: 12px; background: var(--sw); flex: none; }
 .lanes { display: grid; gap: 4px; margin-bottom: 10px; }
-.lane { display: flex; align-items: center; gap: 10px; min-height: 30px; padding: 2px 4px; color: var(--sage); font-size: .9375rem; }
+.lane { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 30px; padding: 2px 4px; min-width: 0; color: var(--sage); font-size: .9375rem; }
 .lane::before { content: ''; width: 6px; height: 6px; background: var(--lichen); flex: none; }
 .lane .mono { margin-left: auto; color: var(--bone); font-size: .875rem; }
 .lane-note { font-size: .8125rem; color: var(--sage); }
@@ -589,7 +589,8 @@ h1 { font-size: min(8.5rem, max(min(3.5rem, 17vw), 11vw)); line-height: .9; lett
 .path-k { color: var(--lichen); font-size: .875rem; margin-bottom: 6px; }
 .path-h { font-size: 1.5rem; letter-spacing: -.015em; margin-bottom: 12px; }
 .path > p:not(.src):not(.coming) { font-size: 1rem; }
-.path-coming { background: var(--under); }
+.path-first { background: var(--under); }
+@media (min-width: 900px) { .path-wide { grid-column: 1 / -1; } }
 .coming { font-size: .8125rem; color: var(--sage); border: 1px dashed var(--lichen); padding: 10px 12px; }
 .code { position: relative; margin: 16px 0 18px; }
 .code pre {
