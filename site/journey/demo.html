@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bodhi journey layer · demo</title>
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:,">
+<style>
+  :root { --soil:#17231B; --under:#1F2C24; --moss:#2E3B33; --lichen:#8A968D; --sage:#B8C2BA; --bone:#F2EEE4; --canopy:#2E6B45; --sprout:#8BCB8B; --saffron:#E8982A; --clay:#D9674F; }
+  html { background: var(--soil); color: var(--bone); }
+  body { margin: 0; font: 400 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #journey { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  header.top { position: fixed; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: rgba(23,35,27,.82); border-bottom: 1px solid var(--moss); }
+  header.top b { font: 600 .95rem/1 ui-monospace, monospace; letter-spacing: .04em; }
+  header.top .sp { flex: 1; }
+  button { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--moss); background: var(--soil); color: var(--bone); font: 500 .875rem/1 ui-monospace, monospace; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--saffron); outline-offset: 3px; }
+  .hud { font: 500 .75rem/1.3 ui-monospace, monospace; color: var(--sage); white-space: nowrap; }
+  main { position: relative; z-index: 1; }
+  .scene { position: relative; min-height: 200vh; padding: 16vh 16px 10vh; box-sizing: border-box; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .panel { max-width: 34rem; background: rgba(23,35,27,.74); border: 1px solid rgba(46,59,51,.8); padding: 20px 24px; border-radius: 10px; margin: 0 0 70vh; }
+  .panel.r { margin-left: auto; }
+  .kicker { font: 500 .8rem/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--lichen); margin: 0 0 10px; }
+  h1, h2 { margin: 0 0 12px; line-height: 1.1; font-weight: 600; }
+  h1 { font-size: clamp(2.2rem, 6vw, 4rem); }
+  h2 { font-size: clamp(1.6rem, 4vw, 2.6rem); }
+  p { margin: 0 0 12px; color: var(--sage); }
+  .dense { max-width: 60rem; }
+  .dense p { color: var(--bone); }
+  .game { width: min(440px, 86vw); aspect-ratio: 1; margin: 20vh auto 70vh; background: var(--soil); border: 1px solid var(--moss); display: grid; place-items: center; color: var(--lichen); font: 500 .8rem/1.4 ui-monospace, monospace; text-align: center; padding: 16px; box-sizing: border-box; }
+  input[type=range] { width: 100%; accent-color: var(--saffron); }
+  #soil { min-height: calc(100vh - 64px); padding-top: 12vh; }
+  #soil .panel { margin-bottom: 30vh; }
+  #access { min-height: 150vh; }
+  footer { position: relative; z-index: 1; background: var(--soil); border-top: 1px solid var(--moss); padding: 64px 16px; color: var(--lichen); }
+  /* the page's own 2D art stands in when the 3D layer is off */
+  html:not(.journey-on) .scene:nth-child(odd) { background: var(--under); }
+</style>
+<script src="../assets/data/ancestry.js" defer></script>
+</head>
+<body>
+<div id="journey" aria-hidden="true"></div>
+<header class="top">
+  <b>bodhi · journey demo</b>
+  <span class="sp"></span>
+  <span class="hud" data-hud aria-live="off"></span>
+  <button type="button" data-motion-toggle aria-pressed="true">Motion on</button>
+</header>
+<main>
+  <section class="scene" id="soil" data-scene="soil"><div class="wrap">
+    <div class="panel"><p class="kicker">01 Soil</p><h1>Roots first.</h1><p>Near-darkness. One seed, a Saffron pixel, under layered soil. Scroll and it splits: the root goes down first, then the shoot pushes up toward a light it has never seen.</p></div>
+  </div></section>
+  <section class="scene" id="roots" data-scene="roots"><div class="wrap">
+    <div class="panel"><p class="kicker">02 Roots · persistence</p><h2>From Script Kitty to Vibe-Coder</h2><p>The taproot lights first: something that stays.</p></div>
+    <div class="panel r"><p class="kicker">Continuity</p><p>Laterals branch and the graph wakes: nodes, and pulses running between them.</p></div>
+    <div class="panel"><p class="kicker">Rapport</p><p>Threads cross between roots that were never connected. A tree becomes a network.</p></div>
+  </div></section>
+  <section class="scene" id="cell" data-scene="cell" style="min-height:260vh"><div class="wrap">
+    <div class="panel"><p class="kicker">03 The cell</p><h2>To Do or Not To Do</h2><p>The camera falls into one leaf: veins, then cells, then one cell whose walls turn out to be padded.</p></div>
+    <div class="game">[ the page's playable padded cell sits here; the journey keeps the centre calm ]</div>
+    <div class="panel r"><p>The nucleus resolves into pixels, and the pixels are the mark.</p></div>
+  </div></section>
+  <section class="scene" id="to-be" data-scene="to-be"><div class="wrap">
+    <div class="panel"><p class="kicker">04 To be</p><h2>To Be or Not To Be</h2><p>Pull back out. The pixels become nodes; the nodes become the tree, seen as a memory graph.</p></div>
+  </div></section>
+  <section class="scene" id="tree" data-scene="tree" style="min-height:250vh"><div class="wrap">
+    <div class="panel"><p class="kicker">05 The tree</p><h2>Sit under the tree</h2><p>The anchor. Spring buds, a summer canopy, autumn leaves that let go and fall, a bare winter.</p></div>
+    <div class="panel r"><p>Every branch is a damped spring on its parent; the wind arrives in gusts that travel through the crown.</p></div>
+  </div></section>
+  <section class="scene" id="sky" data-scene="sky"><div class="wrap">
+    <div class="panel"><p class="kicker">06 Sky</p><h2>Go cosmic</h2><p>Day to dusk to night. The sun sets, the moon rises, the aurora comes out.</p></div>
+  </div></section>
+  <section class="scene" id="ancestors" data-scene="ancestors"><div class="wrap">
+    <div class="panel"><p class="kicker">07 Ancestors</p><h2>The ancestral plane</h2><p>One pixel per commit, first at the centre, newest at the rim.</p>
+      <label class="kicker" for="plane-range">Replay the history</label>
+      <input id="plane-range" type="range" min="0" max="130" step="1" value="130" data-plane-range></div>
+  </div></section>
+  <section class="scene" id="questions" data-scene="questions"><div class="wrap">
+    <div class="panel dense"><p class="kicker">08 Questions</p><h2>Am I asking the right questions?</h2><p>Dense text lives here, so the journey goes quiet: the tree small on the horizon, a slow sky, a calm middle band. Lorem ipsum stands in for the page's memes and asks, in paragraph after paragraph, long enough to test legibility over the layer.</p><p>Second paragraph of dense text, to check contrast across the whole middle band of the viewport while the sky moves slowly behind it.</p></div>
+  </div></section>
+  <section class="scene" id="receipts" data-scene="receipts"><div class="wrap">
+    <div class="panel dense"><p class="kicker">Receipts</p><h2>Screenshots and a dated prompt record</h2><p>Dense exhibits on heavy scrims. The layer stays calm and low-contrast: the tree small on the horizon, the blue hour turning, nothing moving in the middle band.</p><p>A second block of text stands in for captions and the prompt record.</p></div>
+  </div></section>
+  <section class="scene" id="workbench" data-scene="workbench"><div class="wrap">
+    <div class="panel dense"><p class="kicker">09 Workbench</p><h2>Fork it. Argue with it. Beat it.</h2><p>More dense text: tools, links and code. Dawn comes up slowly behind it.</p></div>
+  </div></section>
+  <section class="scene" id="plant" data-scene="plant"><div class="wrap">
+    <div class="panel"><p class="kicker">10 Plant</p><h2>Plant your seed</h2><p>Back to earth. One seed in the soil. The loop closes.</p></div>
+  </div></section>
+  <section class="scene" id="access" data-scene="access"><div class="wrap">
+    <div class="panel dense"><p class="kicker">Open door</p><h2>Accessible is modern</h2><p>Reduced motion, or the Motion switch, freezes every scene into one complete still frame.</p></div>
+  </div></section>
+</main>
+<footer><div class="wrap">Footer. The journey pauses once the last scene has scrolled away.</div></footer>
+<script>
+  // Motion switch: sets data-motion on <html> and tells the journey.
+  (function () {
+    var b = document.querySelector('[data-motion-toggle]');
+    function paint() { var off = document.documentElement.dataset.motion === 'off'; b.setAttribute('aria-pressed', String(!off)); b.textContent = off ? 'Motion off' : 'Motion on'; }
+    b.addEventListener('click', function () {
+      var h = document.documentElement;
+      if (h.dataset.motion === 'off') delete h.dataset.motion; else h.dataset.motion = 'off';
+      paint(); document.dispatchEvent(new CustomEvent('bodhi:motion'));
+    });
+    paint();
+    var hud = document.querySelector('[data-hud]');
+    setInterval(function () {
+      var j = window.BodhiJourney; if (!j) { hud.textContent = 'journey off'; return; }
+      hud.textContent = (j.scene || '-') + ' ' + j.progress.toFixed(2) + ' · u ' + j.u.toFixed(2) + ' · ' + (j.still ? 'still' : (j.frameMs || 0).toFixed(1) + ' ms') + ' · dpr ' + (j.dpr || 0).toFixed(2);
+    }, 250);
+  })();
+</script>
+<script type="module" src="journey.js"></script>
+</body>
+</html>
