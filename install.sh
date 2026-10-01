@@ -9,9 +9,10 @@
 #   2. gets the seed (uses this clone, or clones to ~/.bodhi/seed);
 #   3. asks the setup questions (bin/bodhi.py setup);
 #   4. adds the Bodhi skill to the AI tools you use (Claude Code, Codex, OpenClaw, Hermes);
-#   5. offers optional tools (Ollama, Obsidian) and links to others;
-#   6. offers to create your Bodhi folder (the vault);
-#   7. runs bin/bodhi.py doctor and prints the first message to paste.
+#   5. offers the optional Bodhi skills, one at a time, each off unless you say yes;
+#   6. offers optional tools (Ollama, Obsidian) and links to others;
+#   7. offers to create your Bodhi folder (the vault);
+#   8. runs bin/bodhi.py doctor and prints the first message to paste.
 #
 # Options:
 #   --yes                   unattended: safe defaults only (see below)
@@ -24,11 +25,15 @@
 #   --answers PATH          use saved setup answers instead of asking
 #   --install LIST          with --yes: tools you allow it to install, comma-separated:
 #                           claude-code, codex, hermes, ollama, obsidian, prerequisites (git, python3)
+#   --skills LIST           with --yes: optional Bodhi skills to add, comma-separated
+#                           (bodhi-orchestrator, bodhi-grill, bodhi-nap, bodhi-synthesis); default none
 #   --allow-sudo            with --yes: allow steps that need sudo
 #   --allow-remote-scripts  with --yes: allow running an installer script downloaded from the internet
 #
 # With --yes it never uses sudo and never runs a downloaded installer unless the two
-# --allow flags say so, and installs no software you did not name in --install.
+# --allow flags say so, installs no software you did not name in --install, and adds no
+# optional skill you did not name in --skills. A short sprout animation plays at the end on
+# a terminal with color; --plain, NO_COLOR, CI or BODHI_NO_MOTION=1 skip it.
 # It never stores API keys: each AI tool signs you in itself. It sends nothing anywhere.
 # Record of what it did: ~/.bodhi/install-manifest.json. Log: ~/.bodhi/install.log.
 #
@@ -47,6 +52,8 @@ PLAIN=false
 ALLOW_SUDO=false
 ALLOW_REMOTE=false
 WANT_INSTALL=""
+WANT_SKILLS=""
+SEED_TARGETS=""
 VAULT_PATH=""
 SEED_DIR=""
 ANSWERS_ARG=""
@@ -64,13 +71,14 @@ while [ $# -gt 0 ]; do
         --uninstall) MODE=uninstall; shift ;;
         --allow-sudo) ALLOW_SUDO=true; shift ;;
         --allow-remote-scripts) ALLOW_REMOTE=true; shift ;;
-        --dir|--vault|--answers|--install)
+        --dir|--vault|--answers|--install|--skills)
             if [ $# -lt 2 ] || [ -z "$2" ]; then echo "install.sh: $1 needs a value" >&2; exit 2; fi
             case "$1" in
                 --dir) SEED_DIR="$2" ;;
                 --vault) VAULT_PATH="$2" ;;
                 --answers) ANSWERS_ARG="$2" ;;
                 --install) WANT_INSTALL=",$2," ;;
+                --skills) WANT_SKILLS=",$2," ;;
             esac
             shift 2 ;;
         -h|--help) usage; exit 0 ;;
@@ -127,9 +135,11 @@ fi
 input_is_terminal() { [ -n "$INPUT_FD" ] && [ -t 3 ]; }
 
 in_list() { case "$WANT_INSTALL" in *",$1,"*) return 0 ;; esac; return 1; }
+in_skills() { case "$WANT_SKILLS" in *",$1,"*) return 0 ;; esac; return 1; }
 
 # confirm LEVEL DEFAULT QUESTION
 #   LEVEL safe    a reversible change the installer records (a skill copy, the vault)
+#         optin   an optional extra, off by default (an optional Bodhi skill)
 #         install installs software with a package manager
 #         sudo    needs administrator rights
 #         remote  runs an installer script downloaded from the internet
@@ -144,11 +154,13 @@ confirm() {
     if [ "$YES" = true ]; then
         case "$level" in
             safe) return 0 ;;
+            optin) in_skills "$CONFIRM_TOOL" && return 0 ;;
             install) in_list "$CONFIRM_TOOL" && return 0 ;;
             sudo) [ "$ALLOW_SUDO" = true ] && in_list "$CONFIRM_TOOL" && return 0 ;;
             remote) [ "$ALLOW_REMOTE" = true ] && in_list "$CONFIRM_TOOL" && return 0 ;;
         esac
         case "$level" in
+            optin) note "skipped: $question (unattended; name it in --skills to add it)" ;;
             install) note "skipped: $question (unattended; name it in --install to allow)" ;;
             sudo) note "skipped: $question (unattended; needs --install and --allow-sudo)" ;;
             remote) note "skipped: $question (unattended; needs --install and --allow-remote-scripts)" ;;
@@ -464,7 +476,7 @@ install_skills() {
         fi
         result="$(helper copy-skill --seed "$SEED_DIR" --target "$key" --dry-run 2>/dev/null)"
         case "$result" in
-            *'"unchanged"'*) ok "$label already has the current skill at $dest"; continue ;;
+            *'"unchanged"'*) ok "$label already has the current skill at $dest"; SEED_TARGETS="$SEED_TARGETS $key"; continue ;;
         esac
         local replace=""
         case "$result" in
@@ -477,6 +489,7 @@ install_skills() {
                 say "  Why: $label reads personal skills from that folder."
                 confirm safe y "Add the Bodhi skill to $label?" || { note "skipped $label"; continue; } ;;
         esac
+        SEED_TARGETS="$SEED_TARGETS $key"
         if [ "$DRY_RUN" = true ]; then detail "would copy $SEED_DIR/skills/bodhi-seed to $dest"; continue; fi
         action="$(helper copy-skill --seed "$SEED_DIR" --target "$key" $replace | python3 -c 'import json,sys; print(json.load(sys.stdin)["action"])')"
         ok "$label: skill $action at $dest"
@@ -488,17 +501,65 @@ install_skills() {
 install_hermes_skill() {
     local current
     current="$(helper targets --seed "$SEED_DIR" | python3 -c 'import json,sys; t=[x for x in json.load(sys.stdin) if x["key"]=="hermes"][0]; print("match" if t["matches"] else ("present" if t["present"] else "none"))')"
-    if [ "$current" = match ]; then ok "Hermes already has the current skill"; return 0; fi
+    if [ "$current" = match ]; then ok "Hermes already has the current skill"; SEED_TARGETS="$SEED_TARGETS hermes"; return 0; fi
     say "  What: Hermes's own installer copies the seed's skill folder into ~/.hermes/skills."
     say "  Command: hermes skills install $SEED_DIR/skills/bodhi-seed"
     if confirm safe y "Add the Bodhi skill to Hermes?"; then
         if run "hermes skills install" -- hermes skills install "$SEED_DIR/skills/bodhi-seed"; then
+            SEED_TARGETS="$SEED_TARGETS hermes"
             [ "$DRY_RUN" = true ] || { ok "Hermes: skill installed"; CHANGES=$((CHANGES + 1));
                 helper record --kind hermes-skill --label "Hermes skill bodhi-seed" --remove-with "hermes skills uninstall bodhi-seed" >/dev/null; }
         fi
     else
         note "skipped Hermes"
     fi
+}
+
+# ------------------------------------------------------- optional skills ----
+# Generalized from the first fleet's own skills. Each is offered once, off by default.
+offer_optional_skills() {
+    [ -n "$SEED_TARGETS" ] || return 0
+    [ -f "$SEED_DIR/bin/bodhi_install.py" ] || return 0
+    local list name state about
+    list="$(helper optional-skills --seed "$SEED_DIR" --targets "$SEED_TARGETS")" || return 0
+    [ -n "$list" ] || return 0
+    heading "Optional Bodhi skills (each stays off unless you say yes)"
+    say "  Each is one folder of text, added beside the Bodhi skill, and says what it cost the first fleet."
+    while IFS='|' read -r name state about; do
+        [ -n "$name" ] || continue
+        case "$state" in
+            current) ok "$name is added and current"; continue ;;
+            foreign) note "$name: a copy this installer did not make is already there; left alone"; continue ;;
+            stale) confirm safe y "Update the optional skill $name?" || continue ;;
+            *) say ""
+               say "  $name: $about"
+               CONFIRM_TOOL="$name"
+               confirm optin n "Add $name?" || continue ;;
+        esac
+        add_optional_skill "$name"
+    done <<SKILLS
+$list
+SKILLS
+}
+
+add_optional_skill() {
+    local name="$1" key result action
+    for key in $SEED_TARGETS; do
+        result="$(helper copy-skill --seed "$SEED_DIR" --target "$key" --skill "$name" --dry-run 2>/dev/null)"
+        case "$result" in *'"unchanged"'*) continue ;; esac
+        if [ "$key" = hermes ]; then
+            if run "hermes skills install $name" -- hermes skills install "$SEED_DIR/skills/$name"; then
+                [ "$DRY_RUN" = true ] || { ok "Hermes: $name installed"; CHANGES=$((CHANGES + 1));
+                    helper record --kind hermes-skill --label "Hermes skill $name" --remove-with "hermes skills uninstall $name" >/dev/null; }
+            fi
+            continue
+        fi
+        case "$result" in *'"exists-unrecorded"'*) note "$name: left a copy this installer did not make ($key)"; continue ;; esac
+        if [ "$DRY_RUN" = true ]; then detail "would copy $SEED_DIR/skills/$name beside the Bodhi skill ($key)"; continue; fi
+        action="$(helper copy-skill --seed "$SEED_DIR" --target "$key" --skill "$name" | python3 -c 'import json,sys; print(json.load(sys.stdin)["action"])')"
+        ok "$name $action ($key)"
+        CHANGES=$((CHANGES + 1))
+    done
 }
 
 offer_gateway() {
@@ -576,6 +637,14 @@ finish() {
         python3 "$SEED_DIR/bin/bodhi.py" doctor --seed "$SEED_DIR" ${PLAIN_FLAG:+--plain} || status=$?
     fi
     say ""
+    # The seed is planted: a short sprout on a real terminal (bodhi.py mark decides), else nothing.
+    if [ -t 1 ] && [ "$NO_TERMINAL" = false ]; then
+        if input_is_terminal; then
+            python3 "$SEED_DIR/bin/bodhi.py" mark ${PLAIN_FLAG:+--plain} <&3 || true
+        else
+            python3 "$SEED_DIR/bin/bodhi.py" mark ${PLAIN_FLAG:+--plain} </dev/null || true
+        fi
+    fi
     if [ "$CHANGES" -eq 0 ]; then say "Nothing needed changing."; else say "Done: $CHANGES change(s)."; fi
     say "Record of what was installed: $BODHI_HOME/install-manifest.json"
     say "Log: $LOG_FILE"
@@ -645,6 +714,7 @@ main() {
     setup_questions
     offer_harness
     install_skills
+    offer_optional_skills
     offer_gateway
     [ "$MODE" = install ] && optional_tools
     [ "$MODE" = install ] && offer_vault

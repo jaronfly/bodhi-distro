@@ -8,7 +8,8 @@ Third-party software is recorded with the command that would remove it; install.
 before running any of those. Standard library only; nothing here uses the network.
 
   python3 bin/bodhi_install.py targets --seed DIR
-  python3 bin/bodhi_install.py copy-skill --seed DIR --target claude-code [--replace] [--dry-run]
+  python3 bin/bodhi_install.py copy-skill --seed DIR --target claude-code [--skill NAME] [--replace] [--dry-run]
+  python3 bin/bodhi_install.py optional-skills --seed DIR --targets "claude-code agents hermes"
   python3 bin/bodhi_install.py record --kind KIND [--path P] [--label L] [--remove-with CMD]
   python3 bin/bodhi_install.py set-seed --path DIR [--kind clone|seed-in-place]
   python3 bin/bodhi_install.py show
@@ -20,6 +21,7 @@ import argparse
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -113,15 +115,73 @@ def cmd_targets(args):
     print(json.dumps(out, indent=2))
 
 
+def skill_names(seed):
+    return [bodhi.SKILL_NAME] + bodhi.optional_skill_names(seed)
+
+
+def skill_about(folder):
+    """The first sentence of a skill's description, for a one-line offer."""
+    text = (folder / "SKILL.md").read_text(encoding="utf-8")
+    found = re.search(r"^description:\s*(.+)$", text, re.MULTILINE)
+    about = found.group(1).strip().strip("\"'") if found else ""
+    return about.split(". ")[0].rstrip(".").replace("|", "/") + "."
+
+
+def recorded_copy(data, target, name, copy):
+    if target["key"] == "hermes":
+        return any(e["kind"] == "hermes-skill" and e.get("label") == "Hermes skill " + name
+                   for e in data["entries"])
+    return any(e["kind"] == "skill" and e.get("path") == str(copy) for e in data["entries"])
+
+
+def cmd_optional_skills(args):
+    """One line per optional skill: name|state|about. State is for the targets given.
+
+    absent   no copy anywhere: an opt-in offer, off by default
+    current  every target has the seed's copy
+    stale    the person added it before, and a target is missing it or holds an older copy
+    foreign  only copies this installer did not make: left alone
+    """
+    seed = Path(args.seed)
+    data = load()
+    targets = [target_by_key(key) for key in args.targets.replace(",", " ").split()]
+    for name in bodhi.optional_skill_names(seed):
+        source = seed / "skills" / name
+        wanted, states = bodhi.tree_hash(source), []
+        for target in targets:
+            copy = bodhi._find_skill_copy(target, name)
+            if copy is None:
+                states.append("missing")
+            elif bodhi.tree_hash(copy) == wanted:
+                states.append("current")
+            elif recorded_copy(data, target, name, copy):
+                states.append("stale")
+            else:
+                states.append("foreign")
+        if states and all(state == "current" for state in states):
+            state = "current"
+        elif "current" in states or "stale" in states:
+            state = "stale"
+        elif "foreign" in states:
+            state = "foreign"
+        else:
+            state = "absent"
+        print("%s|%s|%s" % (name, state, skill_about(source)))
+    return 0
+
+
 def cmd_copy_skill(args):
-    source = Path(args.seed) / "skills" / bodhi.SKILL_NAME
+    if args.skill not in skill_names(args.seed):
+        raise SystemExit("not a skill this seed carries: " + args.skill)
+    source = Path(args.seed) / "skills" / args.skill
     if not (source / "SKILL.md").is_file():
         raise SystemExit("no skill at " + str(source))
     target = target_by_key(args.target)
-    dest = target["dest"]
+    dest = target["dest"].parent / args.skill
     data = load()
     recorded = any(e["kind"] == "skill" and e.get("path") == str(dest) for e in data["entries"])
-    if dest.exists() and bodhi.tree_hash(dest) == bodhi.tree_hash(source):
+    found = bodhi._find_skill_copy(target, args.skill)
+    if found is not None and bodhi.tree_hash(found) == bodhi.tree_hash(source):
         action = "unchanged"
     elif dest.exists() and not recorded and not args.replace:
         # Someone else's copy: the installer asks before replacing it.
@@ -131,8 +191,9 @@ def cmd_copy_skill(args):
         action = "updated" if dest.exists() else "created"
         if not args.dry_run:
             copy_tree(source, dest)
-    if action != "unchanged" or not recorded:
-        if add_entry(data, {"kind": "skill", "path": str(dest), "label": target["label"]}):
+    if (action != "unchanged" or not recorded) and found in (None, dest):
+        label = target["label"] + ("" if args.skill == bodhi.SKILL_NAME else ": " + args.skill)
+        if add_entry(data, {"kind": "skill", "path": str(dest), "label": label}):
             save(data, args.dry_run)
     print(json.dumps({"target": args.target, "dest": str(dest), "action": action,
                       "dry_run": args.dry_run}))
@@ -197,8 +258,9 @@ def safe_to_remove(entry):
     if not path.exists():
         return False, "already gone"
     if entry["kind"] == "skill":
-        ok = path.name == bodhi.SKILL_NAME and (path / "SKILL.md").is_file()
-        return ok, "" if ok else "not a bodhi-seed skill folder"
+        # The seed or one of its optional skills: every one is named bodhi-*.
+        ok = path.name.startswith("bodhi-") and (path / "SKILL.md").is_file()
+        return ok, "" if ok else "not a Bodhi skill folder"
     if entry["kind"] == "clone":
         ok = (path / ".git").exists() and (path / "bin" / "bodhi.py").is_file() and \
             (path / "skills" / bodhi.SKILL_NAME).is_dir()
@@ -240,8 +302,12 @@ def main(argv=None):
     copy = sub.add_parser("copy-skill")
     copy.add_argument("--seed", required=True)
     copy.add_argument("--target", required=True, choices=[t["key"] for t in bodhi.skill_targets()])
+    copy.add_argument("--skill", default=bodhi.SKILL_NAME, help="the seed (default) or an optional skill")
     copy.add_argument("--replace", action="store_true", help="replace a copy the installer did not make")
     copy.add_argument("--dry-run", action="store_true")
+    optional = sub.add_parser("optional-skills")
+    optional.add_argument("--seed", required=True)
+    optional.add_argument("--targets", required=True, help="target keys, space or comma separated")
     record = sub.add_parser("record")
     record.add_argument("--kind", required=True, choices=REMOVABLE + KEPT + COMMANDS)
     record.add_argument("--path")
@@ -257,7 +323,8 @@ def main(argv=None):
     apply = sub.add_parser("uninstall-apply")
     apply.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
-    handlers = {"targets": cmd_targets, "copy-skill": cmd_copy_skill, "record": cmd_record,
+    handlers = {"targets": cmd_targets, "copy-skill": cmd_copy_skill,
+                "optional-skills": cmd_optional_skills, "record": cmd_record,
                 "set-seed": cmd_set_seed, "show": cmd_show, "uninstall-plan": cmd_uninstall_plan,
                 "uninstall-apply": cmd_uninstall_apply}
     return handlers[args.command](args) or 0

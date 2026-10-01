@@ -55,6 +55,8 @@ claude plugin install bodhi@bodhi-distro
 
 While the repository is private, adding the marketplace needs Git access to it. To try a branch before it is merged, add `#branch-name` after the repository name.
 
+The same marketplace lists four optional Bodhi skills, each its own plugin and each installed only if you ask: `bodhi-orchestrator`, `bodhi-grill`, `bodhi-nap` and `bodhi-synthesis` (for example `claude plugin install bodhi-grill@bodhi-distro`). Checked here on 2026-10-01 with a scratch config: `claude plugin validate .` passed, and `claude plugin details bodhi-grill` listed `Skills (1) bodhi-grill`. `./install.sh` offers the same four, one question each, default no.
+
 The plugin is named `bodhi`, and its one skill runs as **`/bodhi:bodhi-seed`**. Plugin skills carry the plugin's name as a prefix. Start with:
 
 ```text
@@ -157,3 +159,5 @@ skills-ref validate skills/bodhi-seed      # the reference validator, if install
 ```
 
 Then run the same greeting check. A skill that validates is well-formed. Only the greeting check shows that your AI can see it.
+
+**A round trip, at any time.** The greeting belongs to a first meeting. `python3 bin/bodhi.py doctor` also prints a check message with a fresh code, such as `/bodhi-seed bodhi check 7f3a`, and the one right reply, `Bodhi seed 0.01 loaded. Check a3f7.` The rule for that reply is only in the skill, so the right reply means the session read it. The code changes every run, so an old answer cannot pass.

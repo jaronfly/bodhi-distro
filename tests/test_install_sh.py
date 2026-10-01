@@ -26,7 +26,8 @@ echo "$(basename "$0") $*" >> "$STUB_LOG"
 HERMES_STUB = """#!/bin/sh
 echo "hermes $*" >> "$STUB_LOG"
 if [ "$1" = skills ] && [ "$2" = install ]; then
-    mkdir -p "$HOME/.hermes/skills" && rm -rf "$HOME/.hermes/skills/bodhi-seed" && cp -R "$3" "$HOME/.hermes/skills/bodhi-seed"
+    name="$(basename "$3")"
+    mkdir -p "$HOME/.hermes/skills" && rm -rf "$HOME/.hermes/skills/$name" && cp -R "$3" "$HOME/.hermes/skills/$name"
 fi
 """
 
@@ -185,6 +186,46 @@ class InstallShTests(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
         self.assertEqual(len(self.manifest()["entries"]), entries)
         self.assertEqual([c for c in self.calls() if c.startswith("hermes skills install")].__len__(), 1)
+
+    # -- optional skills ---------------------------------------------------------------
+    def test_optional_skills_are_off_unless_named_and_uninstall_removes_them(self):
+        self.stub("claude")
+        self.stub("hermes", HERMES_STUB)
+        answers = self.answers(harness="claude-code")
+        result = self.run_install("--yes", "--answers", answers, "--plain")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("skipped: Add bodhi-grill? (unattended; name it in --skills to add it)", result.stdout)
+        self.assertEqual(sorted(p.name for p in (self.home / ".claude/skills").iterdir()), ["bodhi-seed"])
+        result = self.run_install("--yes", "--answers", answers, "--plain", "--skills", "bodhi-grill")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(sorted(p.name for p in (self.home / ".claude/skills").iterdir()),
+                         ["bodhi-grill", "bodhi-seed"])
+        self.assertTrue((self.home / ".hermes/skills/bodhi-grill/SKILL.md").is_file())
+        self.assertIn("hermes skills install " + str(ROOT / "skills/bodhi-grill"), self.calls())
+        again = self.run_install("--yes", "--answers", answers, "--plain")
+        self.assertIn("bodhi-grill is added and current", again.stdout)
+        result = self.run_install("--uninstall", "--yes", "--plain")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.home / ".claude/skills/bodhi-grill").exists())
+        self.assertIn("kept Hermes skill bodhi-grill", result.stdout)
+
+    def test_each_optional_skill_is_asked_about_and_defaults_to_no(self):
+        self.stub("claude")
+        answers = self.answers(harness="claude-code")
+        # The seed: yes. Then grill, nap, orchestrator, synthesis: Enter, y, n, Enter. Vault: no.
+        result = self.run_install("--answers", answers, "--plain", stdin="y\n\ny\nn\n\nn\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for name in ("bodhi-grill", "bodhi-nap", "bodhi-orchestrator", "bodhi-synthesis"):
+            self.assertIn("Add %s? [y/N]" % name, result.stdout)
+        self.assertEqual(sorted(p.name for p in (self.home / ".claude/skills").iterdir()),
+                         ["bodhi-nap", "bodhi-seed"])
+
+    def test_no_optional_skill_is_offered_where_the_seed_was_declined(self):
+        self.stub("claude")
+        result = self.run_install("--answers", self.answers(harness="claude-code"), "--plain",
+                                  stdin="n\n" * 10)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("Optional Bodhi skills", result.stdout)
 
     # -- uninstall ---------------------------------------------------------------------
     def test_uninstall_removes_only_what_the_record_lists(self):
