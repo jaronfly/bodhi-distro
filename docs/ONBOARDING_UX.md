@@ -61,7 +61,8 @@ The project's home is [bodhi.fyi](https://bodhi.fyi). This page covers the repos
   - The installer copies the skill where each harness reads it: `~/.claude/skills`, `~/.agents/skills`, or Hermes's own `hermes skills install`.
   - It then runs `bin/bodhi.py doctor`, which compares each copy with the seed.
   - Doctor prints the exact first message to paste and the greeting that proves the skill loaded: "Bodhi online. Just a seed, for now."
-- **Still missing:** nothing automatic confirms that the model actually *uses* the skill. The greeting check is a human step.
+  - It also prints a round trip that works after the first meeting: a `bodhi check` message with a fresh code, and the one reply a session that read the skill gives (the code reversed). OpenClaw's verification by a real completion was the model.
+- **Still missing:** nothing automatic confirms that the model actually *uses* the skill. Both checks are human steps, and neither has been run in a live harness here.
 
 ### 7. Reaching Bodhi from a chat app
 
@@ -81,7 +82,7 @@ The project's home is [bodhi.fyi](https://bodhi.fyi). This page covers the repos
 
 ### 9. The first conversation
 
-- **Now:** paste the first message, and see the greeting. The seed then asks what the person wants to change or make, and helps with one small thing they can judge. With a vault, the one-time `START_HERE.md` guides that first session.
+- **Now:** paste the first message, and see the greeting. The seed's first three turns are designed to feel like meeting someone, not filling in a form ([first boot](../skills/bodhi-seed/references/FIRST_BOOT.md)): hello and one open question; the person's words quoted back with the smallest useful first result; then the result itself, and only after it a signpost. With a vault, the one-time `START_HERE.md` guides that first session. On a terminal with color, `install.sh` and `bodhi.py init` end with a 1.5-second sprout of the Bodhi mark; any key skips it, and `--plain`, `NO_COLOR`, `TERM=dumb`, `CI` or `BODHI_NO_MOTION` turn it off.
 - **Still missing:** every trial so far used synthetic personas. No real stranger has gone through this whole path yet.
 
 ### 10. Coming back, updating, leaving

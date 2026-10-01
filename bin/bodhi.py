@@ -246,6 +246,14 @@ MARK = ("...##.##...", ".....#.....", ".....#.....", "#####.#####", "#####..####
         "####.##.###", "###.####.##", "###.#######", "##.########", "###########")
 MARK_SPROUT_ROWS = 3
 MARK_MIN_WIDTH = 26
+# The same mark as the SVG path on bodhi.fyi (one unit per cell); a test checks they agree.
+MARK_SVG_PATH = ("M3 0h2v1h-2zM6 0h2v1h-2zM5 1h1v1h-1zM5 2h1v1h-1zM0 3h5v1h-5zM6 3h5v1h-5z"
+                 "M0 4h5v1h-5zM7 4h4v1h-4zM0 5h4v1h-4zM5 5h2v1h-2zM8 5h3v1h-3zM0 6h3v1h-3z"
+                 "M4 6h4v1h-4zM9 6h2v1h-2zM0 7h3v1h-3zM4 7h7v1h-7zM0 8h2v1h-2zM3 8h8v1h-8z"
+                 "M0 9h11v1h-11z")
+# Where the saffron seed sits while it sprouts: the top of the root channel (row, column).
+MARK_SEED = (3, 5)
+SPROUT_SECONDS = 1.5
 SETUP_QUESTIONS = 6
 OPTIONAL_QUESTIONS = 5
 
@@ -314,6 +322,9 @@ class Voice:
         # https://no-color.org: any nonempty NO_COLOR value turns color off.
         self.color = self.art and not env.get("NO_COLOR") and _ansi_supported(env)
         self.palette_256 = "256color" in env.get("TERM", "") or bool(env.get("COLORTERM"))
+        self.truecolor = env.get("COLORTERM", "").lower() in ("truecolor", "24bit")
+        # Motion is decoration on top of color: never in CI, and never when asked not to.
+        self.motion = self.color and not env.get("CI") and not env.get("BODHI_NO_MOTION")
         if width is None:
             width = shutil.get_terminal_size((80, 24)).columns if tty else 80
         self.width = max(20, min(80, int(width)))
@@ -326,7 +337,10 @@ class Voice:
             return text
         codes = {"bold": "1", "dim": "2",
                  "sprout": "38;5;70" if self.palette_256 else "32",
-                 "soil": "38;5;130" if self.palette_256 else "33"}
+                 "soil": "38;5;130" if self.palette_256 else "33",
+                 # Saffron, #E8982A: exact on a truecolor terminal, nearest otherwise.
+                 "seed": "38;2;232;152;42" if self.truecolor else
+                         ("38;5;172" if self.palette_256 else "1;33")}
         return "\x1b[" + ";".join(codes[name] for name in names) + "m" + text + "\x1b[0m"
 
     def write(self, text):
@@ -364,6 +378,145 @@ def render_mark(block="█", style=None):
             drawn = style(drawn, "sprout" if index < MARK_SPROUT_ROWS else "soil")
         lines.append(drawn)
     return lines
+
+
+def svg_cells(path):
+    """The filled cells of a pixel SVG path made of 'Mx yhWv1h-Wz' runs, as a MARK-style grid."""
+    runs = [(int(x), int(y), int(w)) for x, y, w in re.findall(r"M(\d+) (\d+)h(\d+)v1h-\d+z", path)]
+    width = max(x + w for x, _, w in runs)
+    height = max(y for _, y, _ in runs) + 1
+    grid = [["."] * width for _ in range(height)]
+    for x, y, w in runs:
+        for column in range(x, x + w):
+            grid[y][column] = "#"
+    return tuple("".join(row) for row in grid)
+
+
+def sprout_frames():
+    """The seed sprouting into the mark: whole cells only, never rotated or smoothed.
+
+    Soil first, with the saffron seed ("o") at the top of the root channel; the roots
+    carve downward; the stem rises; the leaves open; the seed is spent. The last frame
+    is MARK exactly.
+    """
+    seed_row, seed_col = MARK_SEED
+
+    def frame(carved_to, stem_from, leaves, seed=True):
+        rows = []
+        for index, row in enumerate(MARK):
+            if index < MARK_SPROUT_ROWS:
+                cells = ["." for _ in row]
+                if index >= stem_from:
+                    cells = [cell for cell in row]
+                if index == 0 and leaves:
+                    cells = [cell if abs(col - seed_col) <= leaves else "."
+                             for col, cell in enumerate(row)]
+            elif index <= carved_to:
+                cells = list(row)
+            else:
+                cells = ["#"] * len(row)
+            if seed and index == seed_row:
+                cells[seed_col] = "o"
+            rows.append("".join(cells))
+        return tuple(rows)
+
+    frames = [frame(seed_row, MARK_SPROUT_ROWS, 0)] * 2       # the seed in whole soil, held
+    for carved in range(seed_row + 1, len(MARK)):              # the roots carve downward
+        if frame(carved, MARK_SPROUT_ROWS, 0) != frames[-1]:
+            frames.append(frame(carved, MARK_SPROUT_ROWS, 0))
+    for stem_from in range(MARK_SPROUT_ROWS - 1, 0, -1):       # the stem rises
+        frames.append(frame(len(MARK), stem_from, 0))
+    frames.append(frame(len(MARK), 0, 1))                      # the leaves open
+    frames.append(tuple(MARK))                                 # the seed is spent
+    return frames
+
+
+def render_frame(frame, block="█", style=None):
+    """Draw one frame like render_mark, with the seed cell in saffron."""
+    lines = []
+    for index, row in enumerate(frame):
+        part = "sprout" if index < MARK_SPROUT_ROWS else "soil"
+        drawn = ""
+        for cell in row:
+            if cell == ".":
+                drawn += "  "
+            elif style is None:
+                drawn += block * 2
+            else:
+                drawn += style(block * 2, "seed" if cell == "o" else part)
+        lines.append(drawn)
+    return lines
+
+
+def _key_watcher(stream):
+    """Return (pressed, restore): a non-blocking keypress check on a terminal, or None."""
+    try:
+        fd = stream.fileno()
+        if not os.isatty(fd):
+            return None, lambda: None
+    except (AttributeError, ValueError, OSError):
+        return None, lambda: None
+    if msvcrt is not None and os.name == "nt":  # pragma: no cover - Windows
+        return (lambda: msvcrt.kbhit() and (msvcrt.getwch() or True)), lambda: None
+    try:
+        import select
+        import termios
+        import tty
+        saved = termios.tcgetattr(fd)
+        tty.setcbreak(fd)
+    except (ImportError, OSError, ValueError):
+        return None, lambda: None
+
+    def pressed():
+        ready, _, _ = select.select([fd], [], [], 0)
+        if ready:
+            os.read(fd, 64)
+            return True
+        return False
+
+    def restore():
+        try:
+            termios.tcsetattr(fd, termios.TCSADRAIN, saved)
+        except (OSError, ValueError):
+            pass
+    return pressed, restore
+
+
+def play_sprout(voice, indent="  ", pressed=None, sleep=time.sleep, keys=None):
+    """Plant the seed on screen: about 1.5 seconds of motion, ending on the static mark.
+
+    Motion needs color on an interactive terminal (so not --plain, NO_COLOR, TERM=dumb
+    or a pipe), and is skipped when CI or BODHI_NO_MOTION is set. Any key skips to the
+    end. Without motion the static mark is drawn as before, if art is allowed at all.
+    Returns True when frames were animated.
+    """
+    if not voice.art or voice.width < MARK_MIN_WIDTH:
+        return False
+    if not voice.motion:
+        for drawn in voice.mark_lines():
+            voice.line(indent + drawn)
+        return False
+    frames = sprout_frames()
+    restore = lambda: None  # noqa: E731
+    if pressed is None:
+        pressed, restore = _key_watcher(keys if keys is not None else sys.stdin)
+    pause = SPROUT_SECONDS / (len(frames) - 1)
+    voice.write("\x1b[?25l")  # hide the cursor while drawing
+    try:
+        for number, frame in enumerate(frames):
+            if number:
+                voice.write("\x1b[%dA" % len(frame))
+            if pressed is not None and number < len(frames) - 1 and pressed():
+                frame = frames[-1]
+            for drawn in render_frame(frame, voice.block, voice.style):
+                voice.write("\r\x1b[2K" + indent + drawn + "\n")
+            if frame == frames[-1]:
+                break
+            sleep(pause)
+    finally:
+        restore()
+        voice.write("\x1b[?25h")
+    return True
 
 
 def _read_line(voice, prompt="Your answer: ", eof_ok=False):
@@ -672,8 +825,7 @@ def what_happens_next(voice, dest, answers):
     folder = shown_path(dest)
     voice.line()
     if voice.art and voice.width >= MARK_MIN_WIDTH:
-        for drawn in voice.mark_lines():
-            voice.line("  " + drawn)
+        play_sprout(voice)
         voice.line()
     voice.para("Your seed is planted. Its folder is:", style=("bold",))
     voice.verbatim(folder)
@@ -848,15 +1000,42 @@ def skill_targets(env=None):
     )
 
 
-def _find_skill_copy(target):
-    if (target["dest"] / "SKILL.md").is_file():
-        return target["dest"]
+def _find_skill_copy(target, name=SKILL_NAME):
+    dest = target["dest"].parent / name
+    if (dest / "SKILL.md").is_file():
+        return dest
     root = target.get("search")
     if root and root.is_dir():  # `hermes skills install` may file it under a category
-        for candidate in sorted(root.glob("**/" + SKILL_NAME)):
+        for candidate in sorted(root.glob("**/" + name)):
             if (candidate / "SKILL.md").is_file() and len(candidate.relative_to(root).parts) <= 4:
                 return candidate
     return None
+
+
+def optional_skill_names(seed_dir):
+    """The optional Bodhi skills a seed carries: every skills/bodhi-* folder but the seed."""
+    folder = Path(seed_dir) / "skills"
+    if not folder.is_dir():
+        return []
+    return sorted(path.name for path in folder.iterdir()
+                  if path.name.startswith("bodhi-") and path.name != SKILL_NAME
+                  and (path / "SKILL.md").is_file())
+
+
+def load_check(code, version):
+    """The round trip that proves a session read the skill: a message and its one right reply.
+
+    The rule for the reply lives only in SKILL.md (its Load check), so a model that has not
+    read the skill cannot produce it, and a fresh code means the reply is not a stale copy.
+    """
+    return "bodhi check " + code, "Bodhi seed %s loaded. Check %s." % (version, code[::-1])
+
+
+def new_check_code():
+    while True:
+        code = secrets.token_hex(2)
+        if code != code[::-1]:
+            return code
 
 
 def find_seed(explicit=None, env=None):
@@ -936,6 +1115,15 @@ def doctor(vault=None, seed=None, env=None):
         else:
             report.add("note", "%s: skill at %s (not compared)" % (target["label"], shown_path(copy)))
         firsts.append((target["label"], target["first"]))
+        for name in optional_skill_names(seed_dir) if seed_dir else []:
+            extra = _find_skill_copy(target, name)
+            if extra is None:
+                continue
+            if tree_hash(extra) == tree_hash(seed_dir / "skills" / name):
+                report.add("ok", "%s: optional skill %s matches the seed" % (target["label"], name))
+            else:
+                report.add("warn", "%s: optional skill %s differs from the seed (older or edited)"
+                           % (target["label"], name), "./install.sh --update")
     if not firsts:
         report.add("note", "No harness on this computer has the Bodhi skill yet",
                    "run ./install.sh from the seed, or see docs/INSTALL.md")
@@ -1001,10 +1189,17 @@ def doctor_command(args):
         except BodhiError:
             vault = None
     report, firsts = doctor(vault, args.seed)
+    seed_dir = find_seed(args.seed)
+    version = skill_version(seed_dir / "skills" / SKILL_NAME) if seed_dir else ""
+    check, reply = load_check(args.code or new_check_code(), version or VERSION)
+    checks = [(label, message.split()[0] + " " + check) for label, message in firsts]
     if args.json:
         emit({"checks": report.checks, "problems": report.problems, "warnings": report.warnings,
               "first_messages": [{"harness": label, "message": message} for label, message in firsts],
-              "greeting": GREETING})
+              "greeting": GREETING,
+              "load_check": {"messages": [{"harness": label, "message": message}
+                                          for label, message in checks],
+                             "reply": reply}})
         return 1 if report.problems else 0
     voice = Voice(plain=args.plain)
     voice.para("Bodhi doctor", style=("bold",))
@@ -1021,6 +1216,16 @@ def doctor_command(args):
             voice.para(label + ":", indent=2)
             voice.verbatim(message, indent=4)
         voice.para("A loaded seed answers: " + GREETING, indent=2)
+        voice.line()
+        voice.para("Round trip: to check at any time that a session can see the skill, paste "
+                   "this into a new session:", style=("bold",))
+        for label, message in checks:
+            voice.para(label + ":", indent=2)
+            voice.verbatim(message, indent=4)
+        voice.para("The only right reply, word for word:", indent=2)
+        voice.verbatim(reply, indent=4)
+        voice.para("Any other reply means the skill was not read in that session. The code is "
+                   "new each run, so an old answer cannot pass.", indent=2)
     voice.line()
     voice.para("Result: %d problem(s), %d warning(s)." % (report.problems, report.warnings))
     return 1 if report.problems else 0
@@ -2053,6 +2258,13 @@ def main(argv=None):
     doctor_parser.add_argument("--seed", help="the seed repository to compare skill copies with")
     doctor_parser.add_argument("--json", action="store_true")
     doctor_parser.add_argument("--plain", action="store_true", help="no color")
+    doctor_parser.add_argument("--code", help=argparse.SUPPRESS)  # fixed round-trip code, for tests
+    mark_parser = sub.add_parser(
+        "mark", help="plant the seed: draw the Bodhi mark, with a short sprout on a terminal",
+        description="About 1.5 seconds of motion on an interactive terminal with color, ending "
+                    "on the static mark; any key skips it. No motion under --plain, NO_COLOR, "
+                    "TERM=dumb, CI or BODHI_NO_MOTION, or when output is not a terminal.")
+    mark_parser.add_argument("--plain", action="store_true", help="draw nothing")
     add_relay_parser(sub)
     args = parser.parse_args(argv)
     dest = args.dest.expanduser().absolute() if getattr(args, "dest", None) is not None else None
@@ -2064,6 +2276,9 @@ def main(argv=None):
             return 0
         if args.command == "doctor":
             return doctor_command(args)
+        if args.command == "mark":
+            play_sprout(Voice(plain=args.plain))
+            return 0
         if args.command == "init":
             nonempty_target(dest)
             if args.answers is not None:

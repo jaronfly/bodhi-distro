@@ -15,6 +15,7 @@ from test_bodhi import CLI, PYTHON, run_cli
 
 ROOT = Path(__file__).resolve().parents[1]
 SGR = re.compile(r"\x1b\[[0-9;]*m")  # color and bold escapes
+CSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")  # every control sequence, cursor moves included
 BLOCK = "█"
 # Six core answers, then "n" at the optional-questions prompt. (A pipe that ends after
 # six answers also skips them; a terminal waits, so the pty tests need the "n".)
@@ -183,6 +184,79 @@ class MarkTests(unittest.TestCase):
                 self.assertEqual(drawn[2 * index:2 * index + 2], "##" if cell == "#" else "  ")
 
 
+class MotionTests(unittest.TestCase):
+    """The seed-sprout animation: when it plays, when it must not, and how it ends."""
+
+    MOTION_ENV = {"TERM": "xterm-256color"}
+
+    def voice(self, env=None, plain=False, stream=None):
+        return load_bodhi().Voice(stream or FakeTerminal(), plain=plain,
+                                  env=dict(self.MOTION_ENV, **(env or {})), width=80)
+
+    def test_motion_needs_color_on_a_terminal_and_no_opt_out(self):
+        self.assertTrue(self.voice().motion)
+        cases = {"--plain": self.voice(plain=True), "NO_COLOR": self.voice({"NO_COLOR": "1"}),
+                 "TERM=dumb": self.voice({"TERM": "dumb"}), "BODHI_PLAIN": self.voice({"BODHI_PLAIN": "1"}),
+                 "not a TTY": self.voice(stream=io.StringIO()), "CI": self.voice({"CI": "true"}),
+                 "BODHI_NO_MOTION": self.voice({"BODHI_NO_MOTION": "1"})}
+        for why, voice in cases.items():
+            self.assertFalse(voice.motion, why)
+
+    def play(self, voice, pressed=lambda: False):
+        sleeps = []
+        played = load_bodhi().play_sprout(voice, pressed=pressed, sleep=sleeps.append)
+        return played, sleeps, voice.stream.getvalue()
+
+    def last_mark(self, output):
+        lines = CSI.sub("", output).replace("\r", "").splitlines()
+        return [line[2:] for line in lines if BLOCK in line][-10:]
+
+    def test_animation_lasts_about_a_second_and_a_half_and_ends_on_the_static_mark(self):
+        bodhi = load_bodhi()
+        played, sleeps, output = self.play(self.voice())
+        self.assertTrue(played)
+        self.assertAlmostEqual(sum(sleeps), 1.5, delta=0.2)
+        self.assertEqual(self.last_mark(output), bodhi.render_mark(BLOCK))
+        self.assertIn("38;5;172", output, "the saffron seed appears")
+        self.assertTrue(output.endswith("\x1b[?25h"), "the cursor comes back")
+
+    def test_any_key_skips_to_the_end(self):
+        presses = iter([False, False, True])
+        played, sleeps, output = self.play(self.voice(), pressed=lambda: next(presses, True))
+        self.assertTrue(played)
+        self.assertEqual(len(sleeps), 2)
+        self.assertEqual(self.last_mark(output), load_bodhi().render_mark(BLOCK))
+
+    def test_without_motion_the_static_mark_is_drawn_once(self):
+        played, sleeps, output = self.play(self.voice({"CI": "1"}))
+        self.assertFalse(played)
+        self.assertEqual(sleeps, [])
+        self.assertNotIn("\x1b[10A", output)
+        self.assertEqual(self.last_mark(output), load_bodhi().render_mark(BLOCK))
+        played, _, output = self.play(self.voice(plain=True))
+        self.assertEqual((played, output), (False, ""), "plain draws nothing")
+
+    def test_frames_are_whole_cells_with_one_seed(self):
+        bodhi = load_bodhi()
+        frames = bodhi.sprout_frames()
+        self.assertEqual(frames[-1], bodhi.MARK)
+        for frame in frames:
+            self.assertEqual([len(row) for row in frame], [11] * 10)
+            self.assertTrue(set("".join(frame)) <= {"#", ".", "o"})
+        for frame in frames[:-1]:
+            self.assertEqual("".join(frame).count("o"), 1)
+            row, column = bodhi.MARK_SEED
+            self.assertEqual(frame[row][column], "o")
+
+    def test_mark_is_the_svg_path_from_the_brand(self):
+        bodhi = load_bodhi()
+        self.assertEqual(bodhi.svg_cells(bodhi.MARK_SVG_PATH), bodhi.MARK)
+
+    def test_mark_command_draws_nothing_into_a_pipe(self):
+        result = run_cli(CLI, "mark")
+        self.assertEqual((result.returncode, result.stdout), (0, ""))
+
+
 @unittest.skipUnless(os.name == "posix", "needs a POSIX pseudo-terminal")
 class TerminalTests(unittest.TestCase):
     """Run init on a real pseudo-terminal, where color and the mark are allowed."""
@@ -190,7 +264,7 @@ class TerminalTests(unittest.TestCase):
     def run_on_tty(self, vault, *extra, env_update=None):
         import pty
         env = {key: value for key, value in os.environ.items()
-               if key not in ("NO_COLOR", "BODHI_PLAIN", "COLUMNS")}
+               if key not in ("NO_COLOR", "BODHI_PLAIN", "COLUMNS", "CI", "BODHI_NO_MOTION")}
         env.update({"TERM": "xterm-256color", "LANG": "C.UTF-8", "PYTHONIOENCODING": "utf-8"})
         env.update(env_update or {})
         pid, fd = pty.fork()
@@ -226,13 +300,26 @@ class TerminalTests(unittest.TestCase):
         self.root = Path(self.temp.name)
 
     def test_terminal_gets_color_and_the_whole_mark(self):
-        output = self.run_on_tty(self.root / "vault")
+        output = self.run_on_tty(self.root / "vault", env_update={"BODHI_NO_MOTION": "1"})
         self.assertIsNotNone(SGR.search(output))
         plain_output = SGR.sub("", output)
         expected = [line for line in load_bodhi().render_mark(BLOCK)]
         drawn = [line[2:] for line in plain_output.splitlines() if BLOCK in line]
         self.assertEqual(drawn, expected)
         self.assertIn("Your seed is planted", plain_output)
+
+    def test_terminal_plays_the_sprout_and_ends_on_the_static_mark(self):
+        output = self.run_on_tty(self.root / "vault")
+        self.assertIn("\x1b[10A", output, "frames redraw in place")
+        drawn = [line[2:] for line in CSI.sub("", output).replace("\r", "").splitlines()
+                 if BLOCK in line]
+        self.assertEqual(drawn[-10:], load_bodhi().render_mark(BLOCK))
+        self.assertIn("Your seed is planted", output)
+
+    def test_ci_on_a_terminal_draws_the_static_mark_without_motion(self):
+        output = self.run_on_tty(self.root / "vault", env_update={"CI": "true"})
+        self.assertNotIn("\x1b[10A", output)
+        self.assertIn(BLOCK, output)
 
     def test_no_color_on_a_terminal_keeps_the_mark_without_color(self):
         output = self.run_on_tty(self.root / "vault", env_update={"NO_COLOR": "1"})

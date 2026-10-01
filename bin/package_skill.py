@@ -56,6 +56,10 @@ def frontmatter(text):
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
             value = value[1:-1]
+        elif ": " in value or value.endswith(":"):
+            # YAML reads an unquoted ": " as a nested mapping, and strict loaders reject it.
+            raise ValueError("frontmatter value for %s has an unquoted ': '; quote it or "
+                             "reword it" % key.strip())
         fields[key.strip()] = value
     return fields
 
