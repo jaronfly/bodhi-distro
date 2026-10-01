@@ -85,6 +85,20 @@ Upload the contents of `site/`. Serve `index.html` as the default document. Noth
 - **The journey layer**: `#journey` is a fixed, pointer-transparent 3D stage behind the page. When it renders it adds `html.journey-on`, and the decorative 2D canvases (tree, sky, ancestral plane) and scene fills step aside while text sits on Soil scrims. The padded cell and the seed marks always stay. If the 3D layer never loads, the 2D art is the page.
 - **Pixel art**: every canvas draws one canvas pixel per art pixel and scales by a whole number with `image-rendering: pixelated`. The mark and wordmark come from the brand's exact paths and are never retyped.
 
+## Porting these scenes after a separate cinematic opening
+
+- **Files.** `index.html` (one `section.scene` per scene), `styles.css`, `app.js` (one IIFE), plus `assets/data/ancestry.js` (ancestors only) and `assets/receipts/` (receipts only). The pixel sprites are inline SVG; no other files are needed.
+- **Scene hooks in app.js.** Seed: `[data-seed]`, `.seed-canvas`, `.seed-static`. Cell: `[data-cell]`, `.cell-canvas`, `.note[data-note]`, `[data-cell-*]`. Tree: `[data-tree]`, `.tree-canvas`, `.part[data-part]`. Sky: `.scene-sky`, `.sky-bg`, `.sky-canvas`. Ancestors: `[data-plane]`, `[data-plane-*]`, `[data-fieldnotes]`. Unpack: `[data-unpack]` and `[data-unpack-*]`. Copy buttons: `[data-copy]`. Motion: `[data-motion-toggle]`.
+- **Globals to scope.** In styles.css: `:root` tokens, `html`/`body`, bare `h1`–`h4`, `p`, `ul`, `a`, `code`, `*`, `[hidden]` and `:focus-visible`. Prefix everything with a wrapper class (for example `.claude-field`) and map `:root`/`html`/`body` to the wrapper. Rename `.grain` and `.scroll-cue`, which collide with bodhi.fyi's `cinema.css`. Reset `em` and avoid a `<footer>` element inside the wrapper, because cinema.css styles both globally. Drop the header, `.rail`, `.scenes-menu`, every `html.journey-on` rule and `#journey`.
+- **Globals in JS.** It reads `html.js` (move it to a wrapper class set by the script) and `html[data-motion]` (move it to the wrapper). It reads `window.BODHI_ANCESTRY` (inline the data), uses `localStorage` for the motion choice (remove it: bodhi.fyi promises no persistent storage), and probes `assets/marks/jf.svg` (remove it to avoid a public 404).
+- **One h1.** "Roots first." is the page's h1 here. After an opening that has its own h1, make it an h2.
+- **bodhi.fyi specifics.**
+  - Its `cinema.js` binds `#copy-brief`, `#copy-status` and `#brief` (inside a `<details>`) when it starts, and throws without them, so keep those ids when replacing `#afterward`.
+  - Its DESIGN-NOTES exclude personal details, vendor spending, mixed-window token totals and disputed denominators. So drop the typed-hours, ~8.3 B tokens and $178.74 stats and the Netflix referral (Tool 04), and keep host names out of the field notes.
+  - Its own Stillness toggle can drive the Motion switch (watch `#stillness[aria-pressed]`).
+- **Redacted receipts.** Versions that are public-safe so far are in the bodhi.fyi worktree at `assets/claude/receipts/` (untracked). They pixelate the ports, cron IDs, wallet balances, job-hunting lanes, repository names and the local model name, and crop out the disk names. Host names ("ruNAS") are still visible.
+- **Order after a cinematic opening.** A short soil transition (seed animation, "Roots first.", one quote), then roots, cell (the honey bear, then the playable room), to-be, tree, sky, ancestors, questions, receipts, workbench, plant, access, credits.
+
 ## Updating the receipts
 
 The exhibit images and captions come from *The Bodhi Build* (draft v0.3, 2026-09-28). To replace one, export WebP and JPEG at full size and at 800 px wide with the same file names, keep the caption word for word, and check it for private details first (see `REVIEW.md`). The commit data in `assets/data/ancestry.js` came from the same report by script; regenerate it rather than editing it by hand.
