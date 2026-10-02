@@ -1,7 +1,7 @@
 # Groundhog loop analysis — capability-verbatim iteration (GLM lane, 2026-09-25)
 
 Run: `groundhog-20260924T181356-none-candle_shop` — 3 loops, gpt-oss-120b on
-`runas:8090`, frozen installer commit `5835e63` (carries the one-clause
+`<model-host>:8090`, frozen installer commit `5835e63` (carries the one-clause
 capability-verbatim nudge from 5835e63's parent commit; this run TESTS that
 nudge).
 

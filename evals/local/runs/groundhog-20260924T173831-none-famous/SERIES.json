@@ -1,7 +1,7 @@
 {
   "series": "groundhog-20260924T173831-none-famous",
   "model": "gpt-oss-120b",
-  "base": "http://runas:8090/v1",
+  "base": "http://<model-host>:8090/v1",
   "loops": 2,
   "persona": "evals/local/personas/famous.json",
   "frozen_seed_sha256": {

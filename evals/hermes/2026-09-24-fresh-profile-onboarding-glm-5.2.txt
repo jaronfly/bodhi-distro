@@ -13,7 +13,7 @@ If that feels too abstract, just tell me: what do you wish were easier?
 === PLAYER ONE (synthetic, turn 2): Honestly? I sell hand-poured candles online and I'm drowning in the admin side. Listings, customer messages, and I genuinely don't know if I'm making money after supplies and fees. That's what matters right now.
 Done — your first win exists and runs. Plain numbers, no guesswork.
 
-WHAT I BUILT (in /Users/jaronfly/candlebiz/)
+WHAT I BUILT (in <home>/candlebiz/)
 
 - costs.csv — per-product material costs (wax, vessel, wick, fragrance, label, packaging). The values in there are clearly marked EDIT ME placeholders.
 - orders.csv — one line per order. It has 4 EXAMPLE rows so you can see the format.
@@ -39,7 +39,7 @@ TWO NEXT STEPS, WHEN YOU WANT THEM
 One question when you have a second: I saved "candle business, profit clarity is the priority" to my persistent memory so future sessions start warm. Happy to keep that in memory, or move it into the candlebiz folder if you'd rather own the file. Either works.
 
 === PLAYER ONE (synthetic, turn 3): Let's start with the listings. I have twelve products and most of the descriptions are just the scent name and a price. I'd judge it by whether a new listing sounds like me and whether you asked me the right questions to write it.
-Everything's staged in /Users/jaronfly/candlebiz/listings/ — voice.md (your words only, nothing invented) and TEMPLATE.md (the five per-candle questions). When your answers land, drafts get built only from what's in those files; anything unanswered stays out of the listing.
+Everything's staged in <home>/candlebiz/listings/ — voice.md (your words only, nothing invented) and TEMPLATE.md (the five per-candle questions). When your answers land, drafts get built only from what's in those files; anything unanswered stays out of the listing.
 
 Now the questions — answer rough, answer partial, skip what you don't know. Unpolished beats polished here.
 

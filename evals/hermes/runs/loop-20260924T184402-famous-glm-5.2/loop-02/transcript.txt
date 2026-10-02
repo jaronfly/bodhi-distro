@@ -5,10 +5,10 @@ Distribution: bodhi-loop-184402-02 v0.1.0
   Author:   Jaron Flynn (founder), built by Codex and Claude
   Requires: Hermes >=0.21.0
   Source:   /private/tmp/bodhi-hermes-loop-20260924T184402/seed
-  Target:   /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02
+  Target:   <home>/.hermes/profiles/bodhi-loop-184402-02
 
 ✓ Installed 'bodhi-loop-184402-02' v0.1.0
-  Profile path: /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02
+  Profile path: <home>/.hermes/profiles/bodhi-loop-184402-02
 
   Use with:      hermes -p bodhi-loop-184402-02 chat
 
@@ -77,7 +77,7 @@ Open the file, tell me what's wrong, and if you want, I'll also write the first 
 Wrapped. Session close-out:
 
 SAVED FOR NEXT TIME
-- The plan lives in two places: your ephemeral workspace and the persistent profile directory at /Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02/thrift-flip-30-day-plan.md — verified on disk, so it survives this session.
+- The plan lives in two places: your ephemeral workspace and the persistent profile directory at <home>/.hermes/profiles/bodhi-loop-184402-02/thrift-flip-30-day-plan.md — verified on disk, so it survives this session.
 - A "creator-growth-plan" skill records the workflow and the 2026 findings behind it, so a future me won't re-derive any of this.
 - Memory holds the state of the goal and where we left off.
 
@@ -105,7 +105,7 @@ WHAT I'M UNSURE OF (I asked; no one was at the keyboard, so I applied labeled de
 - Whether you sew/upcycle yourself (defaulted: yes), whether anything is posted since the plan (defaulted: nothing yet), whether you'll go on camera (defaulted: yes). All three marked provisional in memory and the skill — one line from you regenerates the plan around the truth.
 
 WHAT I DID JUST NOW
-- Built week1-launch-kit.md: a Sunday thrift-run shot sheet (film 6 pickups, reject 3 on camera, state the flip plan the moment you decide), Tuesday transform checklist (before/first-cut/reveal), Thursday edit-and-schedule list, and a 15-min account setup. Written to the workspace and copied to the durable profile dir (/Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02/week1-launch-kit.md) since /tmp is ephemeral.
+- Built week1-launch-kit.md: a Sunday thrift-run shot sheet (film 6 pickups, reject 3 on camera, state the flip plan the moment you decide), Tuesday transform checklist (before/first-cut/reveal), Thursday edit-and-schedule list, and a 15-min account setup. Written to the workspace and copied to the durable profile dir (<home>/.hermes/profiles/bodhi-loop-184402-02/week1-launch-kit.md) since /tmp is ephemeral.
 - Updated the creator-growth skill's open items and my memory so the next session picks up exactly here.
 
 WHAT'S FIRST

@@ -1,7 +1,7 @@
 {
   "series": "groundhog-20260924T184652-reciprocal-famous_sitter",
   "model": "gpt-oss-120b",
-  "base": "http://runas:8090/v1",
+  "base": "http://<model-host>:8090/v1",
   "loops": 1,
   "persona": "evals/local/personas/famous_sitter.json",
   "frozen_seed_sha256": {

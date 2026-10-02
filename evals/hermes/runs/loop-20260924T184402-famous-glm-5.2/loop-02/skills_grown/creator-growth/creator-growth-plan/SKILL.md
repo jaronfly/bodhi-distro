@@ -11,7 +11,7 @@ Workflow that produced Player One's thrift-flip plan (Sept 2026). Reuse for any 
 ## Procedure
 1. Ask (or assume + label): platform, content type, face vs hands, worst-week cadence floor. Worst week, not best, sets the cadence.
 2. Research the niche: what formats currently work, posting-frequency consensus, and 1-2 case studies of creators in that niche who grew. Distinguish platform guidance from vendor marketing.
-3. Write a dated 30-day calendar artifact to the workspace AND copy it to the profile dir (/Users/jaronfly/.hermes/profiles/bodhi-loop-184402-02/) — the /tmp workspace is ephemeral.
+3. Write a dated 30-day calendar artifact to the workspace AND copy it to the profile dir (<home>/.hermes/profiles/bodhi-loop-184402-02/) — the /tmp workspace is ephemeral.
 4. Define the next checkpoint: analytics after 2 weeks of posting (3-second retention, watch time, saves+shares per 1k views, profile visits). Iterate hook families on that data.
 
 ## Convergent findings (2026, short-form)

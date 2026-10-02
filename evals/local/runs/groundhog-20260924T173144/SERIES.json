@@ -1,9 +1,9 @@
 {
   "series": "groundhog-20260924T173144",
   "model": "gpt-oss-120b",
-  "base": "http://runas:8090/v1",
+  "base": "http://<model-host>:8090/v1",
   "loops": 3,
-  "persona": "/Users/jaronfly/Documents/GitHub/bodhi-distro/evals/local/personas/candle_shop.json",
+  "persona": "<home>/Documents/GitHub/bodhi-distro/evals/local/personas/candle_shop.json",
   "frozen_seed_sha256": {
     "AGENTS.md": "9cf0a455e6c2b999ffa55fcc7b1dc1f7d38c6a629befc78f94a48839cadc95a5",
     "START_HERE.md": "09a14af47ef1332706f1cb6ceec07ee45ef09334e23a5d94bd4036943ff86cfd",
