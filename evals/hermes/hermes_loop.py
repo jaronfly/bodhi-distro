@@ -16,7 +16,10 @@ straight at the loop's profile.
 Usage:
   python3 evals/hermes/hermes_loop.py --loops 3 --persona evals/local/personas/candle_shop.json
   python3 evals/hermes/hermes_loop.py --loops 2 --persona evals/local/personas/famous.json \\
-      --provider custom --model gpt-oss-120b --base-url http://runas:8090/v1
+      --provider custom --model gpt-oss-120b --base-url "$BODHI_MODEL_URL"
+
+BODHI_MODEL_URL is your own model server's OpenAI-compatible endpoint, for example
+http://bodhinas:8090/v1 ("bodhinas" is the generic name for the home server a Bodhi runs on).
 """
 
 from __future__ import annotations

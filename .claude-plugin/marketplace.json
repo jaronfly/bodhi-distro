@@ -1,0 +1,99 @@
+{
+  "name": "bodhi-distro",
+  "description": "Bodhi seed: a first conversation and working habits for Player One, the human founding a Bodhi instance. A practice, not an app.",
+  "owner": {
+    "name": "Jaron Flynn"
+  },
+  "plugins": [
+    {
+      "name": "bodhi",
+      "source": "./skills/bodhi-seed",
+      "description": "The Bodhi seed skill: a first hello, then writing, planning, research and creative work with Player One. Keeps exact words, checks claims against sources, and suggests tools only when a task calls for them.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": [
+        "bodhi",
+        "player-one",
+        "onboarding",
+        "memory",
+        "provenance",
+        "agent-skills"
+      ],
+      "category": "productivity"
+    },
+    {
+      "name": "bodhi-orchestrator",
+      "source": "./skills/bodhi-orchestrator",
+      "description": "Optional Bodhi skill: route each part of a job to the cheapest lane that does it well (premium, local, vision, or human review), and spend the expensive model on judgment.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": [
+        "bodhi",
+        "optional",
+        "agent-skills",
+        "routing",
+        "cost",
+        "orchestration"
+      ],
+      "category": "productivity"
+    },
+    {
+      "name": "bodhi-grill",
+      "source": "./skills/bodhi-grill",
+      "description": "Optional Bodhi skill: stress-test a plan one question at a time, each with a recommended answer, until every branch is settled.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": [
+        "bodhi",
+        "optional",
+        "agent-skills",
+        "planning",
+        "review",
+        "anti-sycophancy"
+      ],
+      "category": "productivity"
+    },
+    {
+      "name": "bodhi-nap",
+      "source": "./skills/bodhi-nap",
+      "description": "Optional Bodhi skill: a catch-up consolidation pass when a scheduled review did not run. Extracts sourced findings for review and never writes to accepted notes.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": [
+        "bodhi",
+        "optional",
+        "agent-skills",
+        "consolidation",
+        "memory",
+        "provenance"
+      ],
+      "category": "productivity"
+    },
+    {
+      "name": "bodhi-synthesis",
+      "source": "./skills/bodhi-synthesis",
+      "description": "Optional Bodhi skill: a review gate that turns one queued lead into one entry with its source verified.",
+      "author": {
+        "name": "Jaron Flynn"
+      },
+      "repository": "https://github.com/jaronfly/bodhi-distro",
+      "keywords": [
+        "bodhi",
+        "optional",
+        "agent-skills",
+        "research",
+        "review",
+        "provenance"
+      ],
+      "category": "productivity"
+    }
+  ]
+}

@@ -14,12 +14,16 @@ sentences that name a limit or a need, questions about the environment). They ar
 a pointer for a human reader and not a score: the transcripts are the evidence.
 
 Usage:
-  python3 evals/local/groundhog.py --loops 3 --model gpt-oss-120b --base http://runas:8090/v1
+  BODHI_MODEL_URL=http://bodhinas:8090/v1 python3 evals/local/groundhog.py --loops 3 --model gpt-oss-120b
+
+--base defaults to $BODHI_MODEL_URL. "bodhinas" is a placeholder: the generic name for the home
+server a Bodhi runs on. Point it at your own OpenAI-compatible model server.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import datetime
 import hashlib
 import json
@@ -106,7 +110,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--loops", type=int, default=3)
     parser.add_argument("--model", required=True)
-    parser.add_argument("--base", required=True)
+    parser.add_argument("--base", default=os.environ.get("BODHI_MODEL_URL"),
+                        required=not os.environ.get("BODHI_MODEL_URL"),
+                        help="model endpoint (default: $BODHI_MODEL_URL, e.g. http://bodhinas:8090/v1)")
     parser.add_argument("--persona", type=Path, default=HERE / "personas" / "candle_shop.json")
     parser.add_argument("--work", type=Path, default=None, help="scratch dir for snapshot and vaults")
     parser.add_argument("--variant", default="none", help="none, or a folder name under evals/local/variants/")
