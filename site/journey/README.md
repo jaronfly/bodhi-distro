@@ -81,7 +81,11 @@ To screenshot and check everything (Chromium from `/opt/pw-browsers`, WebGL via 
 NODE_PATH=$(npm root -g) node site/journey/test/shots.cjs          # 3 points per scene
 NODE_PATH=$(npm root -g) node site/journey/test/shots.cjs --quick  # 1 point per scene
 NODE_PATH=$(npm root -g) node site/journey/test/shots.cjs --only=tree,sky
+# the same checks against the real landing page, when journey/ sits next to its index.html
+SITE_ROOT=/path/to/site PAGE=index.html NODE_PATH=$(npm root -g) node site/journey/test/shots.cjs --quick
 ```
+
+On the real page the only console messages to expect are the Google Fonts requests (they can flake behind a proxy) and the 404 for the empty `assets/marks/jf.svg` slot. The page sets `scroll-behavior: smooth`, so the test scrolls with `behavior: 'instant'`.
 
 The script saves screenshots at 1440×900 and 390×844 to `test/shots/`, which git ignores, and writes `results.txt` there. It checks that:
 

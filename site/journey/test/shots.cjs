@@ -42,8 +42,15 @@ async function openPage(browser, w, h, opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, ignoreHTTPSErrors: true, reducedMotion: opts.reduced ? 'reduce' : 'no-preference' });
   const page = await ctx.newPage();
   const errors = [];
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  // On the real page the browser's generic "Failed to load resource" line carries no URL, so those are
+  // judged by response instead: Google Fonts (can flake behind a proxy) and the empty jf.svg slot are expected.
+  const expected = /fonts\.(googleapis|gstatic)\.com|assets\/marks\/jf\.svg/;
+  page.on('console', (m) => { if (m.type() === 'error' && !(process.env.PAGE && /Failed to load resource/.test(m.text()))) errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
+  if (process.env.PAGE) {
+    page.on('response', (r) => { if (r.status() >= 400 && !expected.test(r.url())) errors.push(`${r.status()} ${r.url()}`); });
+    page.on('requestfailed', (r) => { if (!expected.test(r.url())) errors.push(`failed ${r.url()}`); });
+  }
   await page.route('**/assets/data/ancestry.js', async (route) => {
     const local = path.join(ROOT, 'assets/data/ancestry.js');
     const file = fs.existsSync(local) ? local : ANCESTRY && fs.existsSync(ANCESTRY) ? ANCESTRY : null;
@@ -60,7 +67,7 @@ async function scrollTo(page, id, p) {
     const el = document.getElementById(id);
     const top = el.getBoundingClientRect().top + scrollY;
     const y = Math.max(0, top + el.offsetHeight * p - innerHeight * 0.5);
-    scrollTo(0, y);
+    window.scrollTo({ top: y, behavior: 'instant' }); // the real page sets scroll-behavior: smooth
     return y;
   }, [id, p]);
 }
