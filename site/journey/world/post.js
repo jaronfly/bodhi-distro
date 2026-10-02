@@ -62,11 +62,11 @@ vec3 micro(vec2 fc){
   for (int ring = 0; ring < 2; ring++){
     float fr = float(ring);
     float ang = atan(rel.y, rel.x) - dir * t * (0.05 + 0.04 * h21(ic + ivec2(2, 7))) * (1.0 - 0.3 * fr) + fr * 0.4;
-    float nch = 15.0 + floor(h21(ic + ivec2(3, 3 + ring)) * 6.0) - fr * 5.0, sector = 6.2831853 / nch;
+    float nch = 22.0 + floor(h21(ic + ivec2(3, 3 + ring)) * 8.0) - fr * 7.0, sector = 6.2831853 / nch;
     float da = ang - floor(ang / sector + 0.5) * sector;
     float r0 = mix(0.74, 0.54, fr);
     vec2 lc = vec2(da * r0 * cr, vc.x - r0 * cr);
-    float c1 = 1.0 - smoothstep(0.03, 0.03 + cpx * 1.5, length(lc * vec2(0.8, 1.45)));
+    float c1 = 1.0 - smoothstep(0.022, 0.022 + cpx * 1.5, length(lc * vec2(0.85, 1.5)));
     if (c1 > chl) { chl = c1; lcs = lc; }
   }
   if (focusCell) chl *= 1.0 - uPad;
@@ -77,10 +77,11 @@ vec3 micro(vec2 fc){
   vec3 leaf = mix(CANOPY * 0.22, CANOPY * 0.42, cushion) * (0.85 + 0.3 * vnoise(d / C * 3.0));
   leaf = mix(leaf, mix(CANOPY, SPROUT, 0.55) * 0.55, veins * 0.85);
   vec3 dark = UNDER * 0.07 + CANOPY * 0.04 * cyto;
-  dark += SPROUT * (0.3 * wall + 0.05 * wglow) + SAGE * 0.05 * memb;
+  dark += SPROUT * (0.17 * wall + 0.04 * wglow) + SAGE * 0.03 * memb;
   float grana = vnoise(lcs * 900.0);
   dark = mix(dark, mix(CANOPY * 0.55, SPROUT * 0.42, grana * 0.7), chl * 0.9);
-  dark = mix(dark, SAGE * 0.07 + SPROUT * 0.03 * cyto, nuc * (focusCell ? 0.0 : 1.0));
+  float nsoft = smoothstep(nucR, nucR * 0.55, vc.x);
+  dark = mix(dark, SAGE * 0.035 + SPROUT * 0.025 * cyto, nsoft * (focusCell ? 0.0 : 1.0));
   dark += SPROUT * 0.16 * veins * (1.0 - smoothstep(1.6, 2.1, z));
   float df = smoothstep(0.9, 1.7, z);
   vec3 col = mix(leaf, dark, df);
@@ -104,7 +105,7 @@ vec3 micro(vec2 fc){
     // nucleus: dim while the cell is a room, then it draws the eye
     float chrom = fbm(rel * 38.0 + 2.0);
     vec3 nc = mix(SAGE * 0.06, SAGE * 0.5 + SPROUT * 0.1, smoothstep(0.35, 0.75, chrom));
-    col = mix(col, nc * mix(0.14, 1.3, uNuc), nuc * max(uPad, uNuc));
+    col = mix(col, nc * mix(0.08, 1.3, uNuc), nuc * max(uPad, uNuc));
     col += SPROUT * 0.06 * uNuc * exp(-vc.x * vc.x / (nucR * nucR) * 0.6);
   }
   return col;

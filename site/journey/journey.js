@@ -4,7 +4,8 @@
 // memory) it does nothing and the page keeps its own 2D scene art.
 //
 // Test and review switches (query string): ?journey=force allows software GL,
-// ?jdpr=1 locks the device-pixel ratio.
+// ?jdpr=1 locks the device-pixel ratio. With software GL, frames are
+// finished synchronously so the loop cannot queue up a backlog.
 
 function boot() {
   const mount = document.getElementById('journey');
@@ -24,7 +25,7 @@ function boot() {
   if (!gl) return;
   const dpr = parseFloat(q.get('jdpr'));
   import('./core/stage.js')
-    .then((m) => m.start(mount, canvas, gl, { dpr: dpr > 0 ? dpr : undefined }))
+    .then((m) => m.start(mount, canvas, gl, { dpr: dpr > 0 ? dpr : undefined, sync: q.get('journey') === 'force' }))
     .catch((err) => {
       document.documentElement.classList.remove('journey-on');
       if (canvas.parentNode) canvas.parentNode.removeChild(canvas);

@@ -66,8 +66,8 @@ uniform vec4 uSeedA, uSeedB;
 uniform float uFaceAmb;
 const float DEPTH = 0.04;
 float hf(vec2 q){
-  float s1 = smoothstep(0.6, 0.8, vnoise(q * 8.0 + 3.1));
-  float s2 = smoothstep(0.64, 0.82, vnoise(q * 21.0 - 7.3)) * 0.85;
+  float s1 = smoothstep(0.72, 0.86, vnoise(q * vec2(9.0, 12.0) + 3.1)) * smoothstep(0.3, 0.7, vnoise(q * 2.3));
+  float s2 = smoothstep(0.7, 0.85, vnoise(q * 26.0 - 7.3)) * 0.8;
   float gr = vnoise(q * 120.0);
   return max(max(s1, s2) * (0.82 + 0.18 * gr), 0.2 + 0.45 * gr * gr);
 }
@@ -79,7 +79,7 @@ vec3 albedo(vec2 q, float h){
   c = mix(c, mix(MOSS, LICHEN, 0.3) * 0.62, smoothstep(-1.2, -1.45, y));
   c = mix(c, UNDER * 0.6, smoothstep(-2.4, -2.9, y));
   float stone = smoothstep(0.55, 0.8, h);
-  c = mix(c, mix(LICHEN * 0.34, SAGE * 0.26, vnoise(q * 40.0)), stone);
+  c = mix(c, mix(MOSS * 0.55, mix(LICHEN, CLAY, 0.2) * 0.22, vnoise(q * 40.0)), stone);
   // a thin living fringe right under the soil line
   c = mix(c, CANOPY * 0.12, smoothstep(-0.035, 0.0, q.y + (vnoise(q * vec2(40.0, 4.0)) - 0.5) * 0.02));
   return c * (0.62 + 0.7 * vnoise(q * 300.0));
@@ -97,7 +97,7 @@ float lightTerm(vec3 hp, vec3 n, vec4 L, vec2 q, float hh){
     float s = DEPTH * (1.0 - hf(q + dxy * float(i)));
     sh = min(sh, sat(1.0 - (rayD - s) * 60.0));
   }
-  return L.w * ndl * mix(0.25, 1.0, sh) / (1.0 + dist * dist * 260.0);
+  return L.w * ndl * mix(0.25, 1.0, sh) / (1.0 + dist * dist * 140.0);
 }
 void main(){
   vec3 V = normalize(vW - cameraPosition);
@@ -118,7 +118,7 @@ void main(){
   vec3 alb = albedo(q, hh);
   float ao = mix(0.35, 1.0, hh);
   vec3 seed = SAFFRON * (lightTerm(hp, n, uSeedA, q, hh) + lightTerm(hp, n, uSeedB, q, hh));
-  vec3 amb = (uAmb * 1.6 + uFaceAmb * vec3(0.012, 0.016, 0.02)) * (0.35 + 0.65 * sat(n.y * 0.5 + 0.5)) * exp(min(hp.y, 0.0) * 2.6);
+  vec3 amb = (uAmb * 2.0 + uFaceAmb * vec3(0.17, 0.19, 0.2)) * (0.35 + 0.65 * sat(n.y * 0.5 + 0.5)) * exp(min(hp.y, 0.0) * 2.2);
   vec3 c = alb * (seed * 2.2 + amb) * ao;
   c = aerial(c, hp, 0.0045);
   gl_FragColor = vec4(mix(uVoid, c, uEnv), 1.0);
@@ -144,7 +144,7 @@ void main(){
 const GRASS_VERT = /* glsl */`
 ${COMMON}
 attribute vec4 aG; // x, z, height, phase
-uniform float uTime, uWind, uSnow, uSeason, uStill;
+uniform float uTime, uWind, uSnow, uSeason, uStill, uCut;
 varying vec3 vW; varying float vT; varying float vR;
 void main(){
   float h = abs(aG.z) * (1.0 - 0.75 * uSnow) * (aG.z < 0.0 && uCut > 100.0 ? 0.0 : 1.0);

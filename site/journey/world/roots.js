@@ -20,8 +20,8 @@ export function buildRoots() {
     const step = stage === 0 ? 0.045 : 0.038, n = Math.max(2, Math.round(len / step));
     let s = s0, az = R() * 6.28;
     for (let i = 0; i < n; i++) {
-      const g = stage === 0 ? 0.25 : 0.06 + 0.05 * depth;
-      D = v3.norm(v3.add(D, [(R() - 0.5) * 0.45, -g, (R() - 0.5) * 0.45]));
+      const g = stage === 0 ? 0.22 : 0.025 + 0.03 * depth;
+      D = v3.norm(v3.add(D, [(R() - 0.5) * 0.5, -g + (R() - 0.5) * 0.2, (R() - 0.5) * 0.3]));
       const Q = v3.add(P, v3.mul(D, step));
       const r1 = r * (1 - 0.8 * (i + 1) / n);
       segs.push([P, Q, r * (1 - 0.8 * i / n), r1, s, s + step, stage]);
@@ -30,13 +30,14 @@ export function buildRoots() {
         const k = R() < 0.35 ? 2 : 1;
         for (let j = 0; j < k; j++) {
           az += GOLDEN * 2;
-          const out = [Math.cos(az), -0.15 - R() * 0.25, Math.sin(az) * 0.8];
+          const side = Math.cos(az) >= 0 ? 1 : -1;
+          const out = [side * (0.7 + 0.3 * R()), -0.05 - R() * 0.35, Math.sin(az) * 0.5];
           nodes.push([Q, s, 1]);
-          grow(Q, v3.norm(out), (0.95 - i / n * 0.55) * (0.55 + R() * 0.6), r * 0.55, 1, s, 1);
+          grow(Q, v3.norm(out), (1.25 - i / n * 0.7) * (0.6 + R() * 0.6), r * 0.55, 1, s, 1);
         }
       } else if (stage === 1 && depth < 3 && i >= 1 && R() < 0.33) {
         az += GOLDEN * 2;
-        const out = v3.norm(v3.add(D, [Math.cos(az) * 1.2, -0.2, Math.sin(az) * 1.2]));
+        const out = v3.norm(v3.add(D, [Math.cos(az) * 1.3, -0.25 + (R() - 0.5) * 0.6, Math.sin(az) * 0.6]));
         nodes.push([Q, s, 2]);
         grow(Q, out, (0.16 + R() * 0.28) / depth, r * 0.6, 1, s, depth + 1);
       }
@@ -44,7 +45,7 @@ export function buildRoots() {
     }
     nodes.push([P, s, stage === 0 ? 0 : 2]);
   };
-  grow(SEED, [0.02, -1, 0], 1.25, 0.011, 0, 0, 0);
+  grow(SEED, [0.02, -1, 0], 1.25, 0.0065, 0, 0, 0);
   // mycorrhizal links between nearby tips of different laterals
   const tips = nodes.filter((n) => n[2] === 2);
   const links = [];
@@ -71,7 +72,7 @@ void main(){
   vec2 d = p1 - p0; float L = length(d); vec2 dir = L > 1e-6 ? d / L : vec2(0.0, -1.0);
   vec2 nrm = vec2(-dir.y, dir.x);
   float r = mix(aZ.z, aZ.w, position.x) * (aS.w > 0.5 ? 0.35 : 1.0);
-  float wpx = r * 2.0 + 0.02;       // glow margin
+  float wpx = r * 2.0 + 0.016;      // glow margin
   vec2 p = mix(p0, p1, position.x) + nrm * position.y * wpx;
   p = uSeed.xy + (p - uSeed.xy) * uScale;
   float z = uCut + 0.006 + mix(aZ.x, aZ.y, position.x) * uFlat;
@@ -128,7 +129,9 @@ export class Roots {
     };
     this.mesh = new THREE.Mesh(g, new THREE.ShaderMaterial({
       uniforms: this.u, vertexShader: VERT, fragmentShader: FRAG,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      // max blending: overlapping segment ends and crossings never double up
+      transparent: true, depthWrite: false, blending: THREE.CustomBlending,
+      blendEquation: THREE.MaxEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
     }));
     this.mesh.frustumCulled = false; this.mesh.renderOrder = 5;
     // node positions for the pixel overlay (normalised order, stage)

@@ -16,7 +16,7 @@ function generate(tier) {
   const R = rng(20260930);
   const B = { parent: [], at: [], wq: [], pos: [], dir: [], len: [], r0: [], r1: [], depth: [], birth: [], dur: [], trunk: [] };
   const L = []; // leaves: [bone, t, azimuth, size, rand, juvenile, cot]
-  const leafPer = tier === 'high' ? 1 : 0.6;
+  const leafPer = tier === 'high' ? 0.62 : 0.36;
   const add = (parent, at, P, D, len, r0, r1, depth, birth, dur) => {
     const i = B.parent.length;
     const pq = parent < 0 ? [0, 0, 0, 1] : B.wq[parent];
@@ -46,14 +46,14 @@ function generate(tier) {
       const idx = add(prev, a, P, D, sl, r0, r1, depth, bd, depth === 0 ? 0.016 : 0.04 + depth * 0.02);
       if (depth === 0) B.trunk.push(idx);
       // children
-      if (depth === 0 && s >= 3) {
-        const n = s === 3 ? 2 : 3;
+      if (depth === 0 && s >= 2) {
+        const n = 2;
         for (let c = 0; c < n; c++) {
           az += GOLDEN * 1.6 + (R() - 0.5) * 0.3;
-          const ang = 0.72 + R() * 0.32;
+          const ang = 0.95 + R() * 0.35 - (s - 2) * 0.12;
           const cd = v3.norm(v3.add(v3.mul(D, Math.cos(ang)), v3.mul(perp(D, az), Math.sin(ang))));
           const t = 0.55 + R() * 0.45;
-          branch(idx, t, v3.add(P, v3.mul(D, sl * t)), cd, 2.7 + R() * 0.9, r0 * 0.62, 1, 0.074 + c * 0.006 + (s - 3) * 0.008, 1);
+          branch(idx, t, v3.add(P, v3.mul(D, sl * t)), cd, (3.4 + R() * 0.9) * (1 - (s - 2) * 0.12), r0 * 0.6, 1, s === 2 ? 0.2 + c * 0.01 : 0.074 + c * 0.006 + (s - 3) * 0.008, 1);
         }
       } else if (depth === 1 && s >= 1) {
         const n = R() < 0.55 ? 2 : 1;
@@ -74,13 +74,13 @@ function generate(tier) {
         }
         leaves(idx, 2, true);
       } else if (depth === 3) {
-        leaves(idx, 5, false);
+        leaves(idx, 6, false);
       }
       P = v3.add(P, v3.mul(D, sl)); prev = idx; a = 1;
     }
     if (depth === 2) leaves(prev, 4, false);
   };
-  branch(-1, 0, [0, 0, 0], v3.norm([0.04, 1, -0.02]), 3.05, 0.34, 0, 0, 0);
+  branch(-1, 0, [0, 0, 0], v3.norm([0.04, 1, -0.02]), 2.45, 0.34, 0, 0, 0);
   // two cotyledons ride the trunk's top bone until the sapling outgrows them
   const top = B.trunk[4];
   L.push([top, 1, 0.0, 0.55, 0.5, 1, 1], [top, 1, Math.PI, 0.55, 0.9, 1, 1]);
@@ -124,7 +124,7 @@ void main(){
   if (uHideUnder > 0.5 && vW.y < -0.01 && vW.z > uCut - 0.02) discard;
   vec3 n = normalize(vN);
   float ridge = vnoise(vec2(vB.x * 5.0, vB.y * 0.6)) * 0.6 + vnoise(vec2(vB.x * 14.0, vB.y * 2.0)) * 0.4;
-  vec3 bark = mix(vec3(0.030, 0.026, 0.022), mix(MOSS, LICHEN, 0.25) * 0.32, ridge);
+  vec3 bark = mix(vec3(0.016, 0.014, 0.012), mix(MOSS, LICHEN, 0.3) * 0.22, ridge);
   // young stems: pale underground, green above
   vec3 young = mix(BONE * 0.55, mix(SPROUT, CANOPY, 0.5) * 0.6, smoothstep(-0.02, 0.03, vW.y));
   vec3 a = mix(bark, young, uYouth);
@@ -331,7 +331,8 @@ export class Tree {
 
   // Growth: overall scale, radius growth and per-bone reveal.
   growthParams(g) {
-    this.scale = 0.2 + 0.8 * sstep(0.15, 1.0, g);
+    this.scale = 0.24 + 0.76 * sstep(0.15, 1.0, g);
+    this.u.uLeafSize.value = 0.17 + 0.15 * sstep(0.3, 1.0, g);
     this.rg = 0.1 + 0.9 * Math.pow(g, 1.5);
   }
 

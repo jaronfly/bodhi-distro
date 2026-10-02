@@ -130,6 +130,7 @@ export function start(mount, canvas, gl, opts = {}) {
   // ------------------------------------------------------------------ frame
   const voidRGB = [0, 0, 0], soil = srgb(HEX.soil);
   let time = 0;
+  const px1 = new Uint8Array(4);
   function renderFrame(c, dt, still) {
     const s = director.eval(c);
     placeCamera(s);
@@ -185,14 +186,15 @@ export function start(mount, canvas, gl, opts = {}) {
     renderer.setRenderTarget(null);
     renderer.render(post.scene, post.cam);
     renderer.render(overlay, camera);
-    api.frames++;
+    if (opts.sync) gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px1);
+    api.frames++; api.renderedC = c;
   }
 
   // ------------------------------------------------------------------ loop & state
   let raf = 0, last = 0, running = false, lost = false, on = false, cS = null, fade = 1, jump = 0, lastScene = null, stillKey = null;
   const api = (window.BodhiJourney = { u: 0, scene: null, still: motionOff(), progress: 0, c: 0, frames: 0 });
   // debugging: jump the smoothed camera straight to the scroll position
-  api.snap = () => { cS = timeline.c; fade = 1; jump = 0; };
+  api.snap = () => { timeline.update(); publish(); cS = timeline.c; fade = 1; jump = 0; };
 
   function publish() {
     api.u = timeline.u; api.scene = timeline.scene; api.progress = timeline.progress; api.c = timeline.c; api.still = motionOff();

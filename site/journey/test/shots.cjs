@@ -23,6 +23,9 @@ const POINTS = QUICK ? [0.5] : [0.15, 0.5, 0.85];
 const SIZES = [[1440, 900], [390, 844]];
 // Optional: ancestry data when the page's assets are not next to this folder.
 const ANCESTRY = process.env.ANCESTRY || '';
+// PAGE=index.html runs the same checks against the real page when it is served next to journey/.
+const PAGE = process.env.PAGE || 'journey/demo.html';
+const TAG = process.env.PAGE ? 'page-' : '';
 
 const results = [];
 const fail = [];
@@ -47,7 +50,7 @@ async function openPage(browser, w, h, opts = {}) {
     await route.fulfill({ status: 200, contentType: 'text/javascript', body: file ? fs.readFileSync(file, 'utf8') : '/* no ancestry data */' });
   });
   if (opts.reduced) await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto(`http://127.0.0.1:${PORT}/journey/demo.html?journey=force&jdpr=1`, { waitUntil: 'load' });
+  await page.goto(`http://127.0.0.1:${PORT}/${PAGE}?journey=force&jdpr=1`, { waitUntil: 'load' });
   await page.waitForFunction(() => document.documentElement.classList.contains('journey-on'), null, { timeout: 120000 });
   return { ctx, page, errors };
 }
@@ -62,12 +65,12 @@ async function scrollTo(page, id, p) {
   }, [id, p]);
 }
 // wait until the layer has rendered n more frames (or the still frame is in place)
-const settle = (page, n = 3) => page.evaluate((n) => new Promise((res) => {
+const settle = (page, n = 2) => page.evaluate((n) => new Promise((res) => {
   const j = window.BodhiJourney;
   if (j.snap) j.snap();
   if (j.still) { setTimeout(res, 300); return; }
   const f0 = j.frames; const t0 = performance.now();
-  (function wait() { if (j.frames - f0 >= n || performance.now() - t0 > 60000) res(); else requestAnimationFrame(wait); })();
+  (function wait() { if ((j.frames - f0 >= n && Math.abs(j.renderedC - j.c) < 0.01) || performance.now() - t0 > 90000) res(); else requestAnimationFrame(wait); })();
 }), n);
 
 async function frameTimes(page, ms = 2500) {
@@ -83,7 +86,7 @@ const stats = (d) => { const s = d.slice().sort((a, b) => a - b); const q = (x) 
   const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1', '--directory', ROOT], { stdio: 'ignore' });
   let browser;
   try {
-    await waitForServer(`http://127.0.0.1:${PORT}/journey/demo.html`);
+    await waitForServer(`http://127.0.0.1:${PORT}/${PAGE}`);
     browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
     for (const [w, h] of SIZES) {
       const { ctx, page, errors } = await openPage(browser, w, h);
@@ -95,8 +98,8 @@ const stats = (d) => { const s = d.slice().sort((a, b) => a - b); const q = (x) 
           await scrollTo(page, id, p);
           await settle(page);
           const got = await page.evaluate(() => window.BodhiJourney.scene);
-          const name = `${w}x${h}-${String(i).padStart(2, '0')}-${id}-${Math.round(p * 100)}.png`;
-          await page.screenshot({ path: path.join(OUT, name) });
+          const name = `${TAG}${w}x${h}-${String(i).padStart(2, '0')}-${id}-${Math.round(p * 100)}.png`;
+          await page.screenshot({ path: path.join(OUT, name), timeout: 180000 });
           i++;
           if (got !== id) { fail.push(`[${w}x${h}] scene at ${id}@${p} was ${got}`); log(`FAIL ${name}: BodhiJourney.scene = ${got}`); }
           else log(`ok   ${name}: BodhiJourney.scene = ${got}`);
@@ -118,13 +121,13 @@ const stats = (d) => { const s = d.slice().sort((a, b) => a - b); const q = (x) 
       for (const id of ['tree', 'sky', 'cell']) {
         await scrollTo(page, id, 0.5);
         await page.waitForTimeout(1500);
-        const a = await page.screenshot();
+        const a = await page.screenshot({ timeout: 180000 });
         const f0 = await page.evaluate(() => window.BodhiJourney.frames);
         await page.waitForTimeout(1000);
-        const b = await page.screenshot();
+        const b = await page.screenshot({ timeout: 180000 });
         const f1 = await page.evaluate(() => window.BodhiJourney.frames);
         const j = await page.evaluate(() => ({ still: window.BodhiJourney.still, scene: window.BodhiJourney.scene }));
-        fs.writeFileSync(path.join(OUT, `reduced-${id}.png`), a);
+        fs.writeFileSync(path.join(OUT, `${TAG}reduced-${id}.png`), a);
         const same = a.equals(b) && f0 === f1;
         if (!same || !j.still || j.scene !== id) fail.push(`reduced motion at ${id}: identical=${a.equals(b)} frames ${f0}->${f1} still=${j.still} scene=${j.scene}`);
         log(`${same && j.still ? 'ok  ' : 'FAIL'} reduced motion at ${id}: frames 1 s apart identical=${a.equals(b)}, render count ${f0} -> ${f1}, still=${j.still}, scene=${j.scene}`);
@@ -153,6 +156,6 @@ const stats = (d) => { const s = d.slice().sort((a, b) => a - b); const q = (x) 
     server.kill();
   }
   log(fail.length ? `\n${fail.length} FAILED:\n- ${fail.join('\n- ')}` : '\nALL CHECKS PASSED');
-  fs.writeFileSync(path.join(OUT, 'results.txt'), results.join('\n') + '\n');
+  fs.writeFileSync(path.join(OUT, `${TAG}results.txt`), results.join('\n') + '\n');
   process.exit(fail.length ? 1 : 0);
 })();
