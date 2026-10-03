@@ -33,6 +33,7 @@ import json
 import os
 import subprocess
 import sys
+import socket
 import time
 import urllib.request
 from pathlib import Path
@@ -211,7 +212,7 @@ def chat(base: str, model: str, messages: list, timeout: int = 900) -> dict:
             if error.code not in (502, 503, 504) or attempt == 3:
                 raise
             print("chat: transient HTTP %d, retrying in %ds" % (error.code, (10, 30, 60)[attempt]), flush=True)
-        except (urllib.error.URLError, ConnectionError, TimeoutError) as error:
+        except (urllib.error.URLError, ConnectionError, TimeoutError, socket.timeout) as error:
             if attempt == 3:
                 raise
             print("chat: transient %s, retrying in %ds" % (type(error).__name__, (10, 30, 60)[attempt]), flush=True)
