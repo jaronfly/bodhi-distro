@@ -273,6 +273,12 @@ class TerminalTests(unittest.TestCase):
                 os.execve(str(PYTHON), [str(PYTHON), str(CLI), "init", str(vault)] + list(extra), env)
             finally:
                 os._exit(127)
+        # A real terminal has a size; a fresh pty is 0x0 until one is set, and
+        # the CLI draws no art below MARK_MIN_WIDTH columns.
+        import fcntl
+        import struct
+        import termios as termios_module
+        fcntl.ioctl(fd, termios_module.TIOCSWINSZ, struct.pack("HHHH", 30, 100, 0, 0))
         os.write(fd, FULL_ANSWERS.encode())
         output = b""
         while True:

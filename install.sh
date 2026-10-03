@@ -712,6 +712,12 @@ main() {
         fi
     fi
     setup_questions
+    # Setup question 2 names the computer that will hold the Bodhi folder. Plan the
+    # tool commands for THAT computer, not for the machine running the installer:
+    # people demo the installer from another box, and the tests drive cross-OS
+    # plans from answers.json. The scan above stays the host's own report.
+    answer_os="$(answers_value os)"
+    [ -n "$answer_os" ] && OS_NAME="$answer_os"
     offer_harness
     install_skills
     offer_optional_skills

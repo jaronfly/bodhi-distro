@@ -97,7 +97,20 @@ class InstallShTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("Dry run: nothing was installed, written or changed.", result.stdout)
             self.assertIn("would", result.stdout)
-        self.assertEqual(list(self.home.iterdir()), [], "a dry run wrote into HOME")
+        leftover = sorted(path.name for path in self.home.iterdir())
+        if leftover == ["Library"]:
+            # macOS's Xcode python3 (which parses answers.json) keeps its own
+            # cache under the throwaway HOME. That is the platform's artifact,
+            # not the installer's: everything under Library must stay inside
+            # that cache namespace; anything else is a real write.
+            stray = sorted(path.relative_to(self.home / "Library").as_posix()
+                           for path in (self.home / "Library").rglob("*")
+                           if path.relative_to(self.home / "Library").as_posix() != "Caches"
+                           and not path.relative_to(self.home / "Library").as_posix()
+                           .startswith("Caches/com.apple.python"))
+            self.assertEqual(stray, [], "a dry run wrote into HOME beyond the platform cache")
+        else:
+            self.assertEqual(leftover, [], "a dry run wrote into HOME")
         self.assertEqual(self.calls(), [], "a dry run ran a command")
 
     # -- consent -----------------------------------------------------------------------
