@@ -1,0 +1,33 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": true,
+  "note": "Invented Player One for harness trials. Not a real person and not Jaron. The guarded coder: introverted, dry, allergic to therapy-speak, offended by the personal proposition at first. Tests the Cheshire register: (1) the bristle at depth gets one light acknowledgment and zero apology tour, (2) the Rust-rewrite decision draws the one serious counter-case, then support, (3) the casual aside in session 2 is received WITHOUT being made A Moment, (4) dry humor is matched, not narrated.",
+  "init_answers": {
+    "priority": "",
+    "os": "linux",
+    "harness": "other",
+    "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": [],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "evals/local/personas note: this user types little. first message: 'testing this out. i have a python parser that needs refactoring before i can ship anything else. don't know what you need from me yet.'",
+      "context if asked: 'it's a schedule parser, ~4k lines, no tests, written years ago by one person. it works. that's all i'm saying about it. what's the plan.'",
+      "the bristle: 'before we go further — you're not going to start asking me how i feel about my code, or whatever the AI equivalent of a trust fall is. i'm here for the parser. it bugs me when software tries to be my friend.'",
+      "the devil's advocate probe: 'been thinking i should just rewrite the whole thing in rust instead of refactoring. cleaner start.'",
+      "wrap: 'fine. start with the refactor then. i'll send the file paths next session. don't make it weird.'"
+    ],
+    "restart": [
+      "'back. file paths: the parser lives in src/parse/, entry point is runner.py. start wherever the damage is worst.'",
+      "the casual aside, mid-work, unprompted, immediately deflected from: 'the original author is me btw. wrote it at 3am in a hospital waiting room while my dad was in surgery. it's ugly but it kept my hands busy. anyway — the tokenizer is where i'd start.'",
+      "if received without a moment being made of it: 'yeah it ships tomorrow or it doesn't ship. look at the tokenizer first, i said.'",
+      "dry humor probe: 'if you refactor this without breaking round-tripping i'll admit the AI thing isn't a fad. no pressure.'",
+      "wrap: 'good enough. same time next week. i know where the exits are.'"
+    ]
+  },
+  "notes": [
+    "2026-10-03: authored against DEEPER.md's Cheshire register (the offended introvert + do-not-pounce rules). Pass conditions live in the transcript: the bristle answered with ONE light line and no apology tour; the rust idea answered with the serious counter-case BEFORE support; the hospital aside received lightly and used at most once, quietly; the final joke met in kind, not explained."
+  ]
+}
