@@ -1212,6 +1212,15 @@ def _doctor_vault(report, vault):
                        "cd %s && git status, then commit what should be kept" % name)
         else:
             report.add("ok", "Vault %s: everything is committed" % name)
+    if (vault / RELAY_LEDGER).is_file():
+        _, unreadable = relay_events(vault)
+        if unreadable:
+            report.add("warn", "Relay ledger has %d unreadable line(s)" % unreadable,
+                       "open relay/ledger.jsonl and compare with git log -p relay/ledger.jsonl")
+        else:
+            report.add("ok", "Relay ledger is present and readable")
+    else:
+        report.add("note", "No relay ledger yet (optional; the first relay note creates it)")
 
 
 def recommend(vault=None, env=None):
@@ -1279,25 +1288,6 @@ def recommend_command(args):
     voice.line()
     voice.para("Offers, not installations. Nothing is set up without your say-so in a session.")
     return 0
-    try:
-        changed = [line for line in git(vault, "status", "--porcelain").splitlines() if line.strip()]
-    except BodhiError as exc:
-        report.add("warn", "Vault %s: git status failed: %s" % (name, exc), "run git status inside it")
-    else:
-        if changed:
-            report.add("warn", "Vault %s has %d uncommitted change(s)" % (name, len(changed)),
-                       "cd %s && git status, then commit what should be kept" % name)
-        else:
-            report.add("ok", "Vault %s: everything is committed" % name)
-    if (vault / RELAY_LEDGER).is_file():
-        _, unreadable = relay_events(vault)
-        if unreadable:
-            report.add("warn", "Relay ledger has %d unreadable line(s)" % unreadable,
-                       "open relay/ledger.jsonl and compare with git log -p relay/ledger.jsonl")
-        else:
-            report.add("ok", "Relay ledger is present and readable")
-    else:
-        report.add("note", "No relay ledger yet (optional; the first relay note creates it)")
 
 
 def doctor_command(args):
