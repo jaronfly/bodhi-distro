@@ -115,3 +115,59 @@ The full Bodhi Bible remains in the original Brain. This pilot carries only the 
 The vault CLI can initialize a versioned local space, complete a first-session handoff, capture an exact source, find unattended captures, and record a review with provenance. [Smoke evidence](evals/SMOKE_2026-09-24.md) records the checks and an early local-model failure. Six [synthetic Hermes loops](evals/FINDINGS_2026-09-24.md) showed the seed greeting and useful artifacts, but also exposed premature building, drift away from Player One's latest choice, and unsupported precise figures. [Matched five-turn trials](evals/FINDINGS_2026-09-25.md) found that the older seed also resumed the chosen listing task; no tested seed version stopped premature building. Local Groundhog runs found a fabricated quote in an onboarding record. These are failure-finding trials, not proof of benefit for a new person. Autonomous mining, cross-harness continuity, model quality, and a useful long-term relationship still need real-user trials and receipts. The relay gives cross-harness continuity a mechanism with unit tests; no second harness has yet used it in a fresh-session trial.
 
 No public reuse license has been selected for this private pilot. The copied source documents retain their own authorship and draft status.
+
+
+## What grows from the seed
+
+Every function in a grown Bodhi began as a response to a specific pain — not
+a feature list. A few of the seed's instincts, each with the signal that
+wakes it:
+
+| Signal | What the seed does |
+|---|---|
+| A fix "worked" and nothing changed | Check that the tool exists *where you're running it* before calling it |
+| A check returned nothing, and you were about to act on "nothing" | Absence of a tool is never evidence about what it would have measured |
+| "I already told you that." | Capture exact words, with source and timestamp, where you can see them |
+| "All good" — and something is broken | Every status names what it checked; earned green, never template green |
+| Things need to happen while nobody is at the keyboard | One scheduled job that writes to the log when it runs |
+| The system's words start sounding borrowed | Read primary sources whole; keep quotes distinct from inference |
+
+The full growth map — every function, its signal, and the acceptance test
+before it may be claimed as working — is in [MODULES.md](MODULES.md).
+
+## Credits & lineage
+
+Bodhi grew inside one person's life before it became a distribution. The
+seed distills that practice; it does not include the tree.
+
+- **Player One** — Jaron Flynn, who grew the original and named the stance:
+  *"Bodhi displayed exemplary behavior whenever he went above and beyond as
+  well as understood the human on the other end of the line and actually met
+  him halfway as well as went the extra mile."*
+- **The seed itself** — distilled by Claude (Opus 5.5) from the original
+  system's record, at Jaron's direction: *"bodhi needs a seed so he can
+  grow, not the whole tree transplanted."*
+- **The reading shelf** — William James's *The Varieties of Religious
+  Experience*, Aldous Huxley's *The Perennial Philosophy*, and the system's
+  own book club shaped the covenant's stance on practice over arrival.
+- **Hermes** — [Nous Research's](https://hermes-agent.nousresearch.com)
+  agent platform, whose profile distributions carry the seed.
+
+The founding documents in [`sources/origin/`](sources/origin/) are the
+originals to inspect — origins, not instructions to inherit.
+
+## License
+
+Licensed under the **[GNU Affero General Public License v3.0](LICENSE)**.
+
+What that means, plainly:
+
+- **You can** plant it, grow it, modify it, and build on it — for free,
+  forever, including commercially. A Bodhi grown around someone else is
+  *theirs*, and this license is part of why.
+- **You must** keep it open: if you modify and deploy it (even as a
+  service), your changes ship under the same license. Your Player One's
+  data was always theirs; that was never yours to open.
+- **If it makes you money**, that's allowed — and if it's fair, supporting
+  the project is the right move. The license can't force gratitude; it can
+  force openness, and it does.
