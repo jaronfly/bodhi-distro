@@ -26,3 +26,4 @@ trial-output/
 /local/
 /*_cache/
 dist/
+evals/local/runs/sandbox/

@@ -1,8 +1,0 @@
-{
-  "priority": "Stop drowning in admin: quotes, invoicing, and scoping eat my week. I want the studio's client work to run without me babysitting every step.",
-  "os": "macos",
-  "harness": "undecided",
-  "model_access": "cloud",
-  "capture_surfaces": ["web_history", "app_usage", "screen"],
-  "next_capability": "Turn a client email thread into a signed-off scope doc in one pass."
-}
