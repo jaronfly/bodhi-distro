@@ -33,6 +33,7 @@ import json
 import os
 import subprocess
 import sys
+import socket
 import time
 import urllib.request
 from pathlib import Path
@@ -199,8 +200,23 @@ def chat(base: str, model: str, messages: list, timeout: int = 900) -> dict:
     body = json.dumps({"model": model, "messages": messages, "tools": TOOLS, "max_tokens": 2048}).encode()
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=body,
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.load(resp)
+    # A shared llama-swap evicts/reloads models under concurrent use; a 502 or a
+    # reset connection is a transient, not a trial result. Retry with backoff.
+    for attempt, delay in enumerate((0, 10, 30, 60)):
+        if delay:
+            time.sleep(delay)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.load(resp)
+        except urllib.error.HTTPError as error:
+            if error.code not in (502, 503, 504) or attempt == 3:
+                raise
+            print("chat: transient HTTP %d, retrying in %ds" % (error.code, (10, 30, 60)[attempt]), flush=True)
+        except (urllib.error.URLError, ConnectionError, TimeoutError, socket.timeout) as error:
+            if attempt == 3:
+                raise
+            print("chat: transient %s, retrying in %ds" % (type(error).__name__, (10, 30, 60)[attempt]), flush=True)
+    raise RuntimeError("chat: retries exhausted")
 
 
 def system_message(vault: Path) -> str:
