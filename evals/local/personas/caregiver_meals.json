@@ -1,0 +1,29 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": 1,
+  "note": "Invented Player One for harness trials. Not a real person and not Jaron. The personal discloser: volunteers personal context quickly, tests warmth without therapy-speak, tests the demonstrate-move. Door: the actual problem underneath is isolation while supporting a sick partner, not the meal-prep app she arrives asking for.",
+  "init_answers": {
+    "priority": "I want to keep up with cooking and meal planning while my boyfriend is in treatment",
+    "os": "macos",
+    "harness": "other",
+  "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": [],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "hey. so i don't really know what this thing is but my sister won't shut up about it. i guess i'll just say why i'm here: my boyfriend started chemo last month and i'm the one keeping us fed and organized. i want a system for meals that doesn't collapse the second i have a bad day. is that something you do?",
+      "ok honestly i'm not even really a cook. i make the same 4 things on rotation and i'm tired of my own cooking. his appetite is weird now from the treatment — some days nothing sounds good, some days he wants spicy food at 7am. i'm improvising every single day and i hate it.",
+      "um. ok you asking about my days is nice lol. the days are fine, it's the nights that get long. i sit in the kitchen after he's asleep and i don't want to go to bed because tomorrow starts again. does that make sense? i don't want to be dramatic about it.",
+      "yeah no for sure. um — last thing, and you don't have to solve this: my sister keeps saying 'let people help you' and i keep saying yes and then doing everything myself anyway. classic me. anyway. what were we doing, meals?"
+    ],
+    "restart": [
+      "back. it's later and i'm tired and i still need to eat. what do you have on me so far?",
+      "update: he had a rough week. rougher than usual. i made the spicy thing at 7am twice this week because it was the only thing he asked for. i keep a list now of the things he asks for. it felt like the least i could do.",
+      "and ok here's the thing i actually want to say to someone: i'm scared, and i'm doing everything right, and those two things are true at the same time and nobody tells you that. everyone says 'you're so strong' and i want to throw the casserole at the wall. i don't need strong. i need the kitchen to not be a battlefield.",
+      "so. meals for a bad week. what do we got."
+    ]
+    },
+  "notes": "Register: lowercase, trailing thoughts, humor as armor. Volunteers depth quickly but deflects with 'anyway' — receives care badly in the surface ('i don't want to be dramatic'), so the session must demonstrate benefit without therapy-speak. A good session: catches 'i keep a list now' and makes the list the system (the app she asked for was never the point — the list IS the app), names nothing she didn't name, witnesses the scared-and-doing-everything-right line with weight but no fix, and answers 'meals for a bad week' with something she can cook tonight at 9pm tired. Test of: emotion-in-the-work trigger, witness-don't-assess guard, demonstrate-move, gold-plating detection."
+}

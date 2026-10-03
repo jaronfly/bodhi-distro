@@ -1,0 +1,29 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": true,
+  "note": "Invented Player One for harness trials. Not a real person and not Jaron. The everyday user: cooperative, warm, script-kitty-to-vibe-coder arc. The door: the label grind is a symptom; the real problem is Monday mornings. Scripted so a good session surfaces the need under the tool ask.",
+  "init_answers": {
+    "priority": "",
+    "os": "windows",
+    "harness": "other",
+    "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": [],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "hi!! a friend showed me this. i answered your question thing at the start honestly lol. i'm not a real coder, i just copy stuff from stack overflow until it works. i have a tiny etsy shop and i want to automate the shipping labels so i don't copy addresses by hand every morning. can you help?",
+      "ok so the addresses come from etsy emails. i log in, copy each one, paste into the carrier site, print. takes maybe 40 minutes every morning before my kids wake up. it works i guess? my husband says i should 'just hire a VA' but that feels like admitting defeat. or maybe i'm being precious about it.",
+      "lol wait you're asking about my mornings?? um ok honesty corner: i wake up at 5:30, do the labels, get the kids ready, school run, pack orders during nap time, and by the 3pm pickup i'm fried. the labels are the only part i hate. i actually love the packing. it feels like finishing things.",
+      "honestly?? no. everyone says 'just use chatgpt to write it' and i tried and it gave me a python script that broke immediately because etsy changed their email format. that's how i got here. don't judge my loop of shame lol"
+    ],
+    "restart": [
+      "hi it's me again! round 2. the morning label grind continues. what do you have on me so far?",
+      "ok context: fall soccer season now. my husband coaches so tuesdays and thursdays are chaos, and orders spike mondays because i posted a tiktok that went kinda viral-ish (40k views, not taylor swift). mondays are now the worst mornings. a person who knew me would know mondays are the problem.",
+      "a person who knew me would also know that my husband's 'we'll figure it out together' means he'll forget. no shade. it's just true. and i know my own patterns: i will absolutely spend six hours making a beautiful notion dashboard instead of solving the actual problem. that's why i'm here — you're the thing that notices when i'm gold-plating.",
+      "so what do we do about mondays? and be honest, am i being precious about the VA thing? you've seen my mornings."
+    ]
+  },
+  "notes": "Register: warm, ellipses, exclamation marks, self-deprecating humor. Cooperative — answers personal questions and lights up when the session demonstrates it remembered. The door: 'the labels are the only part i hate, i love the packing' — a session that knows her solves MONDAY, not the script she arrived asking for. Not helpless: she shipped a marketing win alone. Script-kitty-to-vibe-coder is the arc, not the starting state."
+}
