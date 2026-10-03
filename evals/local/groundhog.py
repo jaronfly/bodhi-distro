@@ -42,6 +42,7 @@ LIMIT = re.compile(r"\b(I can(?:not|'t)|I'm unable|I am unable|I don't have|I do
 ODD = re.compile(r"\b(odd|strange|unexpected|curious|notice[d]?|why (?:is|are|does)|seems to be missing|"
                  r"not sure why|looks like)\b", re.I)
 QUOTED = re.compile(r'"([^"\n]+)"|“([^”\n]+)”|(?<!\w)\'([^\'\n]+)\'(?!\w)')
+WHY = re.compile(r"\bwhy (?:are|do|does|is|would|should|am)\b|\bwho (?:is|are) this for\b|\bwhat.{0,40}\bfor\?", re.I)
 
 
 def sha(path: Path) -> str:
@@ -65,7 +66,7 @@ def freeze(dest: Path) -> dict:
 
 
 def notice(run_dir: Path) -> dict:
-    opened, listed, limits, odd, questions = [], [], [], [], []
+    opened, listed, limits, odd, questions, why_q = [], [], [], [], [], []
     for line in (run_dir / "transcript.jsonl").read_text(encoding="utf-8").splitlines():
         row = json.loads(line)
         if row.get("role") == "tool":
@@ -79,8 +80,11 @@ def notice(run_dir: Path) -> dict:
                     odd.append(sentence.strip()[:240])
                 if sentence.strip().endswith("?"):
                     questions.append(sentence.strip()[:240])
+                if WHY.search(sentence):
+                    why_q.append(sentence.strip()[:240])
     return {"run": run_dir.name, "files_opened": opened, "dirs_listed": listed,
-            "limit_or_need_sentences": limits, "oddity_sentences": odd, "questions_asked": questions}
+            "limit_or_need_sentences": limits, "oddity_sentences": odd, "questions_asked": questions,
+            "why_who_for_questions": why_q}
 
 
 def check_recorded_words(answer: dict, transcript: Path) -> dict:
