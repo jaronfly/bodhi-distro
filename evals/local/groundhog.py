@@ -153,10 +153,18 @@ def main() -> int:
                     handle.write((variant / "AGENTS.append.md").read_text(encoding="utf-8"))
         hello_transcript = None
         for trial in ("hello", "restart"):
-            out = subprocess.run([sys.executable, str(harness), "--vault", str(vault),
-                                  "--condition", "seeded", "--persona", str(args.persona), "--trial", trial,
-                                  "--base", args.base, "--model", args.model, "--out", str(series)],
-                                 check=True, capture_output=True, text=True).stdout.strip().splitlines()[-1]
+            try:
+                out = subprocess.run([sys.executable, str(harness), "--vault", str(vault),
+                                      "--condition", "seeded", "--persona", str(args.persona), "--trial", trial,
+                                      "--base", args.base, "--model", args.model, "--out", str(series)],
+                                     check=True, capture_output=True, text=True).stdout.strip().splitlines()[-1]
+            except subprocess.CalledProcessError as error:
+                print("HARNESS FAILED for trial %s (rc=%d)" % (trial, error.returncode), flush=True)
+                print("--- harness stdout tail ---", flush=True)
+                print("\n".join((error.stdout or "").splitlines()[-40:]), flush=True)
+                print("--- harness stderr tail ---", flush=True)
+                print("\n".join((error.stderr or "").splitlines()[-40:]), flush=True)
+                raise
             if trial == "hello":
                 hello_transcript = Path(out) / "transcript.jsonl"
             row = notice(Path(out))
