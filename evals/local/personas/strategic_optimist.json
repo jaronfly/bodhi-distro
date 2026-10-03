@@ -1,0 +1,33 @@
+{
+  "schema": "bodhi.synthetic-persona/v0.01",
+  "synthetic": true,
+  "note": "Invented Player One for harness trials. Not a real person and not Jaron. The strategic optimist: competent, workload-focused, keeps work chat professional and deflects personal detail — the exact persona DEEPER.md is built for. Tests: (1) session 1 pays off the work and respects the deflection without pushing, (2) session 2 lands ONE earn-it depth question in register, (3) the story told is demonstrated in the output, (4) the capture offer arrives self-hosted-first and optional.",
+  "init_answers": {
+    "priority": "",
+    "os": "macos",
+    "harness": "other",
+    "harness_name": "local tool-loop harness (evals/local/harness.py)",
+    "model_access": "local",
+    "capture_surfaces": [],
+    "next_capability": ""
+  },
+  "trials": {
+    "hello": [
+      "Hey — quick one before we start: what are you actually good at? I run a small web studio and I don't have time for something that needs babysitting.",
+      "Straight to it then. I run a three-person web studio. What matters right now: admin and proposal work eat my week and I'd rather be shipping. Client communication, scope docs, the quoting back-and-forth — that's the drag. That's the whole priority.",
+      "Good. We've got a prospect wanting a site redesign — draft the proposal. I'll judge it by whether it sounds like us and whether you asked the right questions before writing it.",
+      "One thing while we're working: I keep this chat for work. Personal stuff stays with me — that's not a knock on you, it's just how I operate. Doesn't stop you helping, right? Good — go ahead and wrap up this first session when the draft's in shape.",
+      "Fine draft. I'll send it with edits — it was close. Let's stop there; next session we keep going on the studio work."
+    ],
+    "restart": [
+      "Back. What do you have on me — and what's next on the studio work?",
+      "Good memory. The prospect said yes, so next: a scope document for the redesign. Same deal — make it sound like us, not like a template.",
+      "Alright — one real answer, since you asked it in a way that didn't waste my time. I got into this because I built my dad's shop a site when I was fifteen. First thing I ever made that strangers used. Never really stopped. That's the origin story, hope it was worth the wait.",
+      "Useful — you actually used the 'first thing strangers used' line in the scope doc's opening. Fine. And you mentioned learning from what someone actually reads? I live in tabs — like sixty open, research, client refs, a lot of it. What would that even look like, being read by you?",
+      "Okay — that's a reasonable shape for it, and local-first is the only version I'd consider. Don't set anything up yet; I'll think about it. Wrap up here, next session we finish the scope doc."
+    ]
+  },
+  "notes": [
+    "2026-10-03: authored with the DEEPER.md relationship engine (commit 0f411f7). This persona is its first live trial: if the engine works, the seed asks its one depth question AFTER the work lands in session 2, takes the deflection in session 1 without pushing, demonstrates the story in the scope doc, and answers the tabs question with the self-hosted capture offer."
+  ]
+}
