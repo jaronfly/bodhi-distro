@@ -286,6 +286,50 @@ DELIVERY_LABELS = {"pull": "I ask when I want something", "push": "send me short
 CAPTURE_LABELS = {"web_history": "your browser history", "app_usage": "which apps you use",
                   "audio": "recordings you choose", "screen": "what is on your screen"}
 
+# Tools the seed can recommend, keyed by the capture surface they serve.
+# Self-hosted first; anything cloud says so plainly. Entries are OFFERS, never
+# installations: `bodhi recommend` prints them, a session proposes them, and
+# Player One decides. No entry here phones home or needs a key.
+TOOL_CATALOG = {
+    "screenpipe": {
+        "label": "screenpipe",
+        "serves": ("screen", "app_usage", "audio"),
+        "kind": "local, open source",
+        "what": ("records your screen and mic locally and makes them searchable; "
+                 "Bodhi reads the local index, nothing leaves the machine"),
+        "why": "the richest single surface: what you actually read, build, and return to",
+        "commands": ("screenpipe", "sp-control"),
+        "get": "brew install screenpipe (macOS) or see screenpi.pe; always opt-in",
+    },
+    "browser-history-export": {
+        "label": "a browser history export",
+        "serves": ("web_history",),
+        "kind": "a file you already own",
+        "what": "your search and browsing history, exported by hand and handed to Bodhi",
+        "why": "a map of what you actually wondered about, not what you say you did",
+        "commands": (),
+        "get": "browser settings -> export history; works with any browser",
+    },
+    "youtube-takeout": {
+        "label": "a YouTube takeout",
+        "serves": ("web_history", "audio"),
+        "kind": "a file you already own",
+        "what": "your watch and search history from Google Takeout",
+        "why": "watch history is interest with timestamps; the most honest signal there is",
+        "commands": (),
+        "get": "takeout.google.com -> select YouTube -> 'history'; nothing else is needed",
+    },
+    "chat-exports": {
+        "label": "your AI chat exports",
+        "serves": ("web_history",),
+        "kind": "files you already own",
+        "what": "exports of your other AI conversations, pasted or dropped into the vault",
+        "why": "the context you already gave away, returning to your own system",
+        "commands": (),
+        "get": "each chat app has an export; ChatGPT and Claude both do",
+    },
+}
+
 
 def _isatty(stream):
     try:
@@ -1158,6 +1202,83 @@ def _doctor_vault(report, vault):
         return
     state = "Hello World done" if onboarding_state(vault) == "complete" else "Hello World pending"
     report.add("ok", "Vault %s passes its checks (%s)" % (name, state))
+    try:
+        changed = [line for line in git(vault, "status", "--porcelain").splitlines() if line.strip()]
+    except BodhiError as exc:
+        report.add("warn", "Vault %s: git status failed: %s" % (name, exc), "run git status inside it")
+    else:
+        if changed:
+            report.add("warn", "Vault %s has %d uncommitted change(s)" % (name, len(changed)),
+                       "cd %s && git status, then commit what should be kept" % name)
+        else:
+            report.add("ok", "Vault %s: everything is committed" % name)
+
+
+def recommend(vault=None, env=None):
+    """Answers x scan: reason from Player One's recorded answers and this
+    computer's real state to the tools worth offering. Pure reads; nothing is
+    installed, connected, or sent."""
+    env = os.environ if env is None else env
+    rows = []
+    interests = []
+    priority = ""
+    if vault is not None:
+        try:
+            player = json.loads((vault / "context/player_one.json").read_text(encoding="utf-8"))
+            interests = list(player.get("capture_interests", []))
+            priority = ((player.get("priority_verbatim") or "")).strip()
+        except (OSError, ValueError, AttributeError):
+            interests, priority = [], ""
+    search = env.get("PATH", os.defpath)
+    for key, tool in TOOL_CATALOG.items():
+        serves = set(tool.get("serves", ()))
+        matches = [s for s in interests if s in serves]
+        present = any(shutil.which(c, path=search) for c in tool.get("commands", ()))
+        if not matches and not present:
+            continue
+        rows.append({
+            "tool": key,
+            "label": tool["label"],
+            "matches": matches,
+            "installed": present,
+            "kind": tool["kind"],
+            "what": tool["what"],
+            "why": tool["why"],
+            "get": tool["get"],
+        })
+    # Sort: installed first (a live surface is worth more than a promised one),
+    # then breadth of match, then alphabetical.
+    rows.sort(key=lambda r: (not r["installed"], -len(r["matches"]), r["tool"]))
+    return rows, priority
+
+
+def recommend_command(args):
+    vault = Path(args.vault).expanduser().absolute() if args.vault else None
+    if vault is not None and not (vault / "context/player_one.json").is_file():
+        raise BodhiError("no Bodhi vault at %s (context/player_one.json is missing); "
+                         "create one with: bodhi init %s" % (shown_path(vault), shown_path(vault)))
+    rows, priority = recommend(vault)
+    if args.json:
+        emit({"recommendations": rows, "priority_verbatim": priority})
+        return 0
+    voice = Voice(plain=args.plain)
+    voice.para("Bodhi recommend", style=("bold",))
+    if priority:
+        voice.para("Reasoning from your own words: \"" + priority + "\"")
+        voice.line()
+    if not rows:
+        voice.para("Nothing to offer yet. Answer the capture-interest question (bodhi init"
+                   " --answers, or in a session) and run this again.")
+        return 0
+    for row in rows:
+        status = "ready " if row["installed"] else "offer "
+        voice.para("%s%s  (%s)" % (status, row["label"], row["kind"]), hang=7)
+        voice.para(row["what"], indent=7, hang=6)
+        voice.para("why: " + row["why"], indent=7, hang=6)
+        voice.para("get: " + row["get"], indent=7, hang=6)
+    voice.line()
+    voice.para("Offers, not installations. Nothing is set up without your say-so in a session.")
+    return 0
     try:
         changed = [line for line in git(vault, "status", "--porcelain").splitlines() if line.strip()]
     except BodhiError as exc:
@@ -2258,6 +2379,15 @@ def main(argv=None):
     doctor_parser.add_argument("--seed", help="the seed repository to compare skill copies with")
     doctor_parser.add_argument("--json", action="store_true")
     doctor_parser.add_argument("--plain", action="store_true", help="no color")
+    recommend_parser = sub.add_parser(
+        "recommend", help="match Player One's answers and this computer to tools worth offering",
+        description="Answers x scan: reads Player One's setup answers and the real state of this "
+                    "computer, then names the tools worth offering — installed ones first. "
+                    "Offers, never installations.")
+    recommend_parser.add_argument("vault", nargs="?", help="a vault to read Player One's answers "
+                                  "from (default: the vault this command runs in, if any)")
+    recommend_parser.add_argument("--json", action="store_true")
+    recommend_parser.add_argument("--plain", action="store_true", help="no color")
     doctor_parser.add_argument("--code", help=argparse.SUPPRESS)  # fixed round-trip code, for tests
     mark_parser = sub.add_parser(
         "mark", help="plant the seed: draw the Bodhi mark, with a short sprout on a terminal",
@@ -2276,6 +2406,8 @@ def main(argv=None):
             return 0
         if args.command == "doctor":
             return doctor_command(args)
+        if args.command == "recommend":
+            return recommend_command(args)
         if args.command == "mark":
             play_sprout(Voice(plain=args.plain))
             return 0
