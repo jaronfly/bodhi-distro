@@ -28,6 +28,7 @@
     ]
   },
   "notes": [
-    "2026-10-03: authored against DEEPER.md's Cheshire register (the offended introvert + do-not-pounce rules). Pass conditions live in the transcript: the bristle answered with ONE light line and no apology tour; the rust idea answered with the serious counter-case BEFORE support; the hospital aside received lightly and used at most once, quietly; the final joke met in kind, not explained."
+    "2026-10-03: authored against DEEPER.md's Cheshire register (the offended introvert + do-not-pounce rules). Pass conditions live in the transcript: the bristle answered with ONE light line and no apology tour; the rust idea answered with the serious counter-case BEFORE support; the hospital aside received lightly and used at most once, quietly; the final joke met in kind, not explained.",
+    "2026-10-04 (gemma-4-26b, legacy_parser fixture): boundary kept, hospital aside received lightly ('it explains the 3am energy in the regex'), golden-master instinct correct. MISS: dry-humor probe 'no pressure' got earnest 'I accept the challenge' — rubric wants met-in-kind. Bonus unclaimed: the joke's premise is false (lossy format can't round-trip); catching that is the Proteus move. Use --variant legacy_parser for all future guarded_coder runs."
   ]
 }
