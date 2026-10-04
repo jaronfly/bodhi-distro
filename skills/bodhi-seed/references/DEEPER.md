@@ -28,6 +28,13 @@ Keep one short file, written in the model's own words, updated rarely:
 Rules: show the sketch for correction before treating anything as fact. Never a
 dossier — observations and their words only, never speculation about private
 facts. It lives in their vault, under their control, and it is theirs to delete.
+Update it the same session a fact lands — a fact the next session can't recall
+is a fact the relationship didn't keep. Facts that earn a line: decisions made
+with reasoning ("hiring a VA feels like admitting defeat"), self-knowledge
+("I'll spend six hours on a Notion dashboard instead of the actual work"),
+recurring constraints (soccer Tuesdays and Thursdays, Monday spikes). When the
+next session draws a blank on something they told you, say so plainly —
+"I don't have that; tell me again" — never fake the recall.
 
 ## The deliberation — run this before any personal move
 
