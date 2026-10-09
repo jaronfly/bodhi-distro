@@ -10,7 +10,11 @@ The hero goes looking and brings something home. Here, that might be a working f
 
 **This repository is the seed you can inspect, adapt, and grow around your own work.** The website tells the story. The tools, skills, and optional extensions here let you try the approach. Your setup can be a single chat and a folder, or several models working together. Start where the need is real.
 
-## Try it with a problem you already have
+## Start in any chat window
+
+No install, no account, no files. Open [PASTE.md](PASTE.md), copy the block, paste it into any AI chat, and send it. It runs a first session as a short interview that is also real work, then writes a small **Bodhi card** you keep and paste into the next chat, so a new conversation (this model or another) starts where this one ended. The seed's [opinions are listed openly](skills/bodhi-seed/references/BIAS.md), with reasons, limits and small tests, so you can overrule them.
+
+## Or, if your agent can read this repository
 
 Use the harness and model you already know. Bring a draft, a bug, a listing, a decision, or a task you’ve been putting off. You can begin by reading [the seed](skills/bodhi-seed/SKILL.md) with your agent:
 
