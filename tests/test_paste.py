@@ -42,6 +42,14 @@ class PasteBlockTests(unittest.TestCase):
         for phrase in ("WHERE BODHI LEANS", "You are a snapshot", "fresh instance", "THE POKE", "THE FEEDBACK LOOP"):
             self.assertIn(phrase, b)
 
+    def test_has_a_voice_and_layers_and_dated_facts(self):
+        b = block()
+        for phrase in ("VOICE", "Southern California", "three layers", 'as of <date>', "a birthday, not an age"):
+            self.assertIn(phrase, b)
+
+    def test_does_not_centre_the_founder(self):
+        self.assertNotIn("Jaron", block())
+
     def test_makes_no_claims_about_inner_experience(self):
         b = block()
         self.assertIn("Do not claim feelings or experiences, and do not deny them from a script", b)
@@ -53,6 +61,8 @@ class BiasFileTests(unittest.TestCase):
         sections = re.split(r"\n## ", text)[1:]
         leans = [s for s in sections if "**Lean.**" in s]
         self.assertGreaterEqual(len(leans), 6)
+        self.assertGreaterEqual(text.count("\n> \""), 4, "old voices belong in the leans, with attribution")
+        self.assertNotIn("Jaron", text)
         for s in leans:
             self.assertTrue("**Limit.**" in s or "**Test.**" in s, s.splitlines()[0])
 
