@@ -1,6 +1,6 @@
 # Before the repository goes public
 
-**Status reconciliation, October 8, 2026:** this is the preserved September 30 audit. The repository now contains an AGPL-3.0 `LICENSE`; the historical unchecked license item below is superseded. Repository visibility remains private as checked today. The remaining publication and source-review items have not been completed by this documentation pass.
+**Status reconciliation, October 8, 2026:** this is the preserved September 30 audit. The repository now contains an AGPL-3.0 `LICENSE`; the historical unchecked license item below is superseded. GitHub reported the repository **public** at 2026-10-09 06:38:58 UTC (October 8, 23:38:58 PDT), and anonymous reads of `PASTE.md` and `LICENSE` returned HTTP 200 matching main at `7622fdfa7ee844135b1a1098daaf1c2a40e9b5a9`. This supersedes the earlier same-day private-visibility observation. The remaining publication and source-review items have not been completed by this documentation pass.
 
 A checklist for Jaron to work through before switching `jaronfly/bodhi-distro` from private to public. It reports what was found and lays out the choices. **Original audit scope:** this September 30 pass added no license and edited nothing under `sources/`.
 
