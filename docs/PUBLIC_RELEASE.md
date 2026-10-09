@@ -1,6 +1,8 @@
 # Before the repository goes public
 
-A checklist for Jaron to work through before switching `jaronfly/bodhi-distro` from private to public. It reports what was found and lays out the choices. **Nothing here has been decided for you:** no license was added, and nothing under `sources/` was edited.
+**Status reconciliation, October 8, 2026:** this is the preserved September 30 audit. The repository now contains an AGPL-3.0 `LICENSE`; the historical unchecked license item below is superseded. Repository visibility remains private as checked today. The remaining publication and source-review items have not been completed by this documentation pass.
+
+A checklist for Jaron to work through before switching `jaronfly/bodhi-distro` from private to public. It reports what was found and lays out the choices. **Original audit scope:** this September 30 pass added no license and edited nothing under `sources/`.
 
 **What was scanned, 2026-09-30:**
 

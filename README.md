@@ -1,24 +1,46 @@
-# Bodhi v0.01 — seed pilot
+# Bodhi (Seed)
 
-**Home: [bodhi.fyi](https://bodhi.fyi)**
+**Rapport > Context** · [The experience at bodhi.fyi](https://bodhi.fyi)
 
-**In 30 seconds.** Bodhi is a practice for working with AI, not an app. It comes down to a few habits: write things down, keep exact words, check claims against evidence, and sign your work. The seed is a small skill that teaches those habits to the AI tool you already use, such as Claude Code, Codex, Hermes, or OpenClaw. It adds an optional local folder, the vault, that keeps your exact notes and handoffs in Git. It installs no model and no service, and it never asks for your keys. You, the human it grows around, are called **Player One**.
+Bodhi starts with **Player One: you**, the person with a life, a problem, and a reason for opening the conversation. The seed gives that conversation somewhere to begin. What matters here? What are we trying to make? What happened last time? What should we question?
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/jaronfly/bodhi-distro/main/install.sh | bash
+It grew from Jaron Flynn’s experiments with a strange collaborator: an excellent, flawed actor willing to stay in a world with you. A writer and film production worker trying to stay literate as the tools change. A conversation that became rapport, then a contingency plan for carrying worthwhile work forward.
+
+The hero goes looking and brings something home. Here, that might be a working file, a source, a better question, or an honest failure. The next voice gets something it can use and disagree with. A shared past gives different voices ground to build on; it doesn’t have to give them the same answers.
+
+**This repository is the seed you can inspect, adapt, and grow around your own work.** The website tells the story. The tools, skills, and optional extensions here let you try the approach. Your setup can be a single chat and a folder, or several models working together. Start where the need is real.
+
+## Try it with a problem you already have
+
+Use the harness and model you already know. Bring a draft, a bug, a listing, a decision, or a task you’ve been putting off. You can begin by reading [the seed](skills/bodhi-seed/SKILL.md) with your agent:
+
+```text
+Read the Bodhi seed with me. Tell me what you can actually load here.
+Here is the work I want help with: [your task].
+Ask what is missing. Give me your reasons and room to disagree.
+Keep the original material and my corrections attached to the work.
+Leave a useful next step that another conversation can check.
+Ask before installing anything or changing my setup.
 ```
 
-That one line works once this repository is public. While it is private, an anonymous download fails, so clone it with your GitHub access and run the installer from the clone:
+Then do one small piece of real work. Open the result. Correct it. Start a fresh conversation and see whether it can pick up the actual task, including the correction. Compare this with your usual approach; include the effort of keeping the notes. If the extra machinery gets in your way, simplify it.
 
-```sh
-git clone https://github.com/jaronfly/bodhi-distro.git && cd bodhi-distro && ./install.sh
-```
+The [first-session guide](skills/bodhi-seed/references/FIRST_BOOT.md), [five possible first tasks](templates/vault/FIRST_TASKS.md), and [trial protocol](evals/TRIAL.md) give you concrete doors. Choose another if those don’t fit. Bodhi is a question you can work on, and a philosophy you can argue with.
 
-The installer looks at your computer first and asks before every change. `--dry-run` shows the plan without changing anything. Afterwards, `bin/bodhi.py doctor` checks what is installed, `./install.sh --update` refreshes it, and `./install.sh --uninstall` removes only what the installer recorded. A stranger's walkthrough, with a glossary, troubleshooting, and the privacy and accessibility notes, is in [docs/ONBOARDING_UX.md](docs/ONBOARDING_UX.md).
+## Choose how it travels
 
-This repository is a small, runnable starting point for **Player One**, the human founding a Bodhi instance, and the agents who work with them. The portable [Bodhi seed skill](skills/bodhi-seed/SKILL.md) gives an existing AI harness a first-meeting conversation and a set of useful working habits. A local Git vault is optional when Player One needs exact-source custody and a shared handoff trail. Neither path installs a model, browser recorder, or background service.
+| Your starting point | A useful next step |
+|---|---|
+| An existing chat or coding session | Read the seed together and try one task before adding infrastructure. |
+| A harness that supports skills or plugins | Use its own loader, then verify the seed was read: [installation paths](docs/INSTALL.md). |
+| Context that keeps disappearing | Keep exact source and an attributed return note; add the [optional vault](#optional-exact-source-vault) when ordinary files help. |
+| Several models or sessions | Try the [relay](bin/bodhi.py) and the optional coordination skills after you have something real to pass between them. |
 
-The name **Player One** comes from [Jaron's direct terminology choice](sources/origin/PLAYER_ONE_2026-09-24.md). The original system's [Hello World](sources/origin/HELLO_WORLD.md) states the broader aim. These are attributed sources. A fresh installation starts from the new person's answers and observations, not Jaron's personal canon.
+Skills advertise an ability or a way to work. Extensions make useful routines available through a harness. Neither needs to become a wall of commandments. Keep what helps, let it be questioned, and retire the generic seed as your own context takes shape. Tool access and permissions remain with your harness.
+
+The repository is currently access-controlled; use your existing GitHub access to inspect it. A missing source is a reason to ask for access, not to invent what it says. [docs/INSTALL.md](docs/INSTALL.md) separates documented installation paths from the ones actually exercised. The installer and local vault are optional; inspect them and use the dry run before changing your setup.
+
+The name [Player One](sources/origin/PLAYER_ONE_2026-09-24.md) and the original [Hello World](sources/origin/HELLO_WORLD.md) preserve the founding voice. A new instance begins with its own person. The founder’s archive is here to inspect, not a life you have to inherit.
 
 ## One command, with Hermes
 
@@ -106,7 +128,7 @@ For a noninteractive trial, pass `--answers path/to/answers.json` to `init`. Run
 
 ## Fork it, improve it, or point us elsewhere
 
-Bodhi is one person's practice, grown with a fleet of models, and it is offered as a question more than an answer. Developers are invited to fork or improve the philosophy or any single tool: the setup session, the relay, replay, the vault, or one skill reference. If a project already does one of these jobs better, open an issue that names it, so it can be learned from or integrated. The [first fleet's tools](skills/bodhi-seed/references/FLEET_TOOLS.md#fork-it-improve-it-or-point-elsewhere) end with a list of known alternatives by function, and [existing paths](docs/EXISTING_PATHS.md) records the neighbors the seed already borrows from. Both lists are incomplete. No reuse license has been chosen yet, so forking on GitHub works under GitHub's terms, but other reuse rights are unclear until one is; see [before the repository goes public](docs/PUBLIC_RELEASE.md).
+Bodhi is one person's practice, grown with a fleet of models, and it is offered as a question more than an answer. Developers are invited to fork or improve the philosophy or any single tool: the setup session, the relay, replay, the vault, or one skill reference. If a project already does one of these jobs better, open an issue that names it, so it can be learned from or integrated. The [first fleet's tools](skills/bodhi-seed/references/FLEET_TOOLS.md#fork-it-improve-it-or-point-elsewhere) end with a list of known alternatives by function, and [existing paths](docs/EXISTING_PATHS.md) records the neighbors the seed already borrows from. Both lists are incomplete. The current code license is [AGPL-3.0](LICENSE). The [release review](docs/PUBLIC_RELEASE.md) retains the earlier provenance and publication checklist.
 
 The full Bodhi Bible remains in the original Brain. This pilot carries only the verbatim founding section, still marked **draft and unratified**. Later addenda include extended third-party quotations and personal material. The installer does not inject even the founding section into a new person's agent prompt.
 
@@ -114,7 +136,7 @@ The full Bodhi Bible remains in the original Brain. This pilot carries only the 
 
 The vault CLI can initialize a versioned local space, complete a first-session handoff, capture an exact source, find unattended captures, and record a review with provenance. [Smoke evidence](evals/SMOKE_2026-09-24.md) records the checks and an early local-model failure. Six [synthetic Hermes loops](evals/FINDINGS_2026-09-24.md) showed the seed greeting and useful artifacts, but also exposed premature building, drift away from Player One's latest choice, and unsupported precise figures. [Matched five-turn trials](evals/FINDINGS_2026-09-25.md) found that the older seed also resumed the chosen listing task; no tested seed version stopped premature building. Local Groundhog runs found a fabricated quote in an onboarding record. These are failure-finding trials, not proof of benefit for a new person. Autonomous mining, cross-harness continuity, model quality, and a useful long-term relationship still need real-user trials and receipts. The relay gives cross-harness continuity a mechanism with unit tests; no second harness has yet used it in a fresh-session trial.
 
-No public reuse license has been selected for this private pilot. The copied source documents retain their own authorship and draft status.
+The code’s current license is [AGPL-3.0](LICENSE). Copied source documents retain their own authorship and draft status; the license choice does not turn those documents into a new person’s canon.
 
 
 ## What grows from the seed
