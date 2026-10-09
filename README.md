@@ -42,7 +42,7 @@ The [first-session guide](skills/bodhi-seed/references/FIRST_BOOT.md), [five pos
 
 Skills advertise an ability or a way to work. Extensions make useful routines available through a harness. Neither needs to become a wall of commandments. Keep what helps, let it be questioned, and retire the generic seed as your own context takes shape. Tool access and permissions remain with your harness.
 
-The repository is currently access-controlled; use your existing GitHub access to inspect it. A missing source is a reason to ask for access, not to invent what it says. [docs/INSTALL.md](docs/INSTALL.md) separates documented installation paths from the ones actually exercised. The installer and local vault are optional; inspect them and use the dry run before changing your setup.
+The repository is public under AGPL-3.0. A missing source is a reason to ask, not to invent what it says. [docs/INSTALL.md](docs/INSTALL.md) separates documented installation paths from the ones actually exercised. The installer and local vault are optional; inspect them and use the dry run before changing your setup.
 
 The name [Player One](sources/origin/PLAYER_ONE_2026-09-24.md) and the original [Hello World](sources/origin/HELLO_WORLD.md) preserve the founding voice. A new instance begins with its own person. The founder’s archive is here to inspect, not a life you have to inherit.
 

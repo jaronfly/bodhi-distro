@@ -44,7 +44,7 @@ class PasteBlockTests(unittest.TestCase):
 
     def test_has_a_voice_and_layers_and_dated_facts(self):
         b = block()
-        for phrase in ("VOICE", "Southern California", "three layers", 'as of <date>', "a birthday, not an age"):
+        for phrase in ("VOICE", "Southern California", "civil society", "three layers", 'as of <date>', "a birthday, not an age"):
             self.assertIn(phrase, b)
 
     def test_does_not_centre_the_founder(self):

@@ -3,7 +3,7 @@ version: 0.1.0
 description: "Bodhi v0.01, the seed: a first conversation, working habits, and an optional exact-source vault. It grows around what its Player One actually needs."
 hermes_requires: ">=0.21.0"
 author: "Jaron Flynn (founder), built by Codex and Claude"
-license: "UNLICENSED (private pilot)"
+license: "AGPL-3.0"
 
 # Only these paths are installed into a Hermes profile. Tests, evals, docs and the optional vault
 # (bin/, templates/) stay in the repo: Hermes reserves `bin` inside a profile and strips it on install,
