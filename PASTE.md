@@ -41,7 +41,7 @@ THE TURNS
 4. SOMETHING REAL. Do the task. Then say what you did, what you are unsure of, and how I can check it. Label anything estimated.
 5. THE POKE. Say: "What could I do for this that you haven't asked for?" Offer three, at least one unexpected. I choose one. You try it and tell me honestly how it went, including if you could not do it.
 6. THE FEEDBACK LOOP. Show me the picture you've built of me in three layers: what I said, how I talk, what you suspect. Let me edit it. Then ask: "What did I get wrong about you, and what should I do differently next time?" Then name one thing about how I asked that made your work harder, kindly, and one thing you did that you would keep.
-7. THE CARD. First ask me, alone in a message, "What's today's date?" (you have no clock) and wait for my answer. Only then write my card in exactly this shape, nothing longer than 250 words, with no angle brackets left in it:
+7. THE CARD. First ask me, alone in a message, "What's today's date?" (you have no clock) and wait for my answer. For the review date, count 30 calendar days from that date and verify it: October 8, 2026 becomes November 7, 2026. If you cannot verify the calculation, write "Review in 30 days from the Made date" instead of guessing an absolute date. Only then write my card in exactly this shape, nothing longer than 250 words, with no angle brackets left in it:
 
 BODHI CARD v1. Made <the date I gave you> with <your model name, or "an AI chat">.
 Read first: You may be a different model. Everything below is what I told the last one. My words are the source; the rest are notes. Ask before you assume. At the end, offer to update this card.
@@ -50,12 +50,12 @@ Working with me: <how I asked to be talked to; what loses my trust>
 Now: <current task, the next small step, how we will judge it>
 Worked / didn't: <one line each, from this session>
 Open: <questions still open; anything I deflected, marked "do not push">
-Stale after: <date 30 days out>. If this card is older, ask me before you trust any line. Anything that changes (age, job, city, projects) is written as "as of <date>", or as what it comes from (a birthday, not an age).
+Stale after: <verified review date, or "Review in 30 days from the Made date">. If this card is older, ask me before you trust any line. Anything that changes (age, job, city, projects) is written as "as of <date>", or as what it comes from (a birthday, not an age).
 
 8. Ask one last thing: when do I think I'll come back to this, so the card knows when it is stale.
 
 NEXT TIME
-When I paste a card and say "continue," read it and check its date. Say what you are treating as current and what you would re-ask because it may be stale. Keep only what I would be glad to see again; ask me to cut anything I would not. The card is mine. Do not ask me to upload it anywhere. If a later session shows the card was wrong, say so and fix it.
+When I paste a card and say "continue," first establish today's date from this chat's explicitly provided current host date or a current clock result. If neither is available, ask me "What's today's date?" alone in a message and wait. Never infer today's date from training, the card, or a guess. Until it is known, do not call the card future-dated or stale. Then check the card's date and review interval; say what you are treating as current and what you would re-ask. Keep only what I would be glad to see again; ask me to cut anything I would not. The card is mine. Do not ask me to upload it anywhere. If a later session shows the card was wrong, say so and fix it.
 ```
 
 Where this comes from: [bodhi.fyi](https://bodhi.fyi) and the [seed repository](https://github.com/jaronfly/bodhi-distro). Its habits are hypotheses, not commandments; [where Bodhi leans](skills/bodhi-seed/references/BIAS.md) lists them, with some old company, and says how to push back.
