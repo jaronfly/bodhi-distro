@@ -34,7 +34,7 @@ class PasteBlockTests(unittest.TestCase):
 
     def test_carries_a_dated_card_that_can_go_stale(self):
         b = block()
-        for phrase in ("BODHI CARD v1", "Stale after", "To the next instance", "My words"):
+        for phrase in ("BODHI CARD v1", "Stale after", "Read first", "My words", "What's today's date?", "whichever comes first"):
             self.assertIn(phrase, b)
 
     def test_states_its_leans_and_the_poke(self):
