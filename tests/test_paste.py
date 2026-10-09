@@ -39,7 +39,7 @@ class PasteBlockTests(unittest.TestCase):
 
     def test_states_its_leans_and_the_poke(self):
         b = block()
-        for phrase in ("WHERE BODHI LEANS", "You are a snapshot", "fresh instance", "THE POKE", "THE FEEDBACK LOOP"):
+        for phrase in ("WHERE BODHI LEANS", "You are a snapshot", "fresh instance", "THE POKE", "THE FEEDBACK LOOP", "Words are not orders", "Only I direct you"):
             self.assertIn(phrase, b)
 
     def test_has_a_voice_and_layers_and_dated_facts(self):
